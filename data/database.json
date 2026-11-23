@@ -536,6 +536,44 @@
         "Curd",
         "Payasam"
       ]
+    },
+    {
+      "id": "col-50e77496-07ef-4b86-abe1-45a6da468111",
+      "student_id": "student-demo-1",
+      "student_name": "Rahul Sharma",
+      "student_phone": "9876543210",
+      "meal_id": "meal-snacks",
+      "meal_type": "SNACKS",
+      "collection_date": "2026-11-23",
+      "collected_at": "2026-11-23T15:54:46.821Z",
+      "food_items_snapshot": [
+        "Samosa",
+        "Parippu Vada",
+        "Banana Fry",
+        "Puffs",
+        "Tea",
+        "Coffee",
+        "Sandwich"
+      ]
+    },
+    {
+      "id": "col-2ba25a53-4cc8-46d0-ab8c-0cd9c43ae584",
+      "student_id": "student-demo-1",
+      "student_name": "Rahul Sharma",
+      "student_phone": "9876543210",
+      "meal_id": "meal-dinner",
+      "meal_type": "DINNER",
+      "collection_date": "2026-11-23",
+      "collected_at": "2026-11-23T15:55:23.419Z",
+      "food_items_snapshot": [
+        "Chapati",
+        "Porotta",
+        "Chicken Curry",
+        "Egg Curry",
+        "Vegetable Curry",
+        "Fried Rice",
+        "Ghee Rice"
+      ]
     }
   ],
   "billing_settings": {
@@ -561,18 +599,18 @@
       "year": 2026,
       "breakfast_count": 19,
       "lunch_count": 21,
-      "snacks_count": 14,
-      "dinner_count": 22,
-      "total_meals": 76,
+      "snacks_count": 15,
+      "dinner_count": 23,
+      "total_meals": 78,
       "billing_mode": "PER_MEAL",
-      "base_amount": 5000,
+      "base_amount": 5120,
       "late_fee": 0,
-      "total_amount": 5000,
+      "total_amount": 5120,
       "paid_amount": 4600,
-      "balance_amount": 400,
+      "balance_amount": 520,
       "payment_status": "PARTIALLY_PAID",
       "generated_at": "2026-11-20T15:21:18.084Z",
-      "updated_at": "2026-11-23T15:47:41.079Z"
+      "updated_at": "2026-11-23T15:55:23.421Z"
     },
     {
       "id": "bill-demo-2",
