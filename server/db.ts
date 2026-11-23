@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import os from 'os';
 import crypto from 'crypto';
 import bcrypt from 'bcryptjs';
 import {
@@ -30,6 +31,7 @@ interface DatabaseSchema {
 
 const DB_DIR = path.resolve(process.cwd(), 'data');
 const DB_FILE = path.join(DB_DIR, 'database.json');
+const TMP_FILE = path.join(os.tmpdir(), 'hostel_mess_database.json');
 
 export function hashPassword(plainText: string): string {
   return bcrypt.hashSync(plainText, 10);
@@ -658,17 +660,32 @@ class Database {
   }
 
   private ensureDirectory() {
-    if (!fs.existsSync(DB_DIR)) {
-      fs.mkdirSync(DB_DIR, { recursive: true });
+    try {
+      if (!fs.existsSync(DB_DIR)) {
+        fs.mkdirSync(DB_DIR, { recursive: true });
+      }
+    } catch {
+      // In serverless environments DB_DIR may be read-only
     }
   }
 
   private load(): DatabaseSchema {
+    // 1. Check tmp file (written during serverless runtime)
+    if (fs.existsSync(TMP_FILE)) {
+      try {
+        const raw = fs.readFileSync(TMP_FILE, 'utf-8');
+        const parsed = JSON.parse(raw);
+        if (parsed && parsed.students && parsed.students.length > 0) {
+          return parsed;
+        }
+      } catch {}
+    }
+
+    // 2. Read bundled DB_FILE
     if (fs.existsSync(DB_FILE)) {
       try {
         const raw = fs.readFileSync(DB_FILE, 'utf-8');
         const parsed = JSON.parse(raw);
-        // Ensure food items have price
         if (parsed.food_items && parsed.food_items.length >= 25) {
           return parsed;
         }
@@ -687,9 +704,15 @@ class Database {
 
   private saveDirect(payload: DatabaseSchema) {
     try {
+      this.ensureDirectory();
       fs.writeFileSync(DB_FILE, JSON.stringify(payload, null, 2), 'utf-8');
     } catch (err) {
-      console.error('Error saving database file', err);
+      // Fallback for read-only filesystem (e.g. Vercel serverless /tmp)
+      try {
+        fs.writeFileSync(TMP_FILE, JSON.stringify(payload, null, 2), 'utf-8');
+      } catch (tmpErr) {
+        console.error('Error saving database to tmp', tmpErr);
+      }
     }
   }
 
