@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import { apiRouter } from '../server/api';
@@ -10,14 +10,19 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-// Handle both /api-prefixed and stripped URLs forwarded by Vercel
-app.use((req, _res, next) => {
-  if (req.url.startsWith('/api')) {
-    req.url = req.url.replace(/^\/api/, '') || '/';
-  }
-  next();
+// Health check endpoint
+app.get('/api/health', (_req: Request, res: Response) => {
+  res.json({ status: 'ok', time: new Date().toISOString() });
 });
 
+// Mount the API router on both /api and root
+app.use('/api', apiRouter);
 app.use('/', apiRouter);
+
+// Global Error Handler
+app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
+  console.error('API Error:', err);
+  res.status(500).json({ error: err?.message || 'Internal Server Error' });
+});
 
 export default app;

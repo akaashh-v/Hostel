@@ -652,10 +652,11 @@ class Database {
   constructor() {
     this.ensureDirectory();
     this.data = this.load();
-    // Ensure all demo food items are present with prices
     if (!this.data.food_items || this.data.food_items.length < 20) {
       this.data.food_items = DEMO_FOOD_ITEMS;
-      this.save();
+    }
+    if (!this.data.sessions) {
+      this.data.sessions = {};
     }
   }
 
@@ -671,43 +672,50 @@ class Database {
 
   private load(): DatabaseSchema {
     // 1. Check tmp file (written during serverless runtime)
-    if (fs.existsSync(TMP_FILE)) {
-      try {
+    try {
+      if (fs.existsSync(TMP_FILE)) {
         const raw = fs.readFileSync(TMP_FILE, 'utf-8');
         const parsed = JSON.parse(raw);
         if (parsed && parsed.students && parsed.students.length > 0) {
+          if (!parsed.sessions) parsed.sessions = {};
           return parsed;
         }
-      } catch {}
-    }
+      }
+    } catch {}
 
     // 2. Read bundled DB_FILE
-    if (fs.existsSync(DB_FILE)) {
-      try {
+    try {
+      if (fs.existsSync(DB_FILE)) {
         const raw = fs.readFileSync(DB_FILE, 'utf-8');
         const parsed = JSON.parse(raw);
-        if (parsed.food_items && parsed.food_items.length >= 25) {
+        if (parsed && parsed.food_items && parsed.food_items.length >= 25) {
+          if (!parsed.sessions) parsed.sessions = {};
           return parsed;
         }
-        parsed.food_items = DEMO_FOOD_ITEMS;
-        this.saveDirect(parsed);
-        return parsed;
-      } catch (err) {
-        console.error('Error reading database file, using defaults', err);
-        return JSON.parse(JSON.stringify(DEFAULT_DB));
       }
+    } catch (err) {
+      console.error('Error reading database file, using defaults', err);
     }
+
     const fresh = JSON.parse(JSON.stringify(DEFAULT_DB));
-    this.saveDirect(fresh);
+    if (!fresh.sessions) fresh.sessions = {};
     return fresh;
   }
 
   private saveDirect(payload: DatabaseSchema) {
+    if (process.env.VERCEL) {
+      try {
+        fs.writeFileSync(TMP_FILE, JSON.stringify(payload, null, 2), 'utf-8');
+      } catch (tmpErr) {
+        console.error('Error saving database to tmp', tmpErr);
+      }
+      return;
+    }
+
     try {
       this.ensureDirectory();
       fs.writeFileSync(DB_FILE, JSON.stringify(payload, null, 2), 'utf-8');
     } catch (err) {
-      // Fallback for read-only filesystem (e.g. Vercel serverless /tmp)
       try {
         fs.writeFileSync(TMP_FILE, JSON.stringify(payload, null, 2), 'utf-8');
       } catch (tmpErr) {
@@ -1055,13 +1063,14 @@ class Database {
   public createSession(userId: string, role: 'student' | 'admin'): string {
     const token = generateToken();
     const expiresAt = new Date(Date.now() + 30 * 86400000).toISOString();
+    if (!this.data.sessions) this.data.sessions = {};
     this.data.sessions[token] = { userId, role, expiresAt };
     this.save();
     return token;
   }
 
   public validateSession(token?: string): { userId: string; role: 'student' | 'admin' } | null {
-    if (!token || !this.data.sessions[token]) return null;
+    if (!token || !this.data || !this.data.sessions || !this.data.sessions[token]) return null;
     const session = this.data.sessions[token];
     if (new Date(session.expiresAt).getTime() < Date.now()) {
       delete this.data.sessions[token];
@@ -1072,7 +1081,7 @@ class Database {
   }
 
   public removeSession(token?: string) {
-    if (token && this.data.sessions[token]) {
+    if (token && this.data && this.data.sessions && this.data.sessions[token]) {
       delete this.data.sessions[token];
       this.save();
     }
