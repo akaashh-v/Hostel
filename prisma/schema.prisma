@@ -1,0 +1,256 @@
+// Prisma Schema for HOSTEL MESS Management System
+// Database: PostgreSQL
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  STUDENT
+  ADMIN
+}
+
+enum UserStatus {
+  ACTIVE
+  DEACTIVATED
+}
+
+enum MealCategory {
+  BREAKFAST
+  LUNCH
+  SNACKS
+  DINNER
+}
+
+enum FoodCategory {
+  VEG
+  NON_VEG
+  EGG
+}
+
+enum BillingMode {
+  FIXED
+  PER_MEAL
+}
+
+enum PaymentStatus {
+  PENDING
+  PARTIALLY_PAID
+  PAID
+}
+
+enum PaymentMethod {
+  UPI
+  CASH
+  BANK_TRANSFER
+  CARD
+}
+
+model User {
+  id           String          @id @default(uuid())
+  phoneNumber  String          @unique @map("phone_number")
+  passwordHash String          @map("password_hash")
+  role         Role            @default(STUDENT)
+  status       UserStatus      @default(ACTIVE)
+  createdAt    DateTime        @default(now()) @map("created_at")
+  updatedAt    DateTime        @updatedAt @map("updated_at")
+
+  profile      StudentProfile?
+  collections  MealCollection[]
+  bills        MonthlyBill[]
+  payments     Payment[]
+  activityLogs AdminActivityLog[]
+
+  @@map("users")
+}
+
+model StudentProfile {
+  id          String   @id @default(uuid())
+  userId      String   @unique @map("user_id")
+  fullName    String   @map("full_name")
+  phoneNumber String   @unique @map("phone_number")
+  roomNumber  String?  @map("room_number")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("student_profiles")
+}
+
+model MenuItem {
+  id          String         @id @default(uuid())
+  name        String
+  description String?
+  price       Decimal        @default(0.0) @db.Decimal(10, 2)
+  mealType    MealCategory   @map("meal_type")
+  category    FoodCategory   @default(VEG)
+  imageUrl    String?        @map("image_url")
+  isAvailable Boolean        @default(true) @map("is_available")
+  servingDate String?        @map("serving_date") // Optional ISO date (YYYY-MM-DD)
+  createdAt   DateTime       @default(now()) @map("created_at")
+  updatedAt   DateTime       @updatedAt @map("updated_at")
+
+  dailyItems  DailyMenuItem[]
+
+  @@index([mealType])
+  @@index([servingDate])
+  @@map("menu_items")
+}
+
+model DailyMenu {
+  id        String         @id @default(uuid())
+  menuDate  String         @map("menu_date") // YYYY-MM-DD
+  mealType  MealCategory   @map("meal_type")
+  notes     String?
+  createdAt DateTime       @default(now()) @map("created_at")
+  updatedAt DateTime       @updatedAt @map("updated_at")
+
+  items     DailyMenuItem[]
+
+  @@unique([menuDate, mealType])
+  @@index([menuDate])
+  @@map("daily_menus")
+}
+
+model DailyMenuItem {
+  id          String    @id @default(uuid())
+  dailyMenuId String    @map("daily_menu_id")
+  menuItemId  String    @map("menu_item_id")
+
+  dailyMenu DailyMenu @relation(fields: [dailyMenuId], references: [id], onDelete: Cascade)
+  menuItem  MenuItem  @relation(fields: [menuItemId], references: [id], onDelete: Cascade)
+
+  @@unique([dailyMenuId, menuItemId])
+  @@map("daily_menu_items")
+}
+
+// Critical Database Protection:
+// Unique constraint on studentId + collectionDate + mealCategory
+model MealCollection {
+  id                  String       @id @default(uuid())
+  studentId           String       @map("student_id")
+  studentNameSnapshot String       @map("student_name_snapshot")
+  mealCategory        MealCategory @map("meal_category")
+  collectionDate      String       @map("collection_date") // YYYY-MM-DD (Asia/Kolkata)
+  collectedAt         DateTime     @default(now()) @map("collected_at")
+  foodItemsSnapshot   String[]     @default([]) @map("food_items_snapshot")
+  createdAt           DateTime     @default(now()) @map("created_at")
+
+  student User @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@unique([studentId, collectionDate, mealCategory], name: "unique_student_meal_per_day")
+  @@index([collectionDate, mealCategory])
+  @@index([studentId])
+  @@map("meal_collections")
+}
+
+model BillingConfiguration {
+  id               String      @id @default("default-config")
+  mode             BillingMode @default(PER_MEAL)
+  fixedMonthlyRate Decimal     @default(3000.0) @map("fixed_monthly_rate") @db.Decimal(10, 2)
+  breakfastRate    Decimal     @default(45.0) @map("breakfast_rate") @db.Decimal(10, 2)
+  lunchRate        Decimal     @default(85.0) @map("lunch_rate") @db.Decimal(10, 2)
+  snacksRate       Decimal     @default(35.0) @map("snacks_rate") @db.Decimal(10, 2)
+  dinnerRate       Decimal     @default(85.0) @map("dinner_rate") @db.Decimal(10, 2)
+  lateFeeAmount    Decimal     @default(100.0) @map("late_fee_amount") @db.Decimal(10, 2)
+  updatedAt        DateTime    @updatedAt @map("updated_at")
+
+  @@map("billing_configurations")
+}
+
+model MonthlyBill {
+  id                 String        @id @default(uuid())
+  studentId          String        @map("student_id")
+  billingMonth       Int           @map("billing_month") // 1-12
+  billingYear        Int           @map("billing_year")
+  billingMode        BillingMode   @map("billing_mode")
+  breakfastCount     Int           @default(0) @map("breakfast_count")
+  lunchCount         Int           @default(0) @map("lunch_count")
+  snacksCount        Int           @default(0) @map("snacks_count")
+  dinnerCount        Int           @default(0) @map("dinner_count")
+  totalMeals         Int           @default(0) @map("total_meals")
+  fixedFee           Decimal       @default(0.0) @map("fixed_fee") @db.Decimal(10, 2)
+  consumptionAmount  Decimal       @default(0.0) @map("consumption_amount") @db.Decimal(10, 2)
+  lateFee            Decimal       @default(0.0) @map("late_fee") @db.Decimal(10, 2)
+  totalAmount        Decimal       @default(0.0) @map("total_amount") @db.Decimal(10, 2)
+  paidAmount         Decimal       @default(0.0) @map("paid_amount") @db.Decimal(10, 2)
+  balanceAmount      Decimal       @default(0.0) @map("balance_amount") @db.Decimal(10, 2)
+  paymentStatus      PaymentStatus @default(PENDING) @map("payment_status")
+  finalizedAt        DateTime?     @map("finalized_at")
+  createdAt          DateTime      @default(now()) @map("created_at")
+  updatedAt          DateTime      @updatedAt @map("updated_at")
+
+  student   User           @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  lineItems BillLineItem[]
+  payments  Payment[]
+
+  @@unique([studentId, billingMonth, billingYear], name: "unique_student_monthly_bill")
+  @@index([billingMonth, billingYear])
+  @@map("monthly_bills")
+}
+
+model BillLineItem {
+  id           String       @id @default(uuid())
+  billId       String       @map("bill_id")
+  mealCategory MealCategory @map("meal_category")
+  count        Int          @default(0)
+  unitRate     Decimal      @map("unit_rate") @db.Decimal(10, 2)
+  subtotal     Decimal      @db.Decimal(10, 2)
+
+  bill MonthlyBill @relation(fields: [billId], references: [id], onDelete: Cascade)
+
+  @@map("bill_line_items")
+}
+
+model Payment {
+  id            String        @id @default(uuid())
+  billId        String        @map("bill_id")
+  studentId     String        @map("student_id")
+  amount        Decimal       @db.Decimal(10, 2)
+  paymentMethod PaymentMethod @default(UPI) @map("payment_method")
+  referenceId   String?       @map("reference_id")
+  notes         String?
+  receivedBy    String        @default("Hostel Mess Administration") @map("received_by")
+  paymentDate   DateTime      @default(now()) @map("payment_date")
+  createdAt     DateTime      @default(now()) @map("created_at")
+
+  bill      MonthlyBill      @relation(fields: [billId], references: [id], onDelete: Cascade)
+  student   User             @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  auditLogs PaymentAuditLog[]
+
+  @@index([billId])
+  @@index([studentId])
+  @@map("payments")
+}
+
+model PaymentAuditLog {
+  id        String   @id @default(uuid())
+  paymentId String   @map("payment_id")
+  action    String // CREATED, MODIFIED, VOIDED
+  changedBy String   @map("changed_by")
+  oldData   Json?    @map("old_data")
+  newData   Json?    @map("new_data")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  payment Payment @relation(fields: [paymentId], references: [id], onDelete: Cascade)
+
+  @@map("payment_audit_logs")
+}
+
+model AdminActivityLog {
+  id        String   @id @default(uuid())
+  adminId   String   @map("admin_id")
+  action    String
+  details   Json?
+  createdAt DateTime @default(now()) @map("created_at")
+
+  admin User @relation(fields: [adminId], references: [id], onDelete: Cascade)
+
+  @@map("admin_activity_logs")
+}
