@@ -1,29 +1,67 @@
-import React, { useState } from 'react';
+import React, { useState, Suspense } from 'react';
 import { useAuth } from './context/AuthContext';
 import { StudentTab, StudentBottomNav } from './components/StudentBottomNav';
 import { AdminTab, AdminSidebar } from './components/AdminSidebar';
 import { Navbar } from './components/Navbar';
+import { Utensils, Loader2 } from 'lucide-react';
 
-// Student Pages
-import { StudentAuth } from './pages/student/StudentAuth';
-import { StudentDashboard } from './pages/student/StudentDashboard';
-import { StudentMenu } from './pages/student/StudentMenu';
-import { StudentHistory } from './pages/student/StudentHistory';
-import { StudentBill } from './pages/student/StudentBill';
-import { StudentProfile } from './pages/student/StudentProfile';
+// Lazy-loaded Student Pages for optimized initial bundle
+const StudentAuth = React.lazy(() =>
+  import('./pages/student/StudentAuth').then(m => ({ default: m.StudentAuth }))
+);
+const StudentDashboard = React.lazy(() =>
+  import('./pages/student/StudentDashboard').then(m => ({ default: m.StudentDashboard }))
+);
+const StudentMenu = React.lazy(() =>
+  import('./pages/student/StudentMenu').then(m => ({ default: m.StudentMenu }))
+);
+const StudentHistory = React.lazy(() =>
+  import('./pages/student/StudentHistory').then(m => ({ default: m.StudentHistory }))
+);
+const StudentBill = React.lazy(() =>
+  import('./pages/student/StudentBill').then(m => ({ default: m.StudentBill }))
+);
+const StudentProfile = React.lazy(() =>
+  import('./pages/student/StudentProfile').then(m => ({ default: m.StudentProfile }))
+);
 
-// Admin Pages
-import { AdminLogin } from './pages/admin/AdminLogin';
-import { AdminDashboard } from './pages/admin/AdminDashboard';
-import { AdminStudents } from './pages/admin/AdminStudents';
-import { AdminMenu } from './pages/admin/AdminMenu';
-import { AdminCollections } from './pages/admin/AdminCollections';
-import { AdminBilling } from './pages/admin/AdminBilling';
-import { AdminPayments } from './pages/admin/AdminPayments';
-import { AdminReports } from './pages/admin/AdminReports';
-import { AdminSettings } from './pages/admin/AdminSettings';
+// Lazy-loaded Admin Pages (includes heavy recharts & xlsx chunks)
+const AdminLogin = React.lazy(() =>
+  import('./pages/admin/AdminLogin').then(m => ({ default: m.AdminLogin }))
+);
+const AdminDashboard = React.lazy(() =>
+  import('./pages/admin/AdminDashboard').then(m => ({ default: m.AdminDashboard }))
+);
+const AdminStudents = React.lazy(() =>
+  import('./pages/admin/AdminStudents').then(m => ({ default: m.AdminStudents }))
+);
+const AdminMenu = React.lazy(() =>
+  import('./pages/admin/AdminMenu').then(m => ({ default: m.AdminMenu }))
+);
+const AdminCollections = React.lazy(() =>
+  import('./pages/admin/AdminCollections').then(m => ({ default: m.AdminCollections }))
+);
+const AdminBilling = React.lazy(() =>
+  import('./pages/admin/AdminBilling').then(m => ({ default: m.AdminBilling }))
+);
+const AdminPayments = React.lazy(() =>
+  import('./pages/admin/AdminPayments').then(m => ({ default: m.AdminPayments }))
+);
+const AdminReports = React.lazy(() =>
+  import('./pages/admin/AdminReports').then(m => ({ default: m.AdminReports }))
+);
+const AdminSettings = React.lazy(() =>
+  import('./pages/admin/AdminSettings').then(m => ({ default: m.AdminSettings }))
+);
 
-import { Utensils } from 'lucide-react';
+const ViewLoadingFallback: React.FC = () => (
+  <div className="flex items-center justify-center min-h-[40vh] p-8">
+    <div className="flex flex-col items-center gap-2.5">
+      <Loader2 className="w-6 h-6 text-emerald-600 animate-spin" />
+      <span className="text-xs font-semibold text-slate-400">Loading view...</span>
+    </div>
+  </div>
+);
 
 export const App: React.FC = () => {
   const { student, admin, isLoading, activePortal } = useAuth();
@@ -54,7 +92,7 @@ export const App: React.FC = () => {
 
       {/* STUDENT PORTAL */}
       {activePortal === 'student' && (
-        <>
+        <Suspense fallback={<ViewLoadingFallback />}>
           {!student ? (
             <StudentAuth />
           ) : (
@@ -128,12 +166,12 @@ export const App: React.FC = () => {
               <StudentBottomNav activeTab={studentTab} onSelectTab={setStudentTab} />
             </main>
           )}
-        </>
+        </Suspense>
       )}
 
       {/* ADMIN PORTAL */}
       {activePortal === 'admin' && (
-        <>
+        <Suspense fallback={<ViewLoadingFallback />}>
           {!admin ? (
             <AdminLogin />
           ) : (
@@ -181,7 +219,7 @@ export const App: React.FC = () => {
               </main>
             </div>
           )}
-        </>
+        </Suspense>
       )}
     </div>
   );
