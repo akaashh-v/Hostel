@@ -1,6 +1,7 @@
-import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
+import React, { createContext, useContext, useEffect, useState, useCallback, useRef } from 'react';
 import { RealtimeEvent } from '../types';
 import { useToast } from './ToastContext';
+import { useAuth } from './AuthContext';
 
 interface RealtimeContextType {
   isConnected: boolean;
@@ -15,6 +16,9 @@ export const RealtimeProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const [lastEvent, setLastEvent] = useState<RealtimeEvent | null>(null);
   const [handlers] = useState<Set<(event: RealtimeEvent) => void>>(new Set());
   const { info } = useToast();
+  const { admin } = useAuth();
+  const adminRef = useRef(admin);
+  adminRef.current = admin;
 
   const subscribe = useCallback((handler: (event: RealtimeEvent) => void) => {
     handlers.add(handler);
@@ -42,7 +46,15 @@ export const RealtimeProvider: React.FC<{ children: React.ReactNode }> = ({ chil
           if (event.type === 'MENU_UPDATED') {
             info(`Menu Updated: ${event.data.name || 'Daily dishes refreshed'}`);
           } else if (event.type === 'COLLECTION_MARKED') {
-            // Handled locally
+            if (adminRef.current) {
+              const studentName = event.data?.student_name || 'A student';
+              const foodName =
+                event.data?.food_item_name ||
+                (event.data?.food_items_snapshot && event.data.food_items_snapshot[0]) ||
+                event.data?.meal_type ||
+                'food tray';
+              info(`🔔 ${studentName} has collected ${foodName}`);
+            }
           }
 
           handlers.forEach(fn => fn(event));

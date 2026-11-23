@@ -907,15 +907,31 @@ class Database {
     mealId: string,
     mealType: MealType,
     date: string,
-    foodItemNames: string[]
+    foodItemNames: string[],
+    foodItemId?: string,
+    foodItemName?: string
   ): { success: boolean; collection?: FoodCollection; error?: string } {
     // Check duplicate collection constraint
-    const existing = this.findCollection(studentId, mealId, date);
-    if (existing) {
-      return {
-        success: false,
-        error: `Food for ${mealType} has already been marked as collected on ${date} at ${new Date(existing.collected_at).toLocaleTimeString()}`
-      };
+    if (foodItemId || foodItemName) {
+      const existing = this.data.food_collections.find(
+        c => c.student_id === studentId &&
+             c.collection_date === date &&
+             ((foodItemId && c.food_item_id === foodItemId) || (foodItemName && (c.food_item_name === foodItemName || c.food_items_snapshot?.includes(foodItemName))))
+      );
+      if (existing) {
+        return {
+          success: false,
+          error: `${foodItemName || 'Item'} has already been collected today at ${new Date(existing.collected_at).toLocaleTimeString()}`
+        };
+      }
+    } else {
+      const existing = this.findCollection(studentId, mealId, date);
+      if (existing) {
+        return {
+          success: false,
+          error: `Food for ${mealType} has already been marked as collected on ${date} at ${new Date(existing.collected_at).toLocaleTimeString()}`
+        };
+      }
     }
 
     const newCollection: FoodCollection = {
@@ -925,9 +941,11 @@ class Database {
       student_phone: studentPhone,
       meal_id: mealId,
       meal_type: mealType,
+      food_item_id: foodItemId,
+      food_item_name: foodItemName,
       collection_date: date,
       collected_at: new Date().toISOString(),
-      food_items_snapshot: foodItemNames
+      food_items_snapshot: foodItemName ? [foodItemName] : foodItemNames
     };
 
     this.data.food_collections.push(newCollection);
@@ -1163,7 +1181,9 @@ export const createStudentSchema = z.object({
 });
 
 export const markCollectionSchema = z.object({
-  meal_id: z.string().min(1, 'meal_id is required')
+  meal_id: z.string().min(1, 'meal_id is required'),
+  food_item_id: z.string().optional(),
+  food_item_name: z.string().optional()
 });
 
 export const foodItemSchema = z.object({
@@ -1532,16 +1552,23 @@ apiRouter.post('/collections/mark', (req: Request, res: Response) => {
     return;
   }
 
-  const { meal_id } = parseResult.data;
-  const meal = db.findMealById(meal_id);
+  const { meal_id, food_item_id, food_item_name } = parseResult.data;
+  let meal = db.findMealById(meal_id);
+  if (!meal) {
+    const allMeals = db.getMeals();
+    meal = allMeals.find(m => m.id === meal_id || m.meal_type === meal_id || `meal-${m.meal_type.toLowerCase()}` === meal_id);
+  }
+
   if (!meal) {
     res.status(404).json({ error: 'Meal not found' });
     return;
   }
 
   const today = getTodayDateString();
-  const currentItems = db.getFoodItems(today).filter(i => i.meal_id === meal.id || i.meal_type === meal.meal_type);
-  const itemNames = currentItems.map(i => i.name);
+  const currentItems = db.getFoodItems(today).filter(i => i.meal_id === meal!.id || i.meal_type === meal!.meal_type);
+  const matchedItem = food_item_id ? currentItems.find(i => i.id === food_item_id) : (food_item_name ? currentItems.find(i => i.name === food_item_name) : undefined);
+  const resolvedFoodName = food_item_name || matchedItem?.name;
+  const itemNames = resolvedFoodName ? [resolvedFoodName] : currentItems.map(i => i.name);
 
   // Attempt to mark collection with strict duplicate validation
   const result = db.markFoodCollected(
@@ -1551,7 +1578,9 @@ apiRouter.post('/collections/mark', (req: Request, res: Response) => {
     meal.id,
     meal.meal_type,
     today,
-    itemNames
+    itemNames,
+    food_item_id,
+    resolvedFoodName
   );
 
   if (!result.success) {
@@ -1559,15 +1588,18 @@ apiRouter.post('/collections/mark', (req: Request, res: Response) => {
     return;
   }
 
-  // Broadcast event to admin monitoring screen
+  // Broadcast event to admin monitoring screen with explicit food_item_name
   realtimeManager.broadcast({
     type: 'COLLECTION_MARKED',
     timestamp: new Date().toISOString(),
-    data: result.collection
+    data: {
+      ...result.collection,
+      food_item_name: resolvedFoodName || meal.name
+    }
   });
 
   res.status(201).json({
-    message: `Food collection confirmed for ${meal.name}!`,
+    message: resolvedFoodName ? `${resolvedFoodName} marked as collected!` : `Food collection confirmed for ${meal.name}!`,
     collection: result.collection
   });
 });

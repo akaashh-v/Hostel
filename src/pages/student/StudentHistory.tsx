@@ -98,12 +98,19 @@ export const StudentHistory: React.FC = () => {
                   </div>
                   <div>
                     <div className="flex items-center gap-2">
-                      <span className="font-bold text-sm text-slate-900">{item.meal_type}</span>
+                      <span className="font-bold text-sm text-slate-900">
+                        {item.food_item_name || item.meal_type}
+                      </span>
+                      {item.food_item_name && (
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-600">
+                          {item.meal_type}
+                        </span>
+                      )}
                       <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-emerald-100 text-emerald-800">
                         CONFIRMED
                       </span>
                     </div>
-                    {item.food_items_snapshot && item.food_items_snapshot.length > 0 && (
+                    {item.food_items_snapshot && item.food_items_snapshot.length > 0 && !item.food_item_name && (
                       <p className="text-xs text-slate-500 mt-1">
                         {item.food_items_snapshot.join(' • ')}
                       </p>

@@ -55,6 +55,8 @@ export interface FoodCollection {
   student_phone: string;
   meal_id: string;
   meal_type: MealType;
+  food_item_id?: string;
+  food_item_name?: string;
   collection_date: string; // YYYY-MM-DD
   collected_at: string;    // ISO timestamp
   food_items_snapshot: string[];

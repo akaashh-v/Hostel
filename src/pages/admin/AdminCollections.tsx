@@ -59,9 +59,9 @@ export const AdminCollections: React.FC = () => {
       'Student Name': c.student_name,
       'Phone Number': c.student_phone,
       'Meal Type': c.meal_type,
+      'Food Item': c.food_item_name || (c.food_items_snapshot ? c.food_items_snapshot.join(', ') : ''),
       'Collection Date': c.collection_date,
-      'Timestamp': new Date(c.collected_at).toLocaleTimeString(),
-      'Menu Items Snapshot': c.food_items_snapshot ? c.food_items_snapshot.join(', ') : ''
+      'Timestamp': new Date(c.collected_at).toLocaleTimeString()
     }));
 
     const ws = XLSX.utils.json_to_sheet(dataToExport);
@@ -196,8 +196,16 @@ export const AdminCollections: React.FC = () => {
                           {item.meal_type}
                         </span>
                       </td>
-                      <td className="py-3.5 px-4 text-slate-500 max-w-xs truncate">
-                        {item.food_items_snapshot?.join(', ') || 'Standard Menu'}
+                      <td className="py-3.5 px-4 max-w-xs truncate">
+                        {item.food_item_name ? (
+                          <span className="text-emerald-800 font-bold bg-emerald-50 px-2 py-0.5 rounded border border-emerald-100">
+                            {item.food_item_name}
+                          </span>
+                        ) : (
+                          <span className="text-slate-500">
+                            {item.food_items_snapshot?.join(', ') || 'Standard Menu'}
+                          </span>
+                        )}
                       </td>
                       <td className="py-3.5 px-4 font-mono text-slate-500">{item.collection_date}</td>
                       <td className="py-3.5 px-4 font-mono text-slate-500">

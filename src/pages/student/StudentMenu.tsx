@@ -57,14 +57,14 @@ export const StudentMenu: React.FC = () => {
     return () => unsub();
   }, [subscribe]);
 
-  const handleCollectMeal = async (mealTypeOrId: string, dishName: string) => {
+  const handleCollectDish = async (mealTypeOrId: string, dishId: string, dishName: string) => {
     setIsMarking(true);
 
     try {
       const mealObj = meals.find(m => m.id === mealTypeOrId || m.meal_type === mealTypeOrId);
       const mealIdToSend = mealObj ? mealObj.id : mealTypeOrId.startsWith('meal-') ? mealTypeOrId : `meal-${mealTypeOrId.toLowerCase()}`;
 
-      const res = await api.markFoodCollected(mealIdToSend);
+      const res = await api.markFoodCollected(mealIdToSend, dishId, dishName);
       success(res.message || `${dishName} marked as collected!`);
 
       // Trigger Celebration Confetti!
@@ -94,9 +94,15 @@ export const StudentMenu: React.FC = () => {
 
   const todayStr = new Date().toISOString().split('T')[0];
 
-  // Map meal_id to collection status for today
-  const isMealCollected = (mealType: MealType) => {
-    return collections.find(c => c.meal_type === mealType && c.collection_date === todayStr);
+  // Check if a specific food item was collected today by student
+  const isDishCollected = (dishId: string, dishName: string) => {
+    return collections.some(
+      c =>
+        c.collection_date === todayStr &&
+        ((c.food_item_id && c.food_item_id === dishId) ||
+          (c.food_item_name && c.food_item_name === dishName) ||
+          (c.food_items_snapshot && c.food_items_snapshot.length === 1 && c.food_items_snapshot[0] === dishName))
+    );
   };
 
   // Flatten all dishes across all meals
@@ -231,7 +237,7 @@ export const StudentMenu: React.FC = () => {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
           {filteredDishes.map(dish => {
-            const collectionRecord = isMealCollected(dish.meal_type);
+            const dishCollected = isDishCollected(dish.id, dish.name);
 
             return (
               <div
@@ -287,21 +293,6 @@ export const StudentMenu: React.FC = () => {
                         ₹{dish.price}
                       </span>
                     </div>
-
-                    {/* Status Badge Bottom-Left */}
-                    <div className="absolute bottom-3 left-3">
-                      {collectionRecord ? (
-                        <span className="flex items-center gap-1 text-[10px] font-black uppercase px-2.5 py-1 rounded-lg bg-emerald-600 text-white shadow-md">
-                          <CheckCircle2 className="w-3 h-3 text-white" />
-                          <span>COLLECTED</span>
-                        </span>
-                      ) : (
-                        <span className="flex items-center gap-1 text-[10px] font-bold uppercase px-2.5 py-1 rounded-lg bg-white/95 text-teal-800 backdrop-blur-sm border border-teal-200/80 shadow-md">
-                          <Utensils className="w-3 h-3 text-teal-600" />
-                          <span>COLLECT</span>
-                        </span>
-                      )}
-                    </div>
                   </div>
 
                   {/* Card Body */}
@@ -330,7 +321,7 @@ export const StudentMenu: React.FC = () => {
                   </div>
 
                   <div>
-                    {collectionRecord ? (
+                    {dishCollected ? (
                       <div className="px-4 py-2 rounded-xl bg-emerald-50 text-emerald-800 border border-emerald-200/80 text-xs font-black uppercase tracking-wider flex items-center gap-1.5 shadow-xs select-none">
                         <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" />
                         <span>COLLECTED</span>
@@ -338,7 +329,7 @@ export const StudentMenu: React.FC = () => {
                     ) : (
                       <button
                         type="button"
-                        onClick={() => handleCollectMeal(dish.meal_id || meals.find(m => m.meal_type === dish.meal_type)?.id || `meal-${dish.meal_type.toLowerCase()}`, dish.name)}
+                        onClick={() => handleCollectDish(dish.meal_id || meals.find(m => m.meal_type === dish.meal_type)?.id || `meal-${dish.meal_type.toLowerCase()}`, dish.id, dish.name)}
                         disabled={isMarking}
                         className="px-5 py-2 rounded-xl bg-[#0D9488] hover:bg-[#0F766E] text-white text-xs font-black uppercase tracking-wider shadow-sm hover:shadow-md shadow-[#0D9488]/20 transition-all flex items-center gap-1.5 active:scale-95 cursor-pointer disabled:opacity-50"
                       >

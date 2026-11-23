@@ -84,10 +84,10 @@ export const api = {
     fetchJSON<{ message: string }>(`/menu/items/${id}`, { method: 'DELETE' }),
 
   // Collections
-  markFoodCollected: (meal_id: string) =>
+  markFoodCollected: (meal_id: string, food_item_id?: string, food_item_name?: string) =>
     fetchJSON<{ message: string; collection: FoodCollection }>('/collections/mark', {
       method: 'POST',
-      body: JSON.stringify({ meal_id })
+      body: JSON.stringify({ meal_id, food_item_id, food_item_name })
     }),
 
   getMyCollections: (month?: number, year?: number) => {

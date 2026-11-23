@@ -6,13 +6,23 @@ import {
   Clock,
   User,
   Sparkles,
-  ChevronDown
+  ChevronDown,
+  Bell,
+  CheckCircle2,
+  Trash2
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import { useRealtime } from '../context/RealtimeContext';
 
 export const Navbar: React.FC = () => {
   const { student, admin, activePortal, setActivePortal, logout } = useAuth();
+  const { subscribe } = useRealtime();
   const [time, setTime] = useState<string>('');
+  const [notifications, setNotifications] = useState<
+    { id: string; student_name: string; food_name: string; time: string; timestamp: string }[]
+  >([]);
+  const [unreadCount, setUnreadCount] = useState<number>(0);
+  const [showNotifications, setShowNotifications] = useState<boolean>(false);
 
   useEffect(() => {
     const updateTime = () => {
@@ -25,6 +35,33 @@ export const Navbar: React.FC = () => {
     const timer = setInterval(updateTime, 1000);
     return () => clearInterval(timer);
   }, []);
+
+  useEffect(() => {
+    if (!admin) return;
+
+    const unsub = subscribe(e => {
+      if (e.type === 'COLLECTION_MARKED') {
+        const studentName = e.data?.student_name || 'Student';
+        const foodName =
+          e.data?.food_item_name ||
+          (e.data?.food_items_snapshot && e.data.food_items_snapshot[0]) ||
+          e.data?.meal_type ||
+          'Food';
+        const now = new Date();
+        const newNotif = {
+          id: String(Date.now()) + Math.random().toString(36).substring(2, 5),
+          student_name: studentName,
+          food_name: foodName,
+          time: now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          timestamp: now.toISOString()
+        };
+        setNotifications(prev => [newNotif, ...prev.slice(0, 19)]);
+        setUnreadCount(prev => prev + 1);
+      }
+    });
+
+    return () => unsub();
+  }, [admin, subscribe]);
 
   return (
     <header className="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-slate-200/80 transition-all shadow-sm">
@@ -122,6 +159,76 @@ export const Navbar: React.FC = () => {
                 >
                   <LogOut className="w-4 h-4" />
                 </button>
+              </div>
+            )}
+
+            {/* Live Notification Bell for Admin */}
+            {admin && (
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowNotifications(!showNotifications);
+                    if (!showNotifications) setUnreadCount(0);
+                  }}
+                  title="Live Food Collection Notifications"
+                  className="relative p-2 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-xl transition-all"
+                >
+                  <Bell className="w-5 h-5" />
+                  {unreadCount > 0 && (
+                    <span className="absolute top-1 right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-600 text-[9px] font-black text-white animate-bounce">
+                      {unreadCount > 9 ? '9+' : unreadCount}
+                    </span>
+                  )}
+                </button>
+
+                {showNotifications && (
+                  <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-white rounded-2xl border border-slate-200 shadow-2xl z-50 overflow-hidden">
+                    <div className="p-3.5 bg-slate-50 border-b border-slate-200/80 flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Bell className="w-4 h-4 text-emerald-600" />
+                        <h4 className="text-xs font-bold text-slate-800 uppercase tracking-wider">
+                          Live Collections ({notifications.length})
+                        </h4>
+                      </div>
+                      {notifications.length > 0 && (
+                        <button
+                          onClick={() => {
+                            setNotifications([]);
+                            setUnreadCount(0);
+                          }}
+                          className="text-[10px] text-slate-400 hover:text-red-600 font-semibold flex items-center gap-1"
+                        >
+                          <Trash2 className="w-3 h-3" />
+                          <span>Clear</span>
+                        </button>
+                      )}
+                    </div>
+
+                    <div className="max-h-72 overflow-y-auto divide-y divide-slate-100">
+                      {notifications.length === 0 ? (
+                        <div className="p-6 text-center text-xs text-slate-400">
+                          No food collected yet. New collections will appear here instantly.
+                        </div>
+                      ) : (
+                        notifications.map(n => (
+                          <div key={n.id} className="p-3 flex items-start gap-3 hover:bg-slate-50 transition-colors">
+                            <div className="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0 mt-0.5 border border-emerald-100">
+                              <CheckCircle2 className="w-4 h-4" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-xs text-slate-800 font-medium">
+                                <strong className="font-bold text-slate-900">{n.student_name}</strong> has collected{' '}
+                                <span className="font-semibold text-emerald-800">{n.food_name}</span>
+                              </p>
+                              <span className="text-[10px] text-slate-400 font-mono mt-0.5 block">{n.time}</span>
+                            </div>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
             )}
 
