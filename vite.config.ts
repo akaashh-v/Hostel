@@ -3,7 +3,7 @@ import react from '@vitejs/plugin-react';
 import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
-import { apiRouter } from './server/api';
+import { apiRouter } from './server/index';
 
 // https://vitejs.dev/config/
 export default defineConfig({
