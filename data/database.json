@@ -516,6 +516,26 @@
         "Tea",
         "Coffee"
       ]
+    },
+    {
+      "id": "col-f45a6010-9cef-403e-b949-a94b9706af6c",
+      "student_id": "student-demo-1",
+      "student_name": "Rahul Sharma",
+      "student_phone": "9876543210",
+      "meal_id": "meal-lunch",
+      "meal_type": "LUNCH",
+      "collection_date": "2026-11-23",
+      "collected_at": "2026-11-23T15:38:31.486Z",
+      "food_items_snapshot": [
+        "Kerala Meals",
+        "Chicken Biriyani",
+        "Veg Biriyani",
+        "Chicken Curry",
+        "Fish Curry",
+        "Rice & Sambar",
+        "Curd",
+        "Payasam"
+      ]
     }
   ],
   "billing_settings": {
@@ -540,19 +560,19 @@
       "month": 11,
       "year": 2026,
       "breakfast_count": 19,
-      "lunch_count": 20,
+      "lunch_count": 21,
       "snacks_count": 14,
       "dinner_count": 22,
-      "total_meals": 75,
+      "total_meals": 76,
       "billing_mode": "PER_MEAL",
-      "base_amount": 4915,
+      "base_amount": 5000,
       "late_fee": 0,
-      "total_amount": 4915,
-      "paid_amount": 4400,
-      "balance_amount": 515,
+      "total_amount": 5000,
+      "paid_amount": 4600,
+      "balance_amount": 400,
       "payment_status": "PARTIALLY_PAID",
       "generated_at": "2026-11-20T15:21:18.084Z",
-      "updated_at": "2026-11-23T15:35:40.963Z"
+      "updated_at": "2026-11-23T15:47:41.079Z"
     },
     {
       "id": "bill-demo-2",
@@ -707,6 +727,18 @@
       "notes": "Automated verification test payment",
       "received_by": "Mess Admin",
       "paid_at": "2026-11-23T15:35:40.963Z"
+    },
+    {
+      "id": "pay-e7fd6e94-3849-40a4-b851-a3ec1ae8737d",
+      "bill_id": "bill-demo-1",
+      "student_id": "student-demo-1",
+      "student_name": "Rahul Sharma",
+      "amount": 200,
+      "payment_method": "UPI",
+      "reference_id": "UPI-TEST-998811",
+      "notes": "Automated verification test payment",
+      "received_by": "Mess Admin",
+      "paid_at": "2026-11-23T15:47:41.079Z"
     }
   ],
   "hostel_settings": {
@@ -828,6 +860,21 @@
       "userId": "student-demo-1",
       "role": "student",
       "expiresAt": "2026-12-23T15:35:40.935Z"
+    },
+    "476dd1deb34da2ee678023f4d9a5b0d3ce4741a8ff30a01a01c1174dce19b89c": {
+      "userId": "student-demo-1",
+      "role": "student",
+      "expiresAt": "2026-12-23T15:38:10.371Z"
+    },
+    "c43cdb68debbfdd17538b590b56d4a11efb3846fd4b003f7ec0ffdbb9b417dc0": {
+      "userId": "admin-1",
+      "role": "admin",
+      "expiresAt": "2026-12-23T15:47:41.003Z"
+    },
+    "d28a75a05aa97605d1da35c5c355037dd892472a7ab7aae0e868ac02cc492f9b": {
+      "userId": "student-demo-1",
+      "role": "student",
+      "expiresAt": "2026-12-23T15:47:41.016Z"
     }
   }
 }

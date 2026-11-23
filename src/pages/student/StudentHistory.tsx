@@ -77,7 +77,7 @@ export const StudentHistory: React.FC = () => {
       <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
         <div className="p-4 border-b border-slate-100 flex items-center justify-between">
           <h2 className="font-bold text-sm text-slate-900">Verified Collections ({collections.length})</h2>
-          <span className="text-xs text-emerald-700 font-medium">QR Timestamped</span>
+          <span className="text-xs text-emerald-700 font-medium">Counter Verified</span>
         </div>
 
         {isLoading ? (

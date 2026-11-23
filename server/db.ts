@@ -758,7 +758,13 @@ class Database {
   }
 
   public findMealById(id: string): Meal | undefined {
-    return this.data.meals.find(m => m.id === id);
+    const clean = id.trim().toLowerCase();
+    return this.data.meals.find(m =>
+      m.id.toLowerCase() === clean ||
+      m.meal_type.toLowerCase() === clean ||
+      m.id.toLowerCase() === ('meal-' + clean) ||
+      clean === ('meal-' + m.meal_type.toLowerCase())
+    );
   }
 
   // --- Food Items ---
