@@ -548,11 +548,11 @@
       "base_amount": 4915,
       "late_fee": 0,
       "total_amount": 4915,
-      "paid_amount": 4200,
-      "balance_amount": 715,
+      "paid_amount": 4400,
+      "balance_amount": 515,
       "payment_status": "PARTIALLY_PAID",
       "generated_at": "2026-11-20T15:21:18.084Z",
-      "updated_at": "2026-11-23T15:26:31.343Z"
+      "updated_at": "2026-11-23T15:35:40.963Z"
     },
     {
       "id": "bill-demo-2",
@@ -695,6 +695,18 @@
       "notes": "Automated verification test payment",
       "received_by": "Mess Admin",
       "paid_at": "2026-11-23T15:26:31.343Z"
+    },
+    {
+      "id": "pay-7b8575df-ab44-4879-b3be-00ff0680306e",
+      "bill_id": "bill-demo-1",
+      "student_id": "student-demo-1",
+      "student_name": "Rahul Sharma",
+      "amount": 200,
+      "payment_method": "UPI",
+      "reference_id": "UPI-TEST-998811",
+      "notes": "Automated verification test payment",
+      "received_by": "Mess Admin",
+      "paid_at": "2026-11-23T15:35:40.963Z"
     }
   ],
   "hostel_settings": {
@@ -787,11 +799,6 @@
       "role": "student",
       "expiresAt": "2026-12-23T14:55:20.919Z"
     },
-    "6430a89e57a33bbd5feeed9e12f25e71a6c0cf42aa537486b5bb52107d74cab4": {
-      "userId": "student-demo-1",
-      "role": "student",
-      "expiresAt": "2026-12-23T14:56:02.565Z"
-    },
     "2c776e2a92514346cc1cbc7fb957c32232f10028f529a29b375f26c2abf407dd": {
       "userId": "admin-1",
       "role": "admin",
@@ -811,6 +818,16 @@
       "userId": "student-demo-1",
       "role": "student",
       "expiresAt": "2026-12-23T15:26:31.307Z"
+    },
+    "787dd8e1f5ba23c69508a3751e55fafd744839136a349c4421ac761a80b253cb": {
+      "userId": "admin-1",
+      "role": "admin",
+      "expiresAt": "2026-12-23T15:35:40.925Z"
+    },
+    "9a148342af7a70328eda178ac9e5dfeafcb62469fdc8bf3601f8cf8f9199bca1": {
+      "userId": "student-demo-1",
+      "role": "student",
+      "expiresAt": "2026-12-23T15:35:40.935Z"
     }
   }
 }
