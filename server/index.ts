@@ -20,7 +20,7 @@ import {
   MealType,
   BillingMode,
   RealtimeEvent
-} from '../src/types';
+} from '../src/types.js';
 
 // =============================================================================
 // 1. REALTIME STREAM EVENT MANAGER
