@@ -116,7 +116,7 @@ export interface HostelSettings {
   address: string;
   contact_phone: string;
   contact_email: string;
-  qr_code_url: string;
+  qr_code_url?: string;
   notice?: string;
 }
 

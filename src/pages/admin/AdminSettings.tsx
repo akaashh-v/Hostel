@@ -11,7 +11,6 @@ export const AdminSettings: React.FC = () => {
     address: '',
     contact_phone: '',
     contact_email: '',
-    qr_code_url: '',
     notice: ''
   });
   const [isLoading, setIsLoading] = useState<boolean>(true);

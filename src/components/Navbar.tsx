@@ -5,17 +5,12 @@ import {
   LogOut,
   Clock,
   User,
-  QrCode,
   Sparkles,
   ChevronDown
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 
-interface NavbarProps {
-  onOpenQRModal?: () => void;
-}
-
-export const Navbar: React.FC<NavbarProps> = ({ onOpenQRModal }) => {
+export const Navbar: React.FC = () => {
   const { student, admin, activePortal, setActivePortal, logout } = useAuth();
   const [time, setTime] = useState<string>('');
 
@@ -75,18 +70,6 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenQRModal }) => {
 
           {/* Right Actions & Profile */}
           <div className="flex items-center gap-2.5 sm:gap-3">
-            {/* View Counter QR Shortcut */}
-            {onOpenQRModal && (
-              <button
-                onClick={onOpenQRModal}
-                title="View Entrance QR Code"
-                className="hidden sm:flex items-center gap-1.5 text-xs font-bold px-3 py-2 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 transition-all shadow-sm active:scale-95"
-              >
-                <QrCode className="w-4 h-4 text-[#0D9488]" />
-                <span>Mess QR</span>
-              </button>
-            )}
-
             {/* Portal Switcher for Admin */}
             {admin && (
               <div className="flex items-center bg-slate-100 p-1 rounded-xl text-xs font-bold">

@@ -214,9 +214,8 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onNavigateTo
                   <p className="text-[10px] text-teal-200 font-medium">Monthly Bill Due</p>
                   <p className="font-mono font-bold text-white text-sm">₹{bill.balance_amount?.toFixed(0) || '0'}</p>
                 </div>
-                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                  bill.payment_status === 'PAID' ? 'bg-teal-400/20 text-teal-200' : 'bg-amber-400/20 text-amber-200'
-                }`}>
+                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${bill.payment_status === 'PAID' ? 'bg-teal-400/20 text-teal-200' : 'bg-amber-400/20 text-amber-200'
+                  }`}>
                   {bill.payment_status === 'PAID' ? 'Paid in Full' : 'Pending'}
                 </span>
               </div>

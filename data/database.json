@@ -548,11 +548,11 @@
       "base_amount": 4915,
       "late_fee": 0,
       "total_amount": 4915,
-      "paid_amount": 3800,
-      "balance_amount": 1115,
+      "paid_amount": 4200,
+      "balance_amount": 715,
       "payment_status": "PARTIALLY_PAID",
       "generated_at": "2026-11-20T15:21:18.084Z",
-      "updated_at": "2026-11-23T14:55:20.971Z"
+      "updated_at": "2026-11-23T15:26:31.343Z"
     },
     {
       "id": "bill-demo-2",
@@ -671,6 +671,30 @@
       "notes": "Automated verification test payment",
       "received_by": "Mess Admin",
       "paid_at": "2026-11-23T14:55:20.971Z"
+    },
+    {
+      "id": "pay-619b7735-83ae-4da0-ba30-cc822770a242",
+      "bill_id": "bill-demo-1",
+      "student_id": "student-demo-1",
+      "student_name": "Rahul Sharma",
+      "amount": 200,
+      "payment_method": "UPI",
+      "reference_id": "UPI-TEST-998811",
+      "notes": "Automated verification test payment",
+      "received_by": "Mess Admin",
+      "paid_at": "2026-11-23T15:23:27.876Z"
+    },
+    {
+      "id": "pay-b4e19c28-f7b4-4481-a49b-9138c24a2097",
+      "bill_id": "bill-demo-1",
+      "student_id": "student-demo-1",
+      "student_name": "Rahul Sharma",
+      "amount": 200,
+      "payment_method": "UPI",
+      "reference_id": "UPI-TEST-998811",
+      "notes": "Automated verification test payment",
+      "received_by": "Mess Admin",
+      "paid_at": "2026-11-23T15:26:31.343Z"
     }
   ],
   "hostel_settings": {
@@ -767,6 +791,26 @@
       "userId": "student-demo-1",
       "role": "student",
       "expiresAt": "2026-12-23T14:56:02.565Z"
+    },
+    "2c776e2a92514346cc1cbc7fb957c32232f10028f529a29b375f26c2abf407dd": {
+      "userId": "admin-1",
+      "role": "admin",
+      "expiresAt": "2026-12-23T15:23:27.793Z"
+    },
+    "90553a539b17423a6116eae602c65de58e3a7a5520374689038a1bd18b9f0e8a": {
+      "userId": "student-demo-1",
+      "role": "student",
+      "expiresAt": "2026-12-23T15:23:27.814Z"
+    },
+    "30f6f82c4433765b79c38750adee2d7d162ebb3b6aaf8507189982ebbba74579": {
+      "userId": "admin-1",
+      "role": "admin",
+      "expiresAt": "2026-12-23T15:26:31.295Z"
+    },
+    "161248856b6301daa4b752909d595806a39b14e10a4d82da02188a238638bc6f": {
+      "userId": "student-demo-1",
+      "role": "student",
+      "expiresAt": "2026-12-23T15:26:31.307Z"
     }
   }
 }

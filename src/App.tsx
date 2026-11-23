@@ -21,30 +21,14 @@ import { AdminCollections } from './pages/admin/AdminCollections';
 import { AdminBilling } from './pages/admin/AdminBilling';
 import { AdminPayments } from './pages/admin/AdminPayments';
 import { AdminReports } from './pages/admin/AdminReports';
-import { AdminQRCode } from './pages/admin/AdminQRCode';
 import { AdminSettings } from './pages/admin/AdminSettings';
 
-import { Utensils, X, QrCode } from 'lucide-react';
-import QRCode from 'qrcode';
+import { Utensils } from 'lucide-react';
 
 export const App: React.FC = () => {
   const { student, admin, isLoading, activePortal } = useAuth();
   const [studentTab, setStudentTab] = useState<StudentTab>('dashboard');
   const [adminTab, setAdminTab] = useState<AdminTab>('overview');
-  const [isQRModalOpen, setIsQRModalOpen] = useState<boolean>(false);
-  const [modalQRUrl, setModalQRUrl] = useState<string>('');
-
-  const handleOpenQRModal = () => {
-    const origin = typeof window !== 'undefined' ? window.location.origin : 'http://localhost:5173';
-    QRCode.toDataURL(
-      `${origin}/student`,
-      { width: 320, margin: 2, color: { dark: '#0D9488', light: '#ffffff' } },
-      (err, url) => {
-        if (!err && url) setModalQRUrl(url);
-      }
-    );
-    setIsQRModalOpen(true);
-  };
 
   // Full-screen loading while verifying existing persistent session
   if (isLoading) {
@@ -66,7 +50,7 @@ export const App: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-[#F7FAFA] text-[#17211B] flex flex-col font-sans">
-      <Navbar onOpenQRModal={handleOpenQRModal} />
+      <Navbar />
 
       {/* STUDENT PORTAL */}
       {activePortal === 'student' && (
@@ -193,45 +177,11 @@ export const App: React.FC = () => {
                 {adminTab === 'billing' && <AdminBilling />}
                 {adminTab === 'payments' && <AdminPayments />}
                 {adminTab === 'reports' && <AdminReports />}
-                {adminTab === 'qr-code' && <AdminQRCode />}
                 {adminTab === 'settings' && <AdminSettings />}
               </main>
             </div>
           )}
         </>
-      )}
-
-      {/* Quick QR Modal */}
-      {isQRModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in">
-          <div className="bg-white rounded-3xl max-w-sm w-full p-6 text-center shadow-2xl border border-slate-100">
-            <div className="flex items-center justify-between pb-3 mb-3 border-b border-slate-100">
-              <span className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
-                <QrCode className="w-4 h-4 text-[#0D9488]" />
-                <span>HOSTEL MESS Entrance QR</span>
-              </span>
-              <button
-                onClick={() => setIsQRModalOpen(false)}
-                className="text-slate-400 hover:text-slate-600"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-
-            {modalQRUrl ? (
-              <img
-                src={modalQRUrl}
-                alt="HOSTEL MESS QR Code"
-                className="w-56 h-56 mx-auto rounded-2xl p-2 bg-slate-50 border border-slate-200 shadow-inner my-2"
-              />
-            ) : null}
-
-            <p className="text-xs font-bold text-slate-800 mt-2">Scan to Open Student Portal</p>
-            <p className="text-[11px] text-slate-500 mt-0.5">
-              HOSTEL MESS Dining Hall • Instant Access & Food Collection
-            </p>
-          </div>
-        </div>
       )}
     </div>
   );

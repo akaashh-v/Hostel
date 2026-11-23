@@ -10,9 +10,7 @@ import {
   X,
   CheckCircle2,
   Calendar,
-  Sparkles,
-  Info,
-  ChevronRight
+  Sparkles
 } from 'lucide-react';
 import { Meal, FoodItem, FoodCollection, MealType } from '../../types';
 import { api } from '../../services/api';
@@ -27,7 +25,6 @@ export const StudentMenu: React.FC = () => {
   const [selectedMealCategory, setSelectedMealCategory] = useState<string>('ALL');
   const [selectedDietary, setSelectedDietary] = useState<string>('ALL');
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [selectedDishModal, setSelectedDishModal] = useState<FoodItem | null>(null);
 
   const { subscribe } = useRealtime();
 
@@ -179,9 +176,8 @@ export const StudentMenu: React.FC = () => {
         <p>
           Showing <strong className="text-slate-800">{filteredDishes.length}</strong> delicious dishes
         </p>
-        <span className="text-[11px] text-slate-400 flex items-center gap-1">
-          <Info className="w-3.5 h-3.5" />
-          <span>Click any dish card for full details</span>
+        <span className="text-[11px] text-slate-400 font-medium">
+          Fresh hostel meals prepared daily
         </span>
       </div>
 
@@ -211,8 +207,7 @@ export const StudentMenu: React.FC = () => {
             return (
               <div
                 key={dish.id}
-                onClick={() => setSelectedDishModal(dish)}
-                className="bg-white rounded-3xl border border-slate-200/90 overflow-hidden shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer group flex flex-col justify-between"
+                className="bg-white rounded-3xl border border-slate-200/90 overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between"
               >
                 <div>
                   {/* Food Image with Overlays */}
@@ -220,7 +215,7 @@ export const StudentMenu: React.FC = () => {
                     <img
                       src={dish.image_url}
                       alt={dish.name}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
+                      className="w-full h-full object-cover"
                       loading="lazy"
                     />
 
@@ -282,7 +277,7 @@ export const StudentMenu: React.FC = () => {
                   {/* Card Body */}
                   <div className="p-4 sm:p-5">
                     <div className="flex items-baseline justify-between gap-2 mb-1">
-                      <h3 className="font-bold text-base text-slate-900 group-hover:text-[#0D9488] transition-colors leading-tight">
+                      <h3 className="font-bold text-base text-slate-900 leading-tight">
                         {dish.name}
                       </h3>
                     </div>
@@ -297,101 +292,16 @@ export const StudentMenu: React.FC = () => {
 
                 {/* Card Footer: Meal Category & Status Indicator */}
                 <div className="px-4 sm:px-5 py-3 border-t border-slate-100 bg-slate-50/50 flex items-center justify-between text-xs">
-                  <span className="text-[11px] font-medium text-slate-400">
-                    Category: <strong className="text-slate-600 font-semibold">{dish.meal_type}</strong>
+                  <span className="text-[11px] font-medium text-slate-500">
+                    Meal Session: <strong className="text-slate-700 font-semibold">{dish.meal_type}</strong>
                   </span>
-                  <span className="font-mono font-bold text-[#0D9488] flex items-center gap-1 group-hover:translate-x-0.5 transition-transform">
-                    <span>Details</span>
-                    <ChevronRight className="w-3.5 h-3.5" />
+                  <span className="font-mono text-[11px] font-semibold px-2 py-0.5 rounded-md bg-teal-50 text-[#0D9488] border border-teal-200/80">
+                    ₹{dish.price}
                   </span>
                 </div>
               </div>
             );
           })}
-        </div>
-      )}
-
-      {/* Dish Details Modal */}
-      {selectedDishModal && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in"
-          onClick={() => setSelectedDishModal(null)}
-        >
-          <div
-            className="bg-white rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl border border-slate-100 transform transition-all animate-scale-up"
-            onClick={e => e.stopPropagation()}
-          >
-            <div className="relative aspect-[16/10] bg-slate-100">
-              <img
-                src={selectedDishModal.image_url}
-                alt={selectedDishModal.name}
-                className="w-full h-full object-cover"
-              />
-              <button
-                onClick={() => setSelectedDishModal(null)}
-                className="absolute top-3.5 right-3.5 w-8 h-8 rounded-full bg-black/60 text-white flex items-center justify-center hover:bg-black/80 transition-colors shadow-md"
-              >
-                <X className="w-4 h-4" />
-              </button>
-
-              <div className="absolute bottom-3 right-3">
-                <span className="font-black font-mono text-lg px-4 py-1.5 rounded-2xl bg-white text-slate-900 shadow-xl border border-slate-200">
-                  ₹{selectedDishModal.price}
-                </span>
-              </div>
-            </div>
-
-            <div className="p-6">
-              <div className="flex items-center gap-2 mb-2">
-                <span
-                  className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full text-white ${
-                    selectedDishModal.category === 'VEG'
-                      ? 'bg-emerald-600'
-                      : selectedDishModal.category === 'NON_VEG'
-                      ? 'bg-red-600'
-                      : 'bg-amber-600'
-                  }`}
-                >
-                  {selectedDishModal.category}
-                </span>
-                <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-slate-100 text-slate-700">
-                  {selectedDishModal.meal_type}
-                </span>
-              </div>
-
-              <h2 className="text-2xl font-black text-slate-900 mb-2">
-                {selectedDishModal.name}
-              </h2>
-              <p className="text-xs sm:text-sm text-slate-600 leading-relaxed mb-6">
-                {selectedDishModal.description || 'Delicious meal freshly prepared by our hostel dining chefs.'}
-              </p>
-
-              {/* Collection Status for this Meal */}
-              <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100 mb-6">
-                <div className="flex items-center justify-between text-xs">
-                  <span className="text-slate-600 font-medium">Meal Status Today:</span>
-                  {isMealCollected(selectedDishModal.meal_type) ? (
-                    <span className="flex items-center gap-1.5 font-bold text-emerald-700 bg-emerald-100/80 px-2.5 py-1 rounded-full">
-                      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                      <span>Collected for Today</span>
-                    </span>
-                  ) : (
-                    <span className="font-semibold text-slate-500">
-                      Scheduled • Collect at Counter
-                    </span>
-                  )}
-                </div>
-              </div>
-
-              <button
-                onClick={() => setSelectedDishModal(null)}
-                style={{ backgroundColor: '#0D9488', color: '#FFFFFF' }}
-                className="w-full py-3 rounded-2xl bg-[#0D9488] hover:bg-[#0F766E] text-white text-xs font-bold uppercase tracking-wider shadow-md transition-colors"
-              >
-                Close Dish Details
-              </button>
-            </div>
-          </div>
         </div>
       )}
     </div>

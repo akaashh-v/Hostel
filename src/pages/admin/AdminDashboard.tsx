@@ -8,8 +8,7 @@ import {
   ArrowUpRight,
   Sparkles,
   Clock,
-  CheckCircle2,
-  QrCode
+  CheckCircle2
 } from 'lucide-react';
 import {
   BarChart,
@@ -109,18 +108,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateTab })
         <div className="flex items-center gap-2.5">
           <button
             onClick={() => onNavigateTab('menu')}
-            style={{ backgroundColor: '#087F5B', color: '#FFFFFF' }}
-            className="px-4 py-2.5 bg-[#087F5B] hover:bg-[#066749] text-white rounded-xl text-xs font-bold transition-colors flex items-center gap-2 shadow-md shadow-[#087F5B]/20"
+            style={{ backgroundColor: '#0D9488', color: '#FFFFFF' }}
+            className="px-4 py-2.5 bg-[#0D9488] hover:bg-[#0F766E] text-white rounded-xl text-xs font-bold transition-colors flex items-center gap-2 shadow-md shadow-[#0D9488]/20"
           >
             <Utensils className="w-4 h-4" />
             <span>Manage Daily Menu</span>
-          </button>
-          <button
-            onClick={() => onNavigateTab('qr-code')}
-            className="px-4 py-2.5 bg-white border border-slate-200 text-slate-700 rounded-xl text-xs font-bold hover:bg-slate-50 transition-colors flex items-center gap-2 shadow-sm"
-          >
-            <QrCode className="w-4 h-4 text-slate-500" />
-            <span>Counter QR</span>
           </button>
         </div>
       </div>

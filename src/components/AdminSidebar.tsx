@@ -7,7 +7,6 @@ import {
   ReceiptIndianRupee,
   CreditCard,
   FileBarChart,
-  QrCode,
   Settings,
   Shield,
   LogOut
@@ -22,7 +21,6 @@ export type AdminTab =
   | 'billing'
   | 'payments'
   | 'reports'
-  | 'qr-code'
   | 'settings';
 
 interface AdminSidebarProps {
@@ -41,7 +39,6 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({ activeTab, onSelectT
     { id: 'billing', label: 'Monthly Billing', icon: ReceiptIndianRupee },
     { id: 'payments', label: 'Payment Management', icon: CreditCard },
     { id: 'reports', label: 'Reports & Analytics', icon: FileBarChart },
-    { id: 'qr-code', label: 'QR Code Poster', icon: QrCode },
     { id: 'settings', label: 'Settings', icon: Settings }
   ];
 
