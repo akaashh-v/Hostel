@@ -4,6 +4,7 @@ import { StudentTab, StudentBottomNav } from './components/StudentBottomNav';
 import { AdminTab, AdminSidebar } from './components/AdminSidebar';
 import { Navbar } from './components/Navbar';
 import { Utensils, Loader2 } from 'lucide-react';
+import { FoodCollection } from './types';
 
 // Lazy-loaded Student Pages for optimized initial bundle
 const StudentAuth = React.lazy(() =>
@@ -67,6 +68,14 @@ export const App: React.FC = () => {
   const { student, admin, isLoading, activePortal } = useAuth();
   const [studentTab, setStudentTab] = useState<StudentTab>('dashboard');
   const [adminTab, setAdminTab] = useState<AdminTab>('overview');
+  const [activePaymentCollection, setActivePaymentCollection] = useState<FoodCollection | null>(null);
+
+  const handleNavigateToPayment = (collection?: FoodCollection) => {
+    if (collection) {
+      setActivePaymentCollection(collection);
+    }
+    setStudentTab('bill');
+  };
 
   // Full-screen loading while verifying existing persistent session
   if (isLoading) {
@@ -138,7 +147,7 @@ export const App: React.FC = () => {
                         : 'hover:bg-slate-100 hover:text-slate-900'
                     }`}
                   >
-                    My Monthly Bill
+                    Payment & Settlement
                   </button>
                   <button
                     onClick={() => setStudentTab('profile')}
@@ -155,11 +164,21 @@ export const App: React.FC = () => {
 
               {/* Active Student Tab */}
               {studentTab === 'dashboard' && (
-                <StudentDashboard onNavigateToTab={tab => setStudentTab(tab as any)} />
+                <StudentDashboard
+                  onNavigateToTab={tab => setStudentTab(tab as any)}
+                  onNavigateToPayment={handleNavigateToPayment}
+                />
               )}
-              {studentTab === 'menu' && <StudentMenu />}
+              {studentTab === 'menu' && (
+                <StudentMenu onNavigateToPayment={handleNavigateToPayment} />
+              )}
               {studentTab === 'history' && <StudentHistory />}
-              {studentTab === 'bill' && <StudentBill />}
+              {studentTab === 'bill' && (
+                <StudentBill
+                  activeCollection={activePaymentCollection}
+                  onClearActiveCollection={() => setActivePaymentCollection(null)}
+                />
+              )}
               {studentTab === 'profile' && <StudentProfile />}
 
               {/* Mobile Bottom Navigation */}

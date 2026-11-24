@@ -117,15 +117,14 @@ export const AdminBilling: React.FC = () => {
     e.preventDefault();
     try {
       await api.updateBillingSettings({
-        mode: editMode,
-        fixed_monthly_rate: fixedRate,
+        mode: 'PER_MEAL',
         breakfast_rate: breakfastRate,
         lunch_rate: lunchRate,
         snacks_rate: snacksRate,
         dinner_rate: dinnerRate,
         late_fee_amount: lateFee
       });
-      success('Billing rates and policy updated');
+      success('Per-meal billing rates updated successfully');
       setIsSettingsModalOpen(false);
       await loadBillingData();
     } catch (err: any) {
@@ -469,95 +468,68 @@ export const AdminBilling: React.FC = () => {
                 <label className="block font-semibold text-slate-700 uppercase tracking-wider mb-1">
                   Billing Mode
                 </label>
-                <div className="grid grid-cols-2 gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setEditMode('PER_MEAL')}
-                    className={`py-2 px-3 rounded-xl border font-bold transition-all ${editMode === 'PER_MEAL'
-                      ? 'bg-teal-600 text-white border-teal-600 shadow-sm'
-                      : 'bg-slate-50 text-slate-600 border-slate-200'
-                      }`}
-                  >
-                    Pay-Per-Meal
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setEditMode('FIXED')}
-                    className={`py-2 px-3 rounded-xl border font-bold transition-all ${editMode === 'FIXED'
-                      ? 'bg-teal-600 text-white border-teal-600 shadow-sm'
-                      : 'bg-slate-50 text-slate-600 border-slate-200'
-                      }`}
-                  >
-                    Fixed Monthly Fee
-                  </button>
+                <div className="py-2 px-3 rounded-xl border border-teal-200 bg-teal-50 text-teal-800 font-bold flex items-center justify-between">
+                  <span>Pay-Per-Meal (Strict Actual Consumption)</span>
+                  <span className="text-[10px] px-2 py-0.5 rounded-full bg-teal-600 text-white font-bold uppercase">
+                    Enforced
+                  </span>
                 </div>
+                <p className="text-[11px] text-slate-400 mt-1">
+                  All billing is calculated based strictly on meals collected by students.
+                </p>
               </div>
 
-              {editMode === 'FIXED' ? (
-                <div>
-                  <label className="block font-semibold text-slate-700 uppercase tracking-wider mb-1">
-                    Fixed Monthly Subscription Rate (₹)
-                  </label>
-                  <input
-                    type="number"
-                    value={fixedRate}
-                    onChange={e => setFixedRate(Number(e.target.value))}
-                    className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-200 font-mono"
-                  />
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <label className="block font-semibold text-slate-700 uppercase tracking-wider mb-1">
-                        Breakfast Rate (₹)
-                      </label>
-                      <input
-                        type="number"
-                        value={breakfastRate}
-                        onChange={e => setBreakfastRate(Number(e.target.value))}
-                        className="w-full px-3 py-1.5 rounded-xl border border-slate-200 font-mono"
-                      />
-                    </div>
-                    <div>
-                      <label className="block font-semibold text-slate-700 uppercase tracking-wider mb-1">
-                        Lunch Rate (₹)
-                      </label>
-                      <input
-                        type="number"
-                        value={lunchRate}
-                        onChange={e => setLunchRate(Number(e.target.value))}
-                        className="w-full px-3 py-1.5 rounded-xl border border-slate-200 font-mono"
-                      />
-                    </div>
+              <div className="space-y-3">
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block font-semibold text-slate-700 uppercase tracking-wider mb-1">
+                      Breakfast Rate (₹)
+                    </label>
+                    <input
+                      type="number"
+                      value={breakfastRate}
+                      onChange={e => setBreakfastRate(Number(e.target.value))}
+                      className="w-full px-3 py-1.5 rounded-xl border border-slate-200 font-mono"
+                    />
                   </div>
+                  <div>
+                    <label className="block font-semibold text-slate-700 uppercase tracking-wider mb-1">
+                      Lunch Rate (₹)
+                    </label>
+                    <input
+                      type="number"
+                      value={lunchRate}
+                      onChange={e => setLunchRate(Number(e.target.value))}
+                      className="w-full px-3 py-1.5 rounded-xl border border-slate-200 font-mono"
+                    />
+                  </div>
+                </div>
 
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <label className="block font-semibold text-slate-700 uppercase tracking-wider mb-1">
-                        Evening Snacks (₹)
-                      </label>
-                      <input
-                        type="number"
-                        value={snacksRate}
-                        onChange={e => setSnacksRate(Number(e.target.value))}
-                        className="w-full px-3 py-1.5 rounded-xl border border-slate-200 font-mono"
-                      />
-                    </div>
-                    <div>
-                      <label className="block font-semibold text-slate-700 uppercase tracking-wider mb-1">
-                        Dinner Rate (₹)
-                      </label>
-                      <input
-                        type="number"
-                        value={dinnerRate}
-                        onChange={e => setDinnerRate(Number(e.target.value))}
-                        className="w-full px-3 py-1.5 rounded-xl border border-slate-200 font-mono"
-                      />
-                    </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block font-semibold text-slate-700 uppercase tracking-wider mb-1">
+                      Evening Snacks (₹)
+                    </label>
+                    <input
+                      type="number"
+                      value={snacksRate}
+                      onChange={e => setSnacksRate(Number(e.target.value))}
+                      className="w-full px-3 py-1.5 rounded-xl border border-slate-200 font-mono"
+                    />
+                  </div>
+                  <div>
+                    <label className="block font-semibold text-slate-700 uppercase tracking-wider mb-1">
+                      Dinner Rate (₹)
+                    </label>
+                    <input
+                      type="number"
+                      value={dinnerRate}
+                      onChange={e => setDinnerRate(Number(e.target.value))}
+                      className="w-full px-3 py-1.5 rounded-xl border border-slate-200 font-mono"
+                    />
                   </div>
                 </div>
-              )}
+              </div>
 
               <div>
                 <label className="block font-semibold text-slate-700 uppercase tracking-wider mb-1">

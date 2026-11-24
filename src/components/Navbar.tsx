@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   Utensils,
   Shield,
@@ -9,18 +9,19 @@ import {
   ChevronDown,
   Bell,
   CheckCircle2,
-  Trash2
+  CheckCheck,
+  Calendar
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useRealtime } from '../context/RealtimeContext';
+import { api } from '../services/api';
+import { Notification } from '../types';
 
 export const Navbar: React.FC = () => {
   const { student, admin, activePortal, setActivePortal, logout } = useAuth();
   const { subscribe } = useRealtime();
   const [time, setTime] = useState<string>('');
-  const [notifications, setNotifications] = useState<
-    { id: string; student_name: string; food_name: string; time: string; timestamp: string }[]
-  >([]);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState<number>(0);
   const [showNotifications, setShowNotifications] = useState<boolean>(false);
 
@@ -36,32 +37,59 @@ export const Navbar: React.FC = () => {
     return () => clearInterval(timer);
   }, []);
 
+  const loadNotifications = useCallback(async () => {
+    if (!admin) return;
+    try {
+      const data = await api.getNotifications();
+      setNotifications(data.notifications || []);
+      setUnreadCount(data.unread_count || 0);
+    } catch (err) {
+      console.error('Failed to load notifications', err);
+    }
+  }, [admin]);
+
+  useEffect(() => {
+    loadNotifications();
+  }, [loadNotifications]);
+
   useEffect(() => {
     if (!admin) return;
 
     const unsub = subscribe(e => {
-      if (e.type === 'COLLECTION_MARKED') {
-        const studentName = e.data?.student_name || 'Student';
-        const foodName =
-          e.data?.food_item_name ||
-          (e.data?.food_items_snapshot && e.data.food_items_snapshot[0]) ||
-          e.data?.meal_type ||
-          'Food';
-        const now = new Date();
-        const newNotif = {
-          id: String(Date.now()) + Math.random().toString(36).substring(2, 5),
-          student_name: studentName,
-          food_name: foodName,
-          time: now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-          timestamp: now.toISOString()
-        };
-        setNotifications(prev => [newNotif, ...prev.slice(0, 19)]);
+      if (e.type === 'NOTIFICATION_CREATED' && e.data) {
+        const newNotif = e.data as Notification;
+        setNotifications(prev => [newNotif, ...prev.filter(n => n.id !== newNotif.id)]);
         setUnreadCount(prev => prev + 1);
+      } else if (e.type === 'COLLECTION_MARKED') {
+        loadNotifications();
       }
     });
 
     return () => unsub();
-  }, [admin, subscribe]);
+  }, [admin, subscribe, loadNotifications]);
+
+  const handleMarkAsRead = async (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    try {
+      await api.markNotificationRead(id);
+      setNotifications(prev =>
+        prev.map(n => (n.id === id ? { ...n, is_read: true } : n))
+      );
+      setUnreadCount(prev => Math.max(0, prev - 1));
+    } catch (err) {
+      console.error('Failed to mark notification as read', err);
+    }
+  };
+
+  const handleMarkAllRead = async () => {
+    try {
+      await api.markAllNotificationsRead();
+      setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));
+      setUnreadCount(0);
+    } catch (err) {
+      console.error('Failed to mark all as read', err);
+    }
+  };
 
   return (
     <header className="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-slate-200/80 transition-all shadow-sm">
@@ -167,12 +195,9 @@ export const Navbar: React.FC = () => {
               <div className="relative">
                 <button
                   type="button"
-                  onClick={() => {
-                    setShowNotifications(!showNotifications);
-                    if (!showNotifications) setUnreadCount(0);
-                  }}
+                  onClick={() => setShowNotifications(!showNotifications)}
                   title="Live Food Collection Notifications"
-                  className="relative p-2 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-xl transition-all"
+                  className="relative p-2 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-xl transition-all cursor-pointer"
                 >
                   <Bell className="w-5 h-5" />
                   {unreadCount > 0 && (
@@ -183,48 +208,88 @@ export const Navbar: React.FC = () => {
                 </button>
 
                 {showNotifications && (
-                  <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-white rounded-2xl border border-slate-200 shadow-2xl z-50 overflow-hidden">
+                  <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-white rounded-2xl border border-slate-200 shadow-2xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-200">
                     <div className="p-3.5 bg-slate-50 border-b border-slate-200/80 flex items-center justify-between">
                       <div className="flex items-center gap-2">
                         <Bell className="w-4 h-4 text-emerald-600" />
                         <h4 className="text-xs font-bold text-slate-800 uppercase tracking-wider">
-                          Live Collections ({notifications.length})
+                          Meal Notifications ({notifications.length})
                         </h4>
                       </div>
-                      {notifications.length > 0 && (
+                      {unreadCount > 0 && (
                         <button
-                          onClick={() => {
-                            setNotifications([]);
-                            setUnreadCount(0);
-                          }}
-                          className="text-[10px] text-slate-400 hover:text-red-600 font-semibold flex items-center gap-1"
+                          onClick={handleMarkAllRead}
+                          className="text-[11px] text-teal-700 hover:text-teal-900 font-bold flex items-center gap-1 cursor-pointer"
+                          title="Mark all notifications as read"
                         >
-                          <Trash2 className="w-3 h-3" />
-                          <span>Clear</span>
+                          <CheckCheck className="w-3.5 h-3.5" />
+                          <span>Mark all read</span>
                         </button>
                       )}
                     </div>
 
-                    <div className="max-h-72 overflow-y-auto divide-y divide-slate-100">
+                    <div className="max-h-80 overflow-y-auto divide-y divide-slate-100">
                       {notifications.length === 0 ? (
                         <div className="p-6 text-center text-xs text-slate-400">
-                          No food collected yet. New collections will appear here instantly.
+                          No notifications yet. When students collect meals, notifications will appear here instantly.
                         </div>
                       ) : (
-                        notifications.map(n => (
-                          <div key={n.id} className="p-3 flex items-start gap-3 hover:bg-slate-50 transition-colors">
-                            <div className="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0 mt-0.5 border border-emerald-100">
-                              <CheckCircle2 className="w-4 h-4" />
+                        notifications.map(n => {
+                          const dateObj = new Date(n.timestamp || n.created_at);
+                          const formattedTime = !isNaN(dateObj.getTime())
+                            ? dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                            : '';
+                          const formattedDate = !isNaN(dateObj.getTime())
+                            ? dateObj.toLocaleDateString([], { month: 'short', day: 'numeric' })
+                            : n.date;
+
+                          return (
+                            <div
+                              key={n.id}
+                              onClick={e => !n.is_read && handleMarkAsRead(n.id, e)}
+                              className={`p-3.5 flex items-start gap-3 transition-colors cursor-pointer ${
+                                n.is_read ? 'hover:bg-slate-50/60 bg-white' : 'bg-emerald-50/40 hover:bg-emerald-50/60'
+                              }`}
+                            >
+                              <div
+                                className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 mt-0.5 border ${
+                                  n.is_read
+                                    ? 'bg-slate-50 text-slate-400 border-slate-200'
+                                    : 'bg-emerald-100 text-[#087F5B] border-emerald-200 font-bold'
+                                }`}
+                              >
+                                <CheckCircle2 className="w-4 h-4" />
+                              </div>
+
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center justify-between gap-1">
+                                  <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">
+                                    {n.meal_category}
+                                  </span>
+                                  {!n.is_read && (
+                                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" title="Unread" />
+                                  )}
+                                </div>
+
+                                <p className="text-xs text-slate-900 font-medium mt-1 leading-snug">
+                                  {n.message || `${n.student_name} has collected ${n.meal_category}.`}
+                                </p>
+
+                                <div className="flex items-center gap-2 mt-1 text-[10px] text-slate-400 font-mono">
+                                  <span className="flex items-center gap-1">
+                                    <Calendar className="w-3 h-3 text-slate-400" />
+                                    {formattedDate}
+                                  </span>
+                                  <span>•</span>
+                                  <span className="flex items-center gap-1">
+                                    <Clock className="w-3 h-3 text-slate-400" />
+                                    {formattedTime}
+                                  </span>
+                                </div>
+                              </div>
                             </div>
-                            <div className="flex-1 min-w-0">
-                              <p className="text-xs text-slate-800 font-medium">
-                                <strong className="font-bold text-slate-900">{n.student_name}</strong> has collected{' '}
-                                <span className="font-semibold text-emerald-800">{n.food_name}</span>
-                              </p>
-                              <span className="text-[10px] text-slate-400 font-mono mt-0.5 block">{n.time}</span>
-                            </div>
-                          </div>
-                        ))
+                          );
+                        })
                       )}
                     </div>
                   </div>
@@ -261,3 +326,4 @@ export const Navbar: React.FC = () => {
     </header>
   );
 };
+

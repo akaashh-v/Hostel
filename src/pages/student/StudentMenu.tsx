@@ -19,7 +19,20 @@ import { useAuth } from '../../context/AuthContext';
 import { useRealtime } from '../../context/RealtimeContext';
 import { useToast } from '../../context/ToastContext';
 
-export const StudentMenu: React.FC = () => {
+interface StudentMenuProps {
+  onNavigateToPayment?: (collection: FoodCollection) => void;
+}
+
+interface ConfirmModalState {
+  isOpen: boolean;
+  mealId: string;
+  dishId: string;
+  dishName: string;
+  mealType: string;
+  price: number;
+}
+
+export const StudentMenu: React.FC<StudentMenuProps> = ({ onNavigateToPayment }) => {
   const { student } = useAuth();
   const { success, error } = useToast();
   const [meals, setMeals] = useState<(Meal & { items: FoodItem[] })[]>([]);
@@ -29,6 +42,7 @@ export const StudentMenu: React.FC = () => {
   const [selectedDietary, setSelectedDietary] = useState<string>('ALL');
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isMarking, setIsMarking] = useState<boolean>(false);
+  const [confirmModal, setConfirmModal] = useState<ConfirmModalState | null>(null);
 
   const { subscribe } = useRealtime();
 
@@ -57,14 +71,28 @@ export const StudentMenu: React.FC = () => {
     return () => unsub();
   }, [subscribe]);
 
-  const handleCollectDish = async (mealTypeOrId: string, dishId: string, dishName: string) => {
+  const initiateCollectDish = (mealTypeOrId: string, dishId: string, dishName: string, mealType: string, price: number) => {
+    const mealObj = meals.find(m => m.id === mealTypeOrId || m.meal_type === mealTypeOrId);
+    const mealIdToSend = mealObj ? mealObj.id : mealTypeOrId.startsWith('meal-') ? mealTypeOrId : `meal-${mealTypeOrId.toLowerCase()}`;
+
+    setConfirmModal({
+      isOpen: true,
+      mealId: mealIdToSend,
+      dishId,
+      dishName,
+      mealType,
+      price
+    });
+  };
+
+  const handleConfirmCollection = async () => {
+    if (!confirmModal) return;
+
     setIsMarking(true);
+    const { mealId, dishId, dishName } = confirmModal;
 
     try {
-      const mealObj = meals.find(m => m.id === mealTypeOrId || m.meal_type === mealTypeOrId);
-      const mealIdToSend = mealObj ? mealObj.id : mealTypeOrId.startsWith('meal-') ? mealTypeOrId : `meal-${mealTypeOrId.toLowerCase()}`;
-
-      const res = await api.markFoodCollected(mealIdToSend, dishId, dishName);
+      const res = await api.markFoodCollected(mealId, dishId, dishName);
       success(res.message || `${dishName} marked as collected!`);
 
       // Trigger Celebration Confetti!
@@ -74,7 +102,13 @@ export const StudentMenu: React.FC = () => {
         origin: { y: 0.6 }
       });
 
+      setConfirmModal(null);
       await loadMenuAndCollections();
+
+      // Navigate immediately to Payment section
+      if (onNavigateToPayment && res.collection) {
+        onNavigateToPayment(res.collection);
+      }
     } catch (err: any) {
       error(err.message || 'Could not record food collection');
     } finally {
@@ -329,7 +363,17 @@ export const StudentMenu: React.FC = () => {
                     ) : (
                       <button
                         type="button"
-                        onClick={() => handleCollectDish(dish.meal_id || meals.find(m => m.meal_type === dish.meal_type)?.id || `meal-${dish.meal_type.toLowerCase()}`, dish.id, dish.name)}
+                        onClick={() =>
+                          initiateCollectDish(
+                            dish.meal_id ||
+                              meals.find(m => m.meal_type === dish.meal_type)?.id ||
+                              `meal-${dish.meal_type.toLowerCase()}`,
+                            dish.id,
+                            dish.name,
+                            dish.meal_type,
+                            dish.price
+                          )
+                        }
                         disabled={isMarking}
                         className="px-5 py-2 rounded-xl bg-[#0D9488] hover:bg-[#0F766E] text-white text-xs font-black uppercase tracking-wider shadow-sm hover:shadow-md shadow-[#0D9488]/20 transition-all flex items-center gap-1.5 active:scale-95 cursor-pointer disabled:opacity-50"
                       >
@@ -342,6 +386,79 @@ export const StudentMenu: React.FC = () => {
               </div>
             );
           })}
+        </div>
+      )}
+
+      {/* Food Collection Confirmation Dialog Modal */}
+      {confirmModal && confirmModal.isOpen && (
+        <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100 animate-in fade-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between pb-4 border-b border-slate-100">
+              <div className="flex items-center gap-2.5">
+                <div className="w-10 h-10 rounded-2xl bg-teal-50 text-teal-700 flex items-center justify-center border border-teal-100">
+                  <Utensils className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-base text-slate-900">Confirm Food Collection</h3>
+                  <span className="text-[11px] text-slate-400 uppercase tracking-wider font-semibold">
+                    {confirmModal.mealType}
+                  </span>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setConfirmModal(null)}
+                className="p-1.5 text-slate-400 hover:text-slate-600 rounded-xl hover:bg-slate-100 transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="py-5 space-y-3">
+              <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100 flex items-center justify-between">
+                <div>
+                  <h4 className="font-extrabold text-sm text-slate-900">{confirmModal.dishName}</h4>
+                  <span className="text-xs text-slate-500 font-medium">1 serving portion</span>
+                </div>
+                <span className="font-mono text-base font-black text-slate-900">
+                  ₹{confirmModal.price}
+                </span>
+              </div>
+
+              <p className="text-xs text-slate-500 leading-relaxed">
+                Are you sure you want to mark <strong>{confirmModal.dishName}</strong> as collected? Your collection will be recorded and you will proceed to the payment settlement screen.
+              </p>
+            </div>
+
+            <div className="flex items-center justify-end gap-2.5 pt-2 border-t border-slate-100">
+              <button
+                type="button"
+                onClick={() => setConfirmModal(null)}
+                disabled={isMarking}
+                className="px-4 py-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-xs font-bold text-slate-700 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmCollection}
+                disabled={isMarking}
+                className="px-5 py-2.5 rounded-xl bg-[#0D9488] hover:bg-[#0F766E] text-white text-xs font-bold transition-all shadow-md shadow-[#0D9488]/20 flex items-center gap-2 cursor-pointer disabled:opacity-50"
+              >
+                {isMarking ? (
+                  <>
+                    <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    <span>Recording...</span>
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle2 className="w-4 h-4" />
+                    <span>MARK AS COLLECTED</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

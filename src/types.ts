@@ -1,6 +1,6 @@
 export type MealType = 'BREAKFAST' | 'LUNCH' | 'SNACKS' | 'DINNER';
 export type StudentStatus = 'ACTIVE' | 'INACTIVE' | 'DEACTIVATED';
-export type PaymentStatus = 'PAID' | 'PARTIALLY_PAID' | 'PENDING';
+export type PaymentStatus = 'PAID' | 'PARTIALLY_PAID' | 'PENDING' | 'FAILED';
 export type BillingMode = 'FIXED' | 'PER_MEAL';
 export type PaymentMethod = 'CASH' | 'UPI' | 'BANK_TRANSFER' | 'CARD';
 
@@ -60,6 +60,23 @@ export interface FoodCollection {
   collection_date: string; // YYYY-MM-DD
   collected_at: string;    // ISO timestamp
   food_items_snapshot: string[];
+  amount?: number;
+  payment_status?: PaymentStatus;
+  payment_id?: string;
+}
+
+export interface Notification {
+  id: string;
+  student_id: string;
+  student_name: string;
+  meal_category: MealType;
+  food_name?: string;
+  collection_id: string;
+  date: string;       // YYYY-MM-DD
+  timestamp: string;  // ISO timestamp
+  message: string;    // e.g. "[Student Name] has collected Lunch."
+  is_read: boolean;
+  created_at: string;
 }
 
 export interface BillingSettings {
@@ -123,7 +140,7 @@ export interface HostelSettings {
 }
 
 export interface RealtimeEvent {
-  type: 'COLLECTION_MARKED' | 'MENU_UPDATED' | 'BILL_UPDATED';
+  type: 'COLLECTION_MARKED' | 'MENU_UPDATED' | 'BILL_UPDATED' | 'NOTIFICATION_CREATED' | 'PAYMENT_RECORDED';
   timestamp: string;
   data: any;
 }

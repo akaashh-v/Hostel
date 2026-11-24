@@ -13,7 +13,7 @@ export const StudentBottomNav: React.FC<StudentBottomNavProps> = ({ activeTab, o
     { id: 'dashboard' as StudentTab, label: 'Today', icon: Home },
     { id: 'menu' as StudentTab, label: 'Menu', icon: UtensilsCrossed },
     { id: 'history' as StudentTab, label: 'History', icon: History },
-    { id: 'bill' as StudentTab, label: 'My Bill', icon: ReceiptIndianRupee },
+    { id: 'bill' as StudentTab, label: 'Payment', icon: ReceiptIndianRupee },
     { id: 'profile' as StudentTab, label: 'Profile', icon: User }
   ];
 

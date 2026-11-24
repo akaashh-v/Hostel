@@ -1,26 +1,23 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
-  Users,
   Utensils,
-  ReceiptIndianRupee,
-  AlertCircle,
-  Calendar,
-  ArrowUpRight,
-  Sparkles,
+  Coffee,
+  Sun,
+  Sunset,
+  Moon,
+  CheckCircle2,
   Clock,
-  CheckCircle2
+  AlertCircle,
+  Search,
+  Users,
+  CreditCard,
+  Sparkles,
+  Filter,
+  X,
+  ArrowRight,
+  ShieldCheck
 } from 'lucide-react';
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell
-} from 'recharts';
+import { Meal, FoodItem, FoodCollection, MealType } from '../../types';
 import { api } from '../../services/api';
 import { useRealtime } from '../../context/RealtimeContext';
 import { AdminTab } from '../../components/AdminSidebar';
@@ -31,85 +28,173 @@ interface AdminDashboardProps {
 
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateTab }) => {
   const { subscribe } = useRealtime();
+
+  const [todayMenu, setTodayMenu] = useState<{ meals: (Meal & { items: FoodItem[] })[] } | null>(null);
+  const [collections, setCollections] = useState<FoodCollection[]>([]);
   const [summary, setSummary] = useState<any>(null);
-  const [bills, setBills] = useState<any[]>([]);
-  const [students, setStudents] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  const loadData = async () => {
+  // Filters for collections section
+  const [categoryFilter, setCategoryFilter] = useState<string>('ALL');
+  const [searchQuery, setSearchQuery] = useState<string>('');
+
+  const todayStr = new Date().toISOString().split('T')[0];
+
+  const loadDashboardData = useCallback(async () => {
     try {
-      const [sumRes, billsRes, studentsRes] = await Promise.all([
-        api.getCollectionsSummary(),
-        api.getMonthlyBills(),
-        api.getStudents()
+      const [menuData, collsData, summaryData] = await Promise.all([
+        api.getTodayMenu(),
+        api.getAllCollections({ date: todayStr }),
+        api.getCollectionsSummary(todayStr)
       ]);
-      setSummary(sumRes);
-      setBills(billsRes || []);
-      setStudents(studentsRes || []);
+      setTodayMenu(menuData);
+      setCollections(collsData || []);
+      setSummary(summaryData);
     } catch (err) {
-      console.error(err);
+      console.error('Failed to load admin dashboard data', err);
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [todayStr]);
 
   useEffect(() => {
-    loadData();
+    loadDashboardData();
+
     const unsub = subscribe(e => {
-      if (e.type === 'COLLECTION_MARKED' || e.type === 'BILL_UPDATED' || e.type === 'MENU_UPDATED') {
-        loadData();
+      if (
+        e.type === 'COLLECTION_MARKED' ||
+        e.type === 'PAYMENT_RECORDED' ||
+        e.type === 'MENU_UPDATED' ||
+        e.type === 'NOTIFICATION_CREATED'
+      ) {
+        loadDashboardData();
       }
     });
+
     return () => unsub();
-  }, [subscribe]);
+  }, [loadDashboardData, subscribe]);
 
   if (isLoading) {
     return (
-      <div className="py-20 text-center">
-        <div className="w-10 h-10 border-4 border-[#087F5B] border-t-transparent rounded-full animate-spin mx-auto mb-3" />
-        <p className="text-xs text-slate-400">Loading mess analytics...</p>
+      <div className="py-24 text-center">
+        <div className="w-10 h-10 border-4 border-[#0D9488] border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+        <p className="text-xs text-slate-400 font-medium">Loading mess operations dashboard...</p>
       </div>
     );
   }
 
-  // Key figures
-  const totalStudents = students.length;
-  const activeStudentsCount = students.filter(s => s.status === 'ACTIVE').length;
-  const todayCollections = summary?.total_collections_today || 0;
-  const monthlyCollections = summary?.monthly_collections || 0;
-  const totalRevenue = bills.reduce((acc, b) => acc + (b.paid_amount || 0), 0);
-  const totalPending = bills.reduce((acc, b) => acc + (b.balance_amount || 0), 0);
+  // Count collections by meal category
+  const breakfastCount = collections.filter(c => c.meal_type === 'BREAKFAST').length;
+  const lunchCount = collections.filter(c => c.meal_type === 'LUNCH').length;
+  const snacksCount = collections.filter(c => c.meal_type === 'SNACKS').length;
+  const dinnerCount = collections.filter(c => c.meal_type === 'DINNER').length;
+  const totalCollections = collections.length;
 
-  // Meal-wise collection statistics for bar chart
-  const mealDistributionData = summary?.meals
-    ? summary.meals.map((m: any) => ({
-      name: m.name,
-      collections: m.collected_count,
-      uncollected: Math.max(0, m.total_students - m.collected_count)
-    }))
-    : [];
+  // Real payment metrics
+  const successfulCount = summary?.successful_payments_count ?? collections.filter(c => c.payment_status === 'PAID').length;
+  const successfulAmount = summary?.successful_payments_amount ?? 0;
+  const pendingCount = summary?.pending_payments_count ?? collections.filter(c => c.payment_status === 'PENDING' || !c.payment_status).length;
+  const pendingAmount = summary?.pending_payments_amount ?? 0;
+  const failedCount = summary?.failed_payments_count ?? collections.filter(c => c.payment_status === 'FAILED').length;
 
-  const revenuePieData = [
-    { name: 'Collected Revenue', value: totalRevenue, color: '#087F5B' },
-    { name: 'Pending Balance', value: totalPending, color: '#EF4444' }
+  // Filter collections
+  const filteredCollections = collections.filter(c => {
+    const matchesCategory = categoryFilter === 'ALL' || c.meal_type === categoryFilter;
+    const matchesSearch =
+      !searchQuery ||
+      c.student_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      c.student_phone.includes(searchQuery) ||
+      (c.food_item_name && c.food_item_name.toLowerCase().includes(searchQuery.toLowerCase()));
+    return matchesCategory && matchesSearch;
+  });
+
+  const getMealVisuals = (mealType: string) => {
+    switch (mealType) {
+      case 'BREAKFAST':
+        return {
+          icon: Coffee,
+          color: 'text-amber-600',
+          bg: 'bg-amber-50',
+          border: 'border-amber-200'
+        };
+      case 'LUNCH':
+        return {
+          icon: Sun,
+          color: 'text-emerald-600',
+          bg: 'bg-emerald-50',
+          border: 'border-emerald-200'
+        };
+      case 'SNACKS':
+        return {
+          icon: Sunset,
+          color: 'text-rose-600',
+          bg: 'bg-rose-50',
+          border: 'border-rose-200'
+        };
+      case 'DINNER':
+      default:
+        return {
+          icon: Moon,
+          color: 'text-indigo-600',
+          bg: 'bg-indigo-50',
+          border: 'border-indigo-200'
+        };
+    }
+  };
+
+  const getPaymentStatusBadge = (status?: string) => {
+    if (status === 'PAID') {
+      return (
+        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-black bg-emerald-100 text-emerald-800 border border-emerald-300">
+          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+          SUCCESSFUL
+        </span>
+      );
+    }
+    if (status === 'FAILED') {
+      return (
+        <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-black bg-rose-100 text-rose-800 border border-rose-300">
+          <AlertCircle className="w-3.5 h-3.5 text-rose-600" />
+          FAILED
+        </span>
+      );
+    }
+    return (
+      <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-black bg-amber-100 text-amber-800 border border-amber-300">
+        <Clock className="w-3.5 h-3.5 text-amber-600" />
+        PENDING
+      </span>
+    );
+  };
+
+  const mealGroups: { type: MealType; title: string; count: number }[] = [
+    { type: 'BREAKFAST', title: 'Breakfast Collections', count: breakfastCount },
+    { type: 'LUNCH', title: 'Lunch Collections', count: lunchCount },
+    { type: 'SNACKS', title: 'Evening Snacks Collections', count: snacksCount },
+    { type: 'DINNER', title: 'Dinner Collections', count: dinnerCount }
   ];
 
   return (
-    <div className="space-y-6 pb-12 max-w-7xl mx-auto">
-      {/* Top Banner */}
+    <div className="space-y-7 pb-16 max-w-7xl mx-auto">
+      {/* 1. Header Banner */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-black text-slate-900 tracking-tight">Hostel Mess Dashboard</h1>
+          <div className="flex items-center gap-2 text-[#0D9488] text-xs font-bold uppercase tracking-wider mb-1">
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>Hostel Mess Daily Operations</span>
+          </div>
+          <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+            Mess Warden Dashboard
+          </h1>
           <p className="text-xs text-slate-500 mt-0.5">
-            Operational overview for {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric', year: 'numeric' })}
+            Realtime visibility for today's food preparation, collections, and settlement records • {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric', year: 'numeric' })}
           </p>
         </div>
 
         <div className="flex items-center gap-2.5">
           <button
             onClick={() => onNavigateTab('menu')}
-            style={{ backgroundColor: '#0D9488', color: '#FFFFFF' }}
-            className="px-4 py-2.5 bg-[#0D9488] hover:bg-[#0F766E] text-white rounded-xl text-xs font-bold transition-colors flex items-center gap-2 shadow-md shadow-[#0D9488]/20"
+            className="px-4 py-2.5 bg-[#0D9488] hover:bg-[#0F766E] text-white rounded-xl text-xs font-bold transition-all flex items-center gap-2 shadow-md shadow-[#0D9488]/20 cursor-pointer"
           >
             <Utensils className="w-4 h-4" />
             <span>Manage Daily Menu</span>
@@ -117,254 +202,372 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateTab })
         </div>
       </div>
 
-      {/* 5 KPI Metric Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-        {/* 1. Total Students */}
-        <div
-          onClick={() => onNavigateTab('students')}
-          className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-sm hover:border-slate-300 transition-all cursor-pointer group"
-        >
+      {/* 2. Top Collection Counts Row (Breakfast, Lunch, Snacks, Dinner, Total) - NO DUE SECTION */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3.5 sm:gap-4">
+        {/* Breakfast */}
+        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/90 shadow-xs">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Total Students</span>
-            <div className="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
-              <Users className="w-4 h-4" />
+            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Breakfast</span>
+            <div className="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">
+              <Coffee className="w-4 h-4" />
             </div>
           </div>
-          <p className="text-2xl sm:text-3xl font-black text-slate-900 mt-2">{totalStudents}</p>
-          <div className="flex items-center justify-between mt-2 pt-2 border-t border-slate-100 text-[11px] text-slate-500">
-            <span>{activeStudentsCount} active</span>
-            <ArrowUpRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-[#087F5B] transition-colors" />
-          </div>
+          <p className="text-2xl sm:text-3xl font-black text-slate-900 mt-2 font-mono">{breakfastCount}</p>
+          <span className="text-[11px] text-slate-400 mt-1 block">Meals collected</span>
         </div>
 
-        {/* 2. Today's Collections */}
-        <div
-          onClick={() => onNavigateTab('collections')}
-          className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-sm hover:border-slate-300 transition-all cursor-pointer group"
-        >
+        {/* Lunch */}
+        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/90 shadow-xs">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Today's Meals</span>
+            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Lunch</span>
             <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+              <Sun className="w-4 h-4" />
+            </div>
+          </div>
+          <p className="text-2xl sm:text-3xl font-black text-slate-900 mt-2 font-mono">{lunchCount}</p>
+          <span className="text-[11px] text-slate-400 mt-1 block">Meals collected</span>
+        </div>
+
+        {/* Evening Snacks */}
+        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/90 shadow-xs">
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Evening Snacks</span>
+            <div className="w-8 h-8 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center">
+              <Sunset className="w-4 h-4" />
+            </div>
+          </div>
+          <p className="text-2xl sm:text-3xl font-black text-slate-900 mt-2 font-mono">{snacksCount}</p>
+          <span className="text-[11px] text-slate-400 mt-1 block">Snacks collected</span>
+        </div>
+
+        {/* Dinner */}
+        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200/90 shadow-xs">
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Dinner</span>
+            <div className="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
+              <Moon className="w-4 h-4" />
+            </div>
+          </div>
+          <p className="text-2xl sm:text-3xl font-black text-slate-900 mt-2 font-mono">{dinnerCount}</p>
+          <span className="text-[11px] text-slate-400 mt-1 block">Meals collected</span>
+        </div>
+
+        {/* Total Collections Today */}
+        <div className="bg-gradient-to-tr from-[#134E4A] to-[#0D9488] text-white rounded-2xl p-4 sm:p-5 shadow-md shadow-[#0D9488]/20 col-span-2 sm:col-span-1">
+          <div className="flex items-center justify-between">
+            <span className="text-[11px] font-bold text-emerald-200 uppercase tracking-wider">Total Today</span>
+            <div className="w-8 h-8 rounded-xl bg-white/10 text-white flex items-center justify-center">
               <Utensils className="w-4 h-4" />
             </div>
           </div>
-          <p className="text-2xl sm:text-3xl font-black text-slate-900 mt-2">{todayCollections}</p>
-          <div className="flex items-center justify-between mt-2 pt-2 border-t border-slate-100 text-[11px] text-slate-500">
-            <span>Logged today</span>
-            <ArrowUpRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-[#087F5B] transition-colors" />
-          </div>
+          <p className="text-2xl sm:text-3xl font-black text-white mt-2 font-mono">{totalCollections}</p>
+          <span className="text-[11px] text-emerald-100 mt-1 block">Plates served today</span>
         </div>
+      </div>
 
-        {/* 3. Monthly Collections */}
-        <div
-          onClick={() => onNavigateTab('collections')}
-          className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-sm hover:border-slate-300 transition-all cursor-pointer group"
-        >
+      {/* 3. Real Payment Settlement Metrics */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        {/* Successful Payments */}
+        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-emerald-200/80 bg-emerald-50/20 shadow-xs">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Monthly Count</span>
-            <div className="w-8 h-8 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center">
-              <Calendar className="w-4 h-4" />
+            <span className="text-xs font-bold text-emerald-800 uppercase tracking-wider">Successful Payments</span>
+            <div className="w-7 h-7 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center">
+              <CheckCircle2 className="w-4 h-4" />
             </div>
           </div>
-          <p className="text-2xl sm:text-3xl font-black text-slate-900 mt-2">{monthlyCollections}</p>
-          <div className="flex items-center justify-between mt-2 pt-2 border-t border-slate-100 text-[11px] text-slate-500">
-            <span>This month</span>
-            <ArrowUpRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-[#087F5B] transition-colors" />
+          <div className="flex items-baseline gap-2 mt-2">
+            <span className="text-2xl font-black text-emerald-800 font-mono">{successfulCount}</span>
+            <span className="text-xs text-emerald-600 font-semibold">transactions</span>
           </div>
-        </div>
-
-        {/* 4. Monthly Revenue */}
-        <div
-          onClick={() => onNavigateTab('billing')}
-          className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-sm hover:border-slate-300 transition-all cursor-pointer group"
-        >
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Revenue</span>
-            <div className="w-8 h-8 rounded-xl bg-emerald-50 text-[#087F5B] flex items-center justify-center">
-              <ReceiptIndianRupee className="w-4 h-4" />
-            </div>
-          </div>
-          <p className="text-2xl sm:text-3xl font-black text-[#087F5B] mt-2 font-mono">
-            ₹{totalRevenue.toFixed(0)}
+          <p className="text-xs font-black text-emerald-700 mt-1 font-mono">
+            ₹{successfulAmount.toFixed(2)} collected
           </p>
-          <div className="flex items-center justify-between mt-2 pt-2 border-t border-slate-100 text-[11px] text-slate-500">
-            <span>Collected fees</span>
-            <ArrowUpRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-[#087F5B] transition-colors" />
-          </div>
         </div>
 
-        {/* 5. Pending Payments */}
-        <div
-          onClick={() => onNavigateTab('billing')}
-          className="bg-white rounded-2xl p-4 sm:p-5 border border-slate-200 shadow-sm hover:border-slate-300 transition-all cursor-pointer group"
-        >
+        {/* Pending Payments */}
+        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-amber-200/80 bg-amber-50/20 shadow-xs">
           <div className="flex items-center justify-between">
-            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Pending Dues</span>
-            <div className="w-8 h-8 rounded-xl bg-red-50 text-red-600 flex items-center justify-center">
+            <span className="text-xs font-bold text-amber-800 uppercase tracking-wider">Pending Payments</span>
+            <div className="w-7 h-7 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center">
+              <Clock className="w-4 h-4" />
+            </div>
+          </div>
+          <div className="flex items-baseline gap-2 mt-2">
+            <span className="text-2xl font-black text-amber-800 font-mono">{pendingCount}</span>
+            <span className="text-xs text-amber-600 font-semibold">awaiting settlement</span>
+          </div>
+          <p className="text-xs font-black text-amber-700 mt-1 font-mono">
+            ₹{pendingAmount.toFixed(2)} pending
+          </p>
+        </div>
+
+        {/* Failed Payments */}
+        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-rose-200/80 bg-rose-50/20 shadow-xs">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold text-rose-800 uppercase tracking-wider">Failed Payments</span>
+            <div className="w-7 h-7 rounded-lg bg-rose-100 text-rose-700 flex items-center justify-center">
               <AlertCircle className="w-4 h-4" />
             </div>
           </div>
-          <p className="text-2xl sm:text-3xl font-black text-red-600 mt-2 font-mono">
-            ₹{totalPending.toFixed(0)}
-          </p>
-          <div className="flex items-center justify-between mt-2 pt-2 border-t border-slate-100 text-[11px] text-slate-500">
-            <span>Outstanding</span>
-            <ArrowUpRight className="w-3.5 h-3.5 text-slate-400 group-hover:text-[#087F5B] transition-colors" />
+          <div className="flex items-baseline gap-2 mt-2">
+            <span className="text-2xl font-black text-rose-800 font-mono">{failedCount}</span>
+            <span className="text-xs text-rose-600 font-semibold">failed records</span>
           </div>
+          <p className="text-xs text-slate-400 mt-1">Requires student retry</p>
         </div>
       </div>
 
-      {/* Visual Charts: Meal-Wise Collections & Revenue Split */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Meal-Wise Collection Statistics Bar Chart */}
-        <div className="lg:col-span-2 bg-white rounded-3xl border border-slate-200 p-6 shadow-sm">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h2 className="font-bold text-base text-slate-900">Meal-Wise Collection Statistics</h2>
-              <p className="text-xs text-slate-500">Total plates collected across daily dining sessions</p>
-            </div>
-            <span className="text-xs font-bold text-[#087F5B] bg-emerald-50 px-3 py-1 rounded-full border border-emerald-200">
-              Today's Log
-            </span>
-          </div>
-
-          <div className="h-64 w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={mealDistributionData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                <XAxis dataKey="name" tick={{ fontSize: 11 }} />
-                <YAxis allowDecimals={false} tick={{ fontSize: 11 }} />
-                <Tooltip
-                  formatter={(val: any) => [`${val} students`, 'Collected']}
-                  contentStyle={{ borderRadius: '12px', border: '1px solid #e2e8f0', fontSize: '12px' }}
-                />
-                <Bar dataKey="collections" fill="#087F5B" radius={[8, 8, 0, 0]} />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
-
-        {/* Revenue Status Pie Chart */}
-        <div className="bg-white rounded-3xl border border-slate-200 p-6 shadow-sm flex flex-col justify-between">
+      {/* 4. TODAY'S MENU SECTION (4 Meal Sessions: Breakfast, Lunch, Evening Snacks, Dinner) */}
+      <div className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-7 shadow-sm space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100">
           <div>
-            <h2 className="font-bold text-base text-slate-900 mb-1">Billing Reconciliation</h2>
-            <p className="text-xs text-slate-500 mb-4">Collected revenue vs outstanding balance</p>
-
-            <div className="h-44 w-full flex items-center justify-center">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={revenuePieData}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={50}
-                    outerRadius={70}
-                    paddingAngle={4}
-                    dataKey="value"
-                  >
-                    {revenuePieData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Pie>
-                  <Tooltip
-                    formatter={(val: any) => [`₹${val.toFixed(2)}`, '']}
-                    contentStyle={{ borderRadius: '12px', border: '1px solid #e2e8f0', fontSize: '12px' }}
-                  />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-
-            <div className="space-y-2 pt-2 border-t border-slate-100">
-              <div className="flex items-center justify-between text-xs">
-                <span className="flex items-center gap-2 text-slate-600">
-                  <span className="w-2.5 h-2.5 rounded-full bg-[#087F5B]" />
-                  <span>Collected:</span>
-                </span>
-                <span className="font-bold text-[#087F5B] font-mono">₹{totalRevenue.toFixed(2)}</span>
-              </div>
-              <div className="flex items-center justify-between text-xs">
-                <span className="flex items-center gap-2 text-slate-600">
-                  <span className="w-2.5 h-2.5 rounded-full bg-red-500" />
-                  <span>Pending Dues:</span>
-                </span>
-                <span className="font-bold text-red-600 font-mono">₹{totalPending.toFixed(2)}</span>
-              </div>
-            </div>
+            <h2 className="text-lg font-black text-slate-900 tracking-tight flex items-center gap-2">
+              <Utensils className="w-5 h-5 text-[#0D9488]" />
+              <span>Today's Scheduled Dining Menu</span>
+            </h2>
+            <p className="text-xs text-slate-500 mt-0.5">
+              Dishes actively prepared and available at the hostel dining counters for each meal session
+            </p>
           </div>
 
           <button
-            onClick={() => onNavigateTab('billing')}
-            className="mt-4 w-full py-2.5 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition-colors text-center"
+            onClick={() => onNavigateTab('menu')}
+            className="text-xs font-bold text-[#0D9488] hover:text-[#0F766E] flex items-center gap-1 cursor-pointer"
           >
-            Open Billing Ledger
+            <span>Edit dishes in Menu Management</span>
+            <ArrowRight className="w-3.5 h-3.5" />
           </button>
+        </div>
+
+        {/* 4 Meal Sessions Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+          {todayMenu?.meals?.map(meal => {
+            const visual = getMealVisuals(meal.meal_type);
+            const Icon = visual.icon;
+
+            return (
+              <div
+                key={meal.id}
+                className="rounded-2xl border border-slate-200 bg-slate-50/50 p-4 flex flex-col justify-between hover:bg-slate-50 transition-colors"
+              >
+                <div>
+                  {/* Session Header */}
+                  <div className="flex items-center justify-between pb-3 border-b border-slate-200/80">
+                    <div className="flex items-center gap-2">
+                      <div className={`w-8 h-8 rounded-xl ${visual.bg} ${visual.color} flex items-center justify-center border ${visual.border}`}>
+                        <Icon className="w-4 h-4" />
+                      </div>
+                      <div>
+                        <h3 className="font-extrabold text-sm text-slate-900 leading-tight">
+                          {meal.name}
+                        </h3>
+                        <span className="text-[10px] text-slate-400 font-mono">
+                          {meal.start_time} - {meal.end_time}
+                        </span>
+                      </div>
+                    </div>
+
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-white text-slate-600 border border-slate-200">
+                      {meal.items?.length || 0} items
+                    </span>
+                  </div>
+
+                  {/* Dishes List */}
+                  <div className="mt-3 space-y-2.5">
+                    {meal.items && meal.items.length > 0 ? (
+                      meal.items.map(dish => (
+                        <div
+                          key={dish.id}
+                          className="flex items-center gap-2.5 bg-white p-2 rounded-xl border border-slate-100 shadow-2xs"
+                        >
+                          <img
+                            src={dish.image_url}
+                            alt={dish.name}
+                            className="w-11 h-11 rounded-lg object-cover bg-slate-100 shrink-0"
+                            loading="lazy"
+                          />
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-1.5">
+                              <span
+                                className={`w-2 h-2 rounded-full shrink-0 ${
+                                  dish.category === 'VEG' ? 'bg-emerald-500' : 'bg-red-500'
+                                }`}
+                              />
+                              <h4 className="text-xs font-bold text-slate-800 truncate">
+                                {dish.name}
+                              </h4>
+                            </div>
+                            <span className="text-[11px] font-black font-mono text-[#0D9488] block mt-0.5">
+                              ₹{dish.price}
+                            </span>
+                          </div>
+                        </div>
+                      ))
+                    ) : (
+                      <p className="text-[11px] text-slate-400 italic py-3 text-center">
+                        No dishes listed
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                <div className="mt-3 pt-2 border-t border-slate-200/60 flex items-center justify-between text-[11px] text-slate-500">
+                  <span>Session collections:</span>
+                  <strong className="font-mono text-slate-900">
+                    {collections.filter(c => c.meal_type === meal.meal_type).length} plates
+                  </strong>
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
 
-      {/* Daily Scheduled Meals Status Table */}
-      <div className="bg-white rounded-3xl border border-slate-200 shadow-sm overflow-hidden">
-        <div className="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between">
+      {/* 5. TODAY'S FOOD COLLECTIONS SECTION */}
+      <div className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-7 shadow-sm space-y-6">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-slate-100">
           <div>
-            <h2 className="font-bold text-sm text-slate-900">Today's Meal Headcount Breakdown</h2>
-            <p className="text-xs text-slate-500">Collected plates vs pending student counts</p>
+            <h2 className="text-lg font-black text-slate-900 tracking-tight flex items-center gap-2">
+              <CheckCircle2 className="w-5 h-5 text-emerald-600" />
+              <span>Today's Food Collections ({filteredCollections.length})</span>
+            </h2>
+            <p className="text-xs text-slate-500 mt-0.5">
+              Live collection registry with student identity, exact timestamp, and payment settlement status
+            </p>
           </div>
-          <span className="text-xs text-slate-400 font-mono">Daily Schedule</span>
+
+          {/* Search & Filter Controls */}
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
+            {/* Search Input */}
+            <div className="relative w-full sm:w-64">
+              <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+              <input
+                type="text"
+                placeholder="Search student or phone..."
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
+                className="w-full pl-8 pr-7 py-2 text-xs rounded-xl border border-slate-200 bg-slate-50/50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#0D9488]"
+              />
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery('')}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 p-1"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              )}
+            </div>
+
+            {/* Category Filter Pills */}
+            <div className="flex items-center gap-1 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
+              {[
+                { id: 'ALL', label: 'All' },
+                { id: 'BREAKFAST', label: 'Breakfast' },
+                { id: 'LUNCH', label: 'Lunch' },
+                { id: 'SNACKS', label: 'Snacks' },
+                { id: 'DINNER', label: 'Dinner' }
+              ].map(cat => (
+                <button
+                  key={cat.id}
+                  onClick={() => setCategoryFilter(cat.id)}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-bold whitespace-nowrap transition-all cursor-pointer ${
+                    categoryFilter === cat.id
+                      ? 'bg-[#0D9488] text-white shadow-xs'
+                      : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                  }`}
+                >
+                  {cat.label}
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
-            <thead className="bg-slate-50 text-slate-500 uppercase font-semibold border-b border-slate-200">
-              <tr>
-                <th className="py-3 px-4">Meal Session</th>
-                <th className="py-3 px-4">Timing</th>
-                <th className="py-3 px-4 text-center">Collected Plates</th>
-                <th className="py-3 px-4 text-center">Pending Students</th>
-                <th className="py-3 px-4 text-center">Attendance %</th>
-                <th className="py-3 px-4 text-right">Action</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100 text-slate-700">
-              {summary?.meals?.map((meal: any) => {
-                const total = meal.total_students || 1;
-                const collected = meal.collected_count || 0;
-                const uncollected = Math.max(0, total - collected);
-                const percent = Math.round((collected / total) * 100);
+        {/* 4 Distinct Groups: Breakfast, Lunch, Evening Snacks, Dinner */}
+        <div className="space-y-6">
+          {mealGroups
+            .filter(grp => categoryFilter === 'ALL' || categoryFilter === grp.type)
+            .map(grp => {
+              const grpColls = filteredCollections.filter(c => c.meal_type === grp.type);
+              const visual = getMealVisuals(grp.type);
+              const Icon = visual.icon;
 
-                return (
-                  <tr key={meal.meal_id} className="hover:bg-slate-50/60 transition-colors">
-                    <td className="py-3.5 px-4 font-bold text-slate-900">{meal.name}</td>
-                    <td className="py-3.5 px-4 font-mono text-slate-500">
-                      {meal.start_time} - {meal.end_time}
-                    </td>
-                    <td className="py-3.5 px-4 text-center font-mono font-bold text-emerald-700">
-                      {collected}
-                    </td>
-                    <td className="py-3.5 px-4 text-center font-mono font-bold text-slate-500">
-                      {uncollected}
-                    </td>
-                    <td className="py-3.5 px-4 text-center">
-                      <div className="flex items-center justify-center gap-2">
-                        <div className="w-20 bg-slate-100 h-2 rounded-full overflow-hidden">
-                          <div
-                            className="bg-[#087F5B] h-full rounded-full"
-                            style={{ width: `${percent}%` }}
-                          />
-                        </div>
-                        <span className="font-mono text-[11px] font-bold">{percent}%</span>
+              return (
+                <div key={grp.type} className="rounded-2xl border border-slate-200 overflow-hidden">
+                  {/* Group Sub-Header */}
+                  <div className="p-3.5 bg-slate-50 border-b border-slate-200/80 flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <div className={`w-6 h-6 rounded-lg ${visual.bg} ${visual.color} flex items-center justify-center`}>
+                        <Icon className="w-3.5 h-3.5" />
                       </div>
-                    </td>
-                    <td className="py-3.5 px-4 text-right">
-                      <button
-                        onClick={() => onNavigateTab('collections')}
-                        className="text-xs font-semibold text-[#087F5B] hover:text-[#066749] underline"
-                      >
-                        View Students
-                      </button>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
+                      <h3 className="font-extrabold text-xs text-slate-800 uppercase tracking-wider">
+                        {grp.title}
+                      </h3>
+                    </div>
+                    <span className="text-xs font-mono font-bold text-slate-600">
+                      {grpColls.length} collected
+                    </span>
+                  </div>
+
+                  {/* Group Table / Cards */}
+                  {grpColls.length === 0 ? (
+                    <div className="py-6 text-center text-xs text-slate-400">
+                      No collections recorded for {grp.type.toLowerCase()} today.
+                    </div>
+                  ) : (
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-left text-xs">
+                        <thead className="bg-slate-50/50 text-slate-400 uppercase font-semibold text-[10px] tracking-wider border-b border-slate-100">
+                          <tr>
+                            <th className="py-2.5 px-4">Student Name</th>
+                            <th className="py-2.5 px-4">Phone / Room</th>
+                            <th className="py-2.5 px-4">Meal Item</th>
+                            <th className="py-2.5 px-4">Collected Time</th>
+                            <th className="py-2.5 px-4">Amount</th>
+                            <th className="py-2.5 px-4 text-right">Payment Status</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-100 text-slate-700">
+                          {grpColls.map(c => {
+                            const dateObj = new Date(c.collected_at);
+                            const formattedTime = !isNaN(dateObj.getTime())
+                              ? dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                              : '';
+                            const foodName =
+                              c.food_item_name ||
+                              (c.food_items_snapshot && c.food_items_snapshot[0]) ||
+                              grp.title.replace(' Collections', '');
+
+                            return (
+                              <tr key={c.id} className="hover:bg-slate-50/70 transition-colors">
+                                <td className="py-3 px-4 font-bold text-slate-900">
+                                  {c.student_name}
+                                </td>
+                                <td className="py-3 px-4 font-mono text-slate-500">
+                                  {c.student_phone}
+                                </td>
+                                <td className="py-3 px-4 font-semibold text-slate-800">
+                                  {foodName}
+                                </td>
+                                <td className="py-3 px-4 font-mono text-slate-500">
+                                  {c.collection_date} {formattedTime && `• ${formattedTime}`}
+                                </td>
+                                <td className="py-3 px-4 font-mono font-bold text-slate-900">
+                                  ₹{c.amount || 40}
+                                </td>
+                                <td className="py-3 px-4 text-right">
+                                  {getPaymentStatusBadge(c.payment_status)}
+                                </td>
+                              </tr>
+                            );
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
         </div>
       </div>
     </div>

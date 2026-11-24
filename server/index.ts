@@ -13,9 +13,11 @@ import {
   Meal,
   FoodItem,
   FoodCollection,
+  Notification,
   BillingSettings,
   MonthlyBill,
   Payment,
+  PaymentMethod,
   HostelSettings,
   MealType,
   BillingMode,
@@ -67,6 +69,7 @@ interface DatabaseSchema {
   meals: Meal[];
   food_items: FoodItem[];
   food_collections: FoodCollection[];
+  notifications: Notification[];
   billing_settings: BillingSettings;
   monthly_bills: MonthlyBill[];
   payments: Payment[];
@@ -688,6 +691,7 @@ const DEFAULT_DB: DatabaseSchema = {
     qr_code_url: 'http://localhost:5173/student',
     notice: 'Mess dining runs according to daily schedule. Please mark your meal collected at the counter.'
   },
+  notifications: [],
   sessions: {}
 };
 
@@ -702,6 +706,9 @@ class Database {
     }
     if (!this.data.sessions) {
       this.data.sessions = {};
+    }
+    if (!this.data.notifications) {
+      this.data.notifications = [];
     }
   }
 
@@ -723,6 +730,7 @@ class Database {
         const parsed = JSON.parse(raw);
         if (parsed && parsed.students && parsed.students.length > 0) {
           if (!parsed.sessions) parsed.sessions = {};
+          if (!parsed.notifications) parsed.notifications = [];
           return parsed;
         }
       }
@@ -735,6 +743,7 @@ class Database {
         const parsed = JSON.parse(raw);
         if (parsed && parsed.food_items && parsed.food_items.length >= 25) {
           if (!parsed.sessions) parsed.sessions = {};
+          if (!parsed.notifications) parsed.notifications = [];
           return parsed;
         }
       }
@@ -889,6 +898,72 @@ class Database {
     return false;
   }
 
+  // --- Notifications ---
+  public getNotifications(): Notification[] {
+    if (!this.data.notifications) this.data.notifications = [];
+    return [...this.data.notifications].sort(
+      (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    );
+  }
+
+  public getUnreadNotificationCount(): number {
+    if (!this.data.notifications) this.data.notifications = [];
+    return this.data.notifications.filter(n => !n.is_read).length;
+  }
+
+  public addNotification(data: Omit<Notification, 'id' | 'is_read' | 'created_at'>): Notification {
+    if (!this.data.notifications) this.data.notifications = [];
+    const notif: Notification = {
+      id: 'notif-' + crypto.randomUUID(),
+      student_id: data.student_id,
+      student_name: data.student_name,
+      meal_category: data.meal_category,
+      food_name: data.food_name,
+      collection_id: data.collection_id,
+      date: data.date,
+      timestamp: data.timestamp,
+      message: data.message,
+      is_read: false,
+      created_at: new Date().toISOString()
+    };
+    this.data.notifications.unshift(notif);
+    this.save();
+    return notif;
+  }
+
+  public markNotificationRead(id: string): boolean {
+    if (!this.data.notifications) this.data.notifications = [];
+    const notif = this.data.notifications.find(n => n.id === id);
+    if (notif) {
+      notif.is_read = true;
+      this.save();
+      return true;
+    }
+    return false;
+  }
+
+  public markAllNotificationsRead(): number {
+    if (!this.data.notifications) this.data.notifications = [];
+    let count = 0;
+    for (const n of this.data.notifications) {
+      if (!n.is_read) {
+        n.is_read = true;
+        count++;
+      }
+    }
+    if (count > 0) this.save();
+    return count;
+  }
+
+  public getMealRate(mealType: MealType): number {
+    const s = this.data.billing_settings;
+    if (mealType === 'BREAKFAST') return s.breakfast_rate || 45;
+    if (mealType === 'LUNCH') return s.lunch_rate || 85;
+    if (mealType === 'SNACKS') return s.snacks_rate || 35;
+    if (mealType === 'DINNER') return s.dinner_rate || 85;
+    return 60;
+  }
+
   // --- Food Collections ---
   public getCollections(): FoodCollection[] {
     return this.data.food_collections;
@@ -910,7 +985,7 @@ class Database {
     foodItemNames: string[],
     foodItemId?: string,
     foodItemName?: string
-  ): { success: boolean; collection?: FoodCollection; error?: string } {
+  ): { success: boolean; collection?: FoodCollection; notification?: Notification; error?: string } {
     // Check duplicate collection constraint
     if (foodItemId || foodItemName) {
       const existing = this.data.food_collections.find(
@@ -934,6 +1009,10 @@ class Database {
       }
     }
 
+    const itemObj = (foodItemId && this.data.food_items.find(i => i.id === foodItemId)) ||
+                    (foodItemName && this.data.food_items.find(i => i.name === foodItemName));
+    const amount = itemObj ? itemObj.price : this.getMealRate(mealType);
+
     const newCollection: FoodCollection = {
       id: 'col-' + crypto.randomUUID(),
       student_id: studentId,
@@ -945,16 +1024,89 @@ class Database {
       food_item_name: foodItemName,
       collection_date: date,
       collected_at: new Date().toISOString(),
-      food_items_snapshot: foodItemName ? [foodItemName] : foodItemNames
+      food_items_snapshot: foodItemName ? [foodItemName] : foodItemNames,
+      amount,
+      payment_status: 'PENDING'
     };
 
     this.data.food_collections.push(newCollection);
+
+    // Format meal category nicely: Breakfast, Lunch, Evening Snacks, or Dinner
+    const mealCategoryDisplay =
+      mealType === 'SNACKS' ? 'Evening Snacks' : mealType.charAt(0) + mealType.slice(1).toLowerCase();
+
+    const notif = this.addNotification({
+      student_id: studentId,
+      student_name: studentName,
+      meal_category: mealType,
+      food_name: foodItemName || (foodItemNames && foodItemNames.length === 1 ? foodItemNames[0] : mealCategoryDisplay),
+      collection_id: newCollection.id,
+      date: date,
+      timestamp: newCollection.collected_at,
+      message: `${studentName} has collected ${mealCategoryDisplay}.`
+    });
+
     this.save();
 
-    // Auto-update student's current monthly bill counts
+    // Auto-update student's current bill
     this.syncStudentBillForCollection(studentId, studentName, studentPhone, mealType, date);
 
-    return { success: true, collection: newCollection };
+    return { success: true, collection: newCollection, notification: notif };
+  }
+
+  public recordCollectionPayment(
+    collectionId: string,
+    paymentMethod: PaymentMethod = 'UPI',
+    referenceId?: string
+  ): { success: boolean; payment?: Payment; collection?: FoodCollection; error?: string } {
+    const collection = this.data.food_collections.find(c => c.id === collectionId);
+    if (!collection) {
+      return { success: false, error: 'Collection record not found' };
+    }
+
+    if (collection.payment_status === 'PAID') {
+      return { success: false, error: 'Payment has already been completed for this collection' };
+    }
+
+    const amount = collection.amount || this.getMealRate(collection.meal_type);
+    const ref = referenceId || `UPI-${Date.now().toString().slice(-6)}-${Math.floor(1000 + Math.random() * 9000)}`;
+
+    const newPayment: Payment = {
+      id: 'pay-' + crypto.randomUUID(),
+      bill_id: collectionId,
+      student_id: collection.student_id,
+      student_name: collection.student_name,
+      amount,
+      payment_method: paymentMethod || 'UPI',
+      reference_id: ref,
+      notes: `Payment for ${collection.food_item_name || collection.meal_type} (${collection.collection_date})`,
+      received_by: 'Hostel Mess Counter',
+      paid_at: new Date().toISOString()
+    };
+
+    this.data.payments.push(newPayment);
+    collection.payment_status = 'PAID';
+    collection.payment_id = newPayment.id;
+
+    // Credit student's monthly bill
+    const colDate = new Date(collection.collection_date);
+    const month = colDate.getMonth() + 1;
+    const year = colDate.getFullYear();
+    const bill = this.data.monthly_bills.find(b => b.student_id === collection.student_id && b.month === month && b.year === year);
+    if (bill) {
+      bill.paid_amount += amount;
+      bill.balance_amount = Math.max(0, bill.total_amount - bill.paid_amount);
+      if (bill.balance_amount <= 0) {
+        bill.payment_status = 'PAID';
+        bill.balance_amount = 0;
+      } else if (bill.paid_amount > 0) {
+        bill.payment_status = 'PARTIALLY_PAID';
+      }
+      bill.updated_at = new Date().toISOString();
+    }
+
+    this.save();
+    return { success: true, payment: newPayment, collection };
   }
 
   private syncStudentBillForCollection(
@@ -1003,16 +1155,12 @@ class Database {
     else if (mealType === 'DINNER') bill.dinner_count += 1;
 
     bill.total_meals = bill.breakfast_count + bill.lunch_count + bill.snacks_count + bill.dinner_count;
-
-    if (settings.mode === 'FIXED') {
-      bill.base_amount = settings.fixed_monthly_rate;
-    } else {
-      bill.base_amount =
-        bill.breakfast_count * settings.breakfast_rate +
-        bill.lunch_count * settings.lunch_rate +
-        bill.snacks_count * settings.snacks_rate +
-        bill.dinner_count * settings.dinner_rate;
-    }
+    bill.billing_mode = 'PER_MEAL';
+    bill.base_amount =
+      bill.breakfast_count * settings.breakfast_rate +
+      bill.lunch_count * settings.lunch_rate +
+      bill.snacks_count * settings.snacks_rate +
+      bill.dinner_count * settings.dinner_rate;
 
     bill.total_amount = bill.base_amount + bill.late_fee;
     bill.balance_amount = Math.max(0, bill.total_amount - bill.paid_amount);
@@ -1598,9 +1746,18 @@ apiRouter.post('/collections/mark', (req: Request, res: Response) => {
     }
   });
 
+  if (result.notification) {
+    realtimeManager.broadcast({
+      type: 'NOTIFICATION_CREATED',
+      timestamp: new Date().toISOString(),
+      data: result.notification
+    });
+  }
+
   res.status(201).json({
     message: resolvedFoodName ? `${resolvedFoodName} marked as collected!` : `Food collection confirmed for ${meal.name}!`,
-    collection: result.collection
+    collection: result.collection,
+    notification: result.notification
   });
 });
 
@@ -1678,6 +1835,16 @@ apiRouter.get('/collections/summary', (req: Request, res: Response) => {
 
   const meals = db.getMeals();
 
+  const successfulCollections = todayCollections.filter(c => c.payment_status === 'PAID');
+  const pendingCollections = todayCollections.filter(c => c.payment_status === 'PENDING' || !c.payment_status);
+  const failedCollections = todayCollections.filter(c => c.payment_status === 'FAILED');
+
+  const successful_payments_count = successfulCollections.length;
+  const successful_payments_amount = successfulCollections.reduce((sum, c) => sum + (c.amount || db.getMealRate(c.meal_type)), 0);
+  const pending_payments_count = pendingCollections.length;
+  const pending_payments_amount = pendingCollections.reduce((sum, c) => sum + (c.amount || db.getMealRate(c.meal_type)), 0);
+  const failed_payments_count = failedCollections.length;
+
   const mealSummary = meals.map(m => {
     const mealCollections = todayCollections.filter(c => c.meal_id === m.id || c.meal_type === m.meal_type);
     const collectedStudentIds = new Set(mealCollections.map(c => c.student_id));
@@ -1705,8 +1872,101 @@ apiRouter.get('/collections/summary', (req: Request, res: Response) => {
     monthly_collections: monthlyCollections.length,
     monthly_revenue: monthlyRevenue,
     pending_payments: pendingPayments,
+    successful_payments_count,
+    successful_payments_amount,
+    pending_payments_count,
+    pending_payments_amount,
+    failed_payments_count,
     meals: mealSummary
   });
+});
+
+// -----------------------------------------------------------------------------
+// NOTIFICATIONS (PERSISTENT ADMIN ALERTS)
+// -----------------------------------------------------------------------------
+apiRouter.get('/notifications', (req: Request, res: Response) => {
+  const token = getSessionToken(req);
+  const session = db.validateSession(token);
+
+  if (!session || session.role !== 'admin') {
+    res.status(401).json({ error: 'Unauthorized: Admin access required' });
+    return;
+  }
+
+  const notifications = db.getNotifications();
+  const unread_count = db.getUnreadNotificationCount();
+  res.json({ notifications, unread_count });
+});
+
+apiRouter.patch('/notifications/:id/read', (req: Request, res: Response) => {
+  const token = getSessionToken(req);
+  const session = db.validateSession(token);
+
+  if (!session || session.role !== 'admin') {
+    res.status(401).json({ error: 'Unauthorized: Admin access required' });
+    return;
+  }
+
+  const id = getParamId(req.params.id);
+  const success = db.markNotificationRead(id);
+  if (!success) {
+    res.status(404).json({ error: 'Notification not found' });
+    return;
+  }
+
+  res.json({ success: true, message: 'Notification marked as read' });
+});
+
+apiRouter.post('/notifications/read-all', (req: Request, res: Response) => {
+  const token = getSessionToken(req);
+  const session = db.validateSession(token);
+
+  if (!session || session.role !== 'admin') {
+    res.status(401).json({ error: 'Unauthorized: Admin access required' });
+    return;
+  }
+
+  const count = db.markAllNotificationsRead();
+  res.json({ success: true, count });
+});
+
+// -----------------------------------------------------------------------------
+// COLLECTION-SPECIFIC MEAL PAYMENT SETTLEMENT
+// -----------------------------------------------------------------------------
+apiRouter.post('/payments/collect-pay', (req: Request, res: Response) => {
+  const token = getSessionToken(req);
+  const session = db.validateSession(token);
+
+  if (!session) {
+    res.status(401).json({ error: 'Unauthorized' });
+    return;
+  }
+
+  const { collection_id, payment_method, reference_id } = req.body;
+  if (!collection_id) {
+    res.status(400).json({ error: 'collection_id is required' });
+    return;
+  }
+
+  const result = db.recordCollectionPayment(collection_id, payment_method || 'UPI', reference_id);
+  if (!result.success) {
+    res.status(400).json({ error: result.error });
+    return;
+  }
+
+  realtimeManager.broadcast({
+    type: 'PAYMENT_RECORDED',
+    timestamp: new Date().toISOString(),
+    data: { payment: result.payment, collection: result.collection }
+  });
+
+  realtimeManager.broadcast({
+    type: 'BILL_UPDATED',
+    timestamp: new Date().toISOString(),
+    data: { payment: result.payment }
+  });
+
+  res.status(201).json(result);
 });
 
 // -----------------------------------------------------------------------------

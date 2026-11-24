@@ -13,7 +13,8 @@ import {
   ArrowRight,
   ShieldCheck,
   ReceiptIndianRupee,
-  AlertCircle
+  AlertCircle,
+  X
 } from 'lucide-react';
 import { Meal, FoodItem, FoodCollection, MealType } from '../../types';
 import { api } from '../../services/api';
@@ -23,9 +24,13 @@ import { useToast } from '../../context/ToastContext';
 
 interface StudentDashboardProps {
   onNavigateToTab?: (tab: 'menu' | 'history' | 'bill') => void;
+  onNavigateToPayment?: (collection: FoodCollection) => void;
 }
 
-export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onNavigateToTab }) => {
+export const StudentDashboard: React.FC<StudentDashboardProps> = ({
+  onNavigateToTab,
+  onNavigateToPayment
+}) => {
   const { student } = useAuth();
   const { subscribe } = useRealtime();
   const { success, error } = useToast();
@@ -36,6 +41,14 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onNavigateTo
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isMarking, setIsMarking] = useState<boolean>(false);
   const [selectedSessionFilter, setSelectedSessionFilter] = useState<string>('ALL');
+  const [confirmModal, setConfirmModal] = useState<{
+    isOpen: boolean;
+    mealId: string;
+    dishId?: string;
+    dishName: string;
+    mealType: string;
+    price: number;
+  } | null>(null);
 
   const fetchDashboardData = useCallback(async () => {
     try {
@@ -66,30 +79,22 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onNavigateTo
     return () => unsubscribe();
   }, [fetchDashboardData, subscribe]);
 
-  const handleCollectMeal = async (mealId: string, mealName: string) => {
-    setIsMarking(true);
-
-    try {
-      const res = await api.markFoodCollected(mealId);
-      success(res.message || `${mealName} marked as collected!`);
-
-      // Trigger Celebration Confetti!
-      confetti({
-        particleCount: 90,
-        spread: 60,
-        origin: { y: 0.6 }
-      });
-
-      await fetchDashboardData();
-    } catch (err: any) {
-      error(err.message || 'Could not record food collection');
-    } finally {
-      setIsMarking(false);
-    }
+  const initiateCollectDish = (mealId: string, dishId: string, dishName: string, mealType: string, price: number) => {
+    setConfirmModal({
+      isOpen: true,
+      mealId,
+      dishId,
+      dishName,
+      mealType,
+      price
+    });
   };
 
-  const handleCollectDish = async (mealId: string, dishId: string, dishName: string) => {
+  const handleConfirmCollection = async () => {
+    if (!confirmModal) return;
+
     setIsMarking(true);
+    const { mealId, dishId, dishName } = confirmModal;
 
     try {
       const res = await api.markFoodCollected(mealId, dishId, dishName);
@@ -102,7 +107,14 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onNavigateTo
         origin: { y: 0.6 }
       });
 
+      setConfirmModal(null);
       await fetchDashboardData();
+
+      if (onNavigateToPayment && res.collection) {
+        onNavigateToPayment(res.collection);
+      } else if (onNavigateToTab) {
+        onNavigateToTab('bill');
+      }
     } catch (err: any) {
       error(err.message || 'Could not record food collection');
     } finally {
@@ -332,7 +344,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onNavigateTo
                     </div>
                   ) : (
                     <button
-                      onClick={() => handleCollectMeal(meal.id, meal.name)}
+                      onClick={() => initiateCollectDish(meal.id, undefined, meal.name, meal.meal_type, 40)}
                       disabled={isMarking}
                       className="px-6 py-2.5 rounded-2xl bg-[#0D9488] hover:bg-[#0F766E] text-white text-xs font-black uppercase tracking-wider shadow-md shadow-[#0D9488]/20 transition-all flex items-center gap-2 active:scale-95 cursor-pointer disabled:opacity-50"
                     >
@@ -437,7 +449,15 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onNavigateTo
                             ) : (
                               <button
                                 type="button"
-                                onClick={() => handleCollectDish(meal.id, dish.id, dish.name)}
+                                onClick={() =>
+                                  initiateCollectDish(
+                                    meal.id,
+                                    dish.id,
+                                    dish.name,
+                                    meal.meal_type,
+                                    dish.price
+                                  )
+                                }
                                 disabled={isMarking}
                                 className="px-5 py-2 rounded-xl bg-[#0D9488] hover:bg-[#0F766E] text-white text-xs font-black uppercase tracking-wider shadow-sm hover:shadow-md shadow-[#0D9488]/20 transition-all flex items-center gap-1.5 active:scale-95 cursor-pointer disabled:opacity-50"
                               >
@@ -460,6 +480,79 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({ onNavigateTo
           );
         })}
       </div>
+
+      {/* Confirmation Modal */}
+      {confirmModal && confirmModal.isOpen && (
+        <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100 animate-in fade-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between pb-4 border-b border-slate-100">
+              <div className="flex items-center gap-2.5">
+                <div className="w-10 h-10 rounded-2xl bg-teal-50 text-teal-700 flex items-center justify-center border border-teal-100">
+                  <Utensils className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-bold text-base text-slate-900">Confirm Food Collection</h3>
+                  <span className="text-[11px] text-slate-400 uppercase tracking-wider font-semibold">
+                    {confirmModal.mealType}
+                  </span>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setConfirmModal(null)}
+                className="p-1.5 text-slate-400 hover:text-slate-600 rounded-xl hover:bg-slate-100 transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <div className="py-5 space-y-3">
+              <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100 flex items-center justify-between">
+                <div>
+                  <h4 className="font-extrabold text-sm text-slate-900">{confirmModal.dishName}</h4>
+                  <span className="text-xs text-slate-500 font-medium">1 serving portion</span>
+                </div>
+                <span className="font-mono text-base font-black text-slate-900">
+                  ₹{confirmModal.price}
+                </span>
+              </div>
+
+              <p className="text-xs text-slate-500 leading-relaxed">
+                Are you sure you want to mark <strong>{confirmModal.dishName}</strong> as collected? Your collection will be recorded and you will proceed to the payment settlement screen.
+              </p>
+            </div>
+
+            <div className="flex items-center justify-end gap-2.5 pt-2 border-t border-slate-100">
+              <button
+                type="button"
+                onClick={() => setConfirmModal(null)}
+                disabled={isMarking}
+                className="px-4 py-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-xs font-bold text-slate-700 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmCollection}
+                disabled={isMarking}
+                className="px-5 py-2.5 rounded-xl bg-[#0D9488] hover:bg-[#0F766E] text-white text-xs font-bold transition-all shadow-md shadow-[#0D9488]/20 flex items-center gap-2 cursor-pointer disabled:opacity-50"
+              >
+                {isMarking ? (
+                  <>
+                    <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    <span>Recording...</span>
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle2 className="w-4 h-4" />
+                    <span>MARK AS COLLECTED</span>
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

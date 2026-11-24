@@ -4,6 +4,7 @@ import {
   Meal,
   FoodItem,
   FoodCollection,
+  Notification,
   BillingSettings,
   MonthlyBill,
   Payment,
@@ -181,6 +182,23 @@ export const api = {
     notes?: string;
   }) =>
     fetchJSON<{ success: boolean; payment: Payment; bill: MonthlyBill }>('/billing/payments', {
+      method: 'POST',
+      body: JSON.stringify(data)
+    }),
+
+  // Notifications
+  getNotifications: () =>
+    fetchJSON<{ notifications: Notification[]; unread_count: number }>('/notifications'),
+
+  markNotificationRead: (id: string) =>
+    fetchJSON<{ success: boolean }>(`/notifications/${id}/read`, { method: 'PATCH' }),
+
+  markAllNotificationsRead: () =>
+    fetchJSON<{ success: boolean; count: number }>('/notifications/read-all', { method: 'POST' }),
+
+  // Collection Payment Settlement
+  payCollection: (data: { collection_id: string; payment_method?: string; reference_id?: string }) =>
+    fetchJSON<{ success: boolean; payment: Payment; collection: FoodCollection }>('/payments/collect-pay', {
       method: 'POST',
       body: JSON.stringify(data)
     }),

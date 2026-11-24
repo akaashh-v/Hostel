@@ -481,7 +481,8 @@
       "food_items_snapshot": [
         "Masala Dosa",
         "Coffee"
-      ]
+      ],
+      "payment_status": "PAID"
     },
     {
       "id": "coll-seed-1",
@@ -495,7 +496,8 @@
       "food_items_snapshot": [
         "Idli",
         "Tea"
-      ]
+      ],
+      "payment_status": "PAID"
     },
     {
       "id": "col-9dbf1a7b-2158-49ea-bbce-17defd94b648",
@@ -515,7 +517,8 @@
         "Puttu & Kadala Curry",
         "Tea",
         "Coffee"
-      ]
+      ],
+      "payment_status": "PAID"
     },
     {
       "id": "col-f45a6010-9cef-403e-b949-a94b9706af6c",
@@ -535,7 +538,8 @@
         "Rice & Sambar",
         "Curd",
         "Payasam"
-      ]
+      ],
+      "payment_status": "PAID"
     },
     {
       "id": "col-50e77496-07ef-4b86-abe1-45a6da468111",
@@ -554,7 +558,8 @@
         "Tea",
         "Coffee",
         "Sandwich"
-      ]
+      ],
+      "payment_status": "PAID"
     },
     {
       "id": "col-2ba25a53-4cc8-46d0-ab8c-0cd9c43ae584",
@@ -573,7 +578,25 @@
         "Vegetable Curry",
         "Fried Rice",
         "Ghee Rice"
-      ]
+      ],
+      "payment_status": "PAID"
+    },
+    {
+      "id": "col-9739c596-f8fd-4c95-aac6-58bf83bbfd83",
+      "student_id": "student-demo-1",
+      "student_name": "Rahul Sharma",
+      "student_phone": "9876543210",
+      "meal_id": "meal-lunch",
+      "meal_type": "LUNCH",
+      "food_item_name": "Veg Biriyani",
+      "collection_date": "2026-11-24",
+      "collected_at": "2026-11-24T18:12:21.695Z",
+      "food_items_snapshot": [
+        "Veg Biriyani"
+      ],
+      "amount": 70,
+      "payment_status": "PAID",
+      "payment_id": "pay-33a7905a-bb9d-4eea-b7b7-007ee3981b51"
     }
   ],
   "billing_settings": {
@@ -598,19 +621,19 @@
       "month": 11,
       "year": 2026,
       "breakfast_count": 19,
-      "lunch_count": 21,
+      "lunch_count": 22,
       "snacks_count": 15,
       "dinner_count": 23,
-      "total_meals": 78,
+      "total_meals": 79,
       "billing_mode": "PER_MEAL",
-      "base_amount": 5120,
+      "base_amount": 5205,
       "late_fee": 0,
-      "total_amount": 5120,
-      "paid_amount": 5000,
-      "balance_amount": 120,
+      "total_amount": 5205,
+      "paid_amount": 5070,
+      "balance_amount": 135,
       "payment_status": "PARTIALLY_PAID",
       "generated_at": "2026-11-20T15:21:18.084Z",
-      "updated_at": "2026-11-23T17:03:00.314Z"
+      "updated_at": "2026-11-24T18:12:21.715Z"
     },
     {
       "id": "bill-demo-2",
@@ -801,6 +824,18 @@
       "notes": "Automated verification test payment",
       "received_by": "Mess Admin",
       "paid_at": "2026-11-23T17:03:00.314Z"
+    },
+    {
+      "id": "pay-33a7905a-bb9d-4eea-b7b7-007ee3981b51",
+      "bill_id": "col-9739c596-f8fd-4c95-aac6-58bf83bbfd83",
+      "student_id": "student-demo-1",
+      "student_name": "Rahul Sharma",
+      "amount": 70,
+      "payment_method": "UPI",
+      "reference_id": "UPI-TEST-123456",
+      "notes": "Payment for Veg Biriyani (2026-11-24)",
+      "received_by": "Hostel Mess Counter",
+      "paid_at": "2026-11-24T18:12:21.715Z"
     }
   ],
   "hostel_settings": {
@@ -952,6 +987,31 @@
       "userId": "student-demo-1",
       "role": "student",
       "expiresAt": "2026-12-23T17:03:00.181Z"
+    },
+    "ecbe21cc32b07359c53a1ac7138c5791e500f5f38b0b547b065fc20ec58b8b65": {
+      "userId": "admin-1",
+      "role": "admin",
+      "expiresAt": "2026-12-24T18:12:21.675Z"
+    },
+    "becb43be945820c32155b42cf5ef2e5ddccaa6cabba38e3c7caa6ffd77f7809a": {
+      "userId": "student-demo-1",
+      "role": "student",
+      "expiresAt": "2026-12-24T18:12:21.686Z"
     }
-  }
+  },
+  "notifications": [
+    {
+      "id": "notif-31577df2-1018-4b86-9efc-474338684b29",
+      "student_id": "student-demo-1",
+      "student_name": "Rahul Sharma",
+      "meal_category": "LUNCH",
+      "food_name": "Veg Biriyani",
+      "collection_id": "col-9739c596-f8fd-4c95-aac6-58bf83bbfd83",
+      "date": "2026-11-24",
+      "timestamp": "2026-11-24T18:12:21.695Z",
+      "message": "Rahul Sharma has collected Lunch.",
+      "is_read": false,
+      "created_at": "2026-11-24T18:12:21.696Z"
+    }
+  ]
 }
