@@ -597,6 +597,57 @@
       "amount": 70,
       "payment_status": "PAID",
       "payment_id": "pay-33a7905a-bb9d-4eea-b7b7-007ee3981b51"
+    },
+    {
+      "id": "col-4ae4e8b6-e97b-463f-b6bc-696e23e897f7",
+      "student_id": "student-demo-1",
+      "student_name": "Rahul Sharma",
+      "student_phone": "9876543210",
+      "meal_id": "meal-breakfast",
+      "meal_type": "BREAKFAST",
+      "food_item_id": "food-bf-3",
+      "food_item_name": "Poori Bhaji",
+      "collection_date": "2026-11-25",
+      "collected_at": "2026-11-24T19:35:01.739Z",
+      "food_items_snapshot": [
+        "Poori Bhaji"
+      ],
+      "amount": 35,
+      "payment_status": "PENDING"
+    },
+    {
+      "id": "col-85a94b9a-e169-42a7-8ed1-10796ef2c16b",
+      "student_id": "student-demo-1",
+      "student_name": "Rahul Sharma",
+      "student_phone": "9876543210",
+      "meal_id": "meal-breakfast",
+      "meal_type": "BREAKFAST",
+      "food_item_id": "food-bf-7",
+      "food_item_name": "Tea",
+      "collection_date": "2026-11-25",
+      "collected_at": "2026-11-24T19:35:01.747Z",
+      "food_items_snapshot": [
+        "Tea"
+      ],
+      "amount": 10,
+      "payment_status": "PENDING"
+    },
+    {
+      "id": "col-b21ad41c-8a63-4ec0-9750-401129085fe4",
+      "student_id": "student-demo-1",
+      "student_name": "Rahul Sharma",
+      "student_phone": "9876543210",
+      "meal_id": "meal-lunch",
+      "meal_type": "LUNCH",
+      "food_item_id": "food-ln-2",
+      "food_item_name": "Chicken Biriyani",
+      "collection_date": "2026-11-25",
+      "collected_at": "2026-11-24T19:35:01.757Z",
+      "food_items_snapshot": [
+        "Chicken Biriyani"
+      ],
+      "amount": 100,
+      "payment_status": "PENDING"
     }
   ],
   "billing_settings": {
@@ -620,20 +671,20 @@
       "student_phone": "9876543210",
       "month": 11,
       "year": 2026,
-      "breakfast_count": 19,
-      "lunch_count": 22,
+      "breakfast_count": 21,
+      "lunch_count": 23,
       "snacks_count": 15,
       "dinner_count": 23,
-      "total_meals": 79,
+      "total_meals": 82,
       "billing_mode": "PER_MEAL",
-      "base_amount": 5205,
+      "base_amount": 5380,
       "late_fee": 0,
-      "total_amount": 5205,
+      "total_amount": 5380,
       "paid_amount": 5070,
-      "balance_amount": 135,
+      "balance_amount": 310,
       "payment_status": "PARTIALLY_PAID",
       "generated_at": "2026-11-20T15:21:18.084Z",
-      "updated_at": "2026-11-24T18:12:21.715Z"
+      "updated_at": "2026-11-24T19:35:01.759Z"
     },
     {
       "id": "bill-demo-2",
@@ -839,13 +890,13 @@
     }
   ],
   "hostel_settings": {
-    "hostel_name": "Grand Royal Heritage Hostel",
-    "mess_name": "HOSTEL MESS Dining Hall",
+    "hostel_name": "Hostel Dining",
+    "mess_name": "TASTEBOX MEALS CO.",
     "address": "Campus Block-B, University Road, Bangalore - 560012",
     "contact_phone": "+91 98765 00000",
-    "contact_email": "mess@hostel.edu",
+    "contact_email": "mess@tastebox.edu",
     "qr_code_url": "http://localhost:5173/student",
-    "notice": "Mess dining runs according to daily schedule. Please mark your meal collected at the counter."
+    "notice": "Welcome to TASTEBOX MEALS CO. Dining runs according to daily schedule. Please mark your meal collected at the counter."
   },
   "sessions": {
     "f12ef6b393ae55bfeaf28e5b4d474236ff9f3d4ed120c888ff1abe8735c57ea1": {
@@ -997,9 +1048,58 @@
       "userId": "student-demo-1",
       "role": "student",
       "expiresAt": "2026-12-24T18:12:21.686Z"
+    },
+    "77da214c1540f3c629c4bcc0807ca21f43c4e51f222fcd193e91c47a5fa4fdbd": {
+      "userId": "student-demo-1",
+      "role": "student",
+      "expiresAt": "2026-12-24T19:35:01.729Z"
+    },
+    "0860381e2ac8a797bc3d000f3d2c88e7641e329d32d4910df87c7e0154cf17a9": {
+      "userId": "admin-1",
+      "role": "admin",
+      "expiresAt": "2026-12-24T19:35:01.767Z"
     }
   },
   "notifications": [
+    {
+      "id": "notif-83207bfc-4767-4b73-8e7f-8198b2b8b2a4",
+      "student_id": "student-demo-1",
+      "student_name": "Rahul Sharma",
+      "meal_category": "LUNCH",
+      "food_name": "Chicken Biriyani",
+      "collection_id": "col-b21ad41c-8a63-4ec0-9750-401129085fe4",
+      "date": "2026-11-25",
+      "timestamp": "2026-11-24T19:35:01.757Z",
+      "message": "Rahul Sharma has collected Lunch.",
+      "is_read": false,
+      "created_at": "2026-11-24T19:35:01.757Z"
+    },
+    {
+      "id": "notif-d33f643e-c55a-4700-ba17-9b287491ab13",
+      "student_id": "student-demo-1",
+      "student_name": "Rahul Sharma",
+      "meal_category": "BREAKFAST",
+      "food_name": "Tea",
+      "collection_id": "col-85a94b9a-e169-42a7-8ed1-10796ef2c16b",
+      "date": "2026-11-25",
+      "timestamp": "2026-11-24T19:35:01.747Z",
+      "message": "Rahul Sharma has collected Breakfast.",
+      "is_read": false,
+      "created_at": "2026-11-24T19:35:01.747Z"
+    },
+    {
+      "id": "notif-6f8100a9-25c4-4870-b123-c6c3520354fd",
+      "student_id": "student-demo-1",
+      "student_name": "Rahul Sharma",
+      "meal_category": "BREAKFAST",
+      "food_name": "Poori Bhaji",
+      "collection_id": "col-4ae4e8b6-e97b-463f-b6bc-696e23e897f7",
+      "date": "2026-11-25",
+      "timestamp": "2026-11-24T19:35:01.739Z",
+      "message": "Rahul Sharma has collected Breakfast.",
+      "is_read": false,
+      "created_at": "2026-11-24T19:35:01.739Z"
+    },
     {
       "id": "notif-31577df2-1018-4b86-9efc-474338684b29",
       "student_id": "student-demo-1",

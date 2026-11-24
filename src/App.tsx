@@ -82,10 +82,14 @@ export const App: React.FC = () => {
     return (
       <div className="min-h-screen bg-[#F7FAFA] flex items-center justify-center">
         <div className="flex flex-col items-center gap-3 text-center">
-          <div className="w-12 h-12 rounded-2xl bg-[#0D9488] text-white flex items-center justify-center shadow-lg shadow-[#0D9488]/20 animate-bounce">
-            <Utensils className="w-6 h-6 text-emerald-200" />
+          <div className="w-14 h-14 rounded-full overflow-hidden border-2 border-amber-400 shadow-lg animate-bounce bg-black flex items-center justify-center">
+            <img
+              src="/tastebox-logo.jpg"
+              alt="Tastebox Meals Co."
+              className="w-full h-full object-cover"
+            />
           </div>
-          <h2 className="text-base font-bold text-slate-800 tracking-tight">HOSTEL MESS</h2>
+          <h2 className="text-base font-extrabold text-slate-800 tracking-tight">TASTEBOX MEALS CO.</h2>
           <div className="flex items-center gap-2 text-xs text-slate-400 font-medium">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
             <span>Verifying session credentials...</span>

@@ -45,9 +45,13 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({ activeTab, onSelectT
   return (
     <aside className="w-64 bg-white border-r border-slate-200 hidden md:flex flex-col h-[calc(100vh-4rem)] sticky top-16 select-none shrink-0">
       <div className="p-4 border-b border-slate-100">
-        <div className="flex items-center gap-2 px-3 py-2 bg-emerald-50 text-emerald-950 rounded-xl text-xs font-bold border border-emerald-100">
-          <Shield className="w-4 h-4 text-[#0D9488]" />
-          <span>HOSTEL MESS Admin</span>
+        <div className="flex items-center gap-2.5 px-3 py-2 bg-slate-900 text-white rounded-xl text-xs font-bold border border-slate-800 shadow-xs">
+          <img
+            src="/tastebox-logo.jpg"
+            alt="Tastebox"
+            className="w-5 h-5 rounded-full object-cover border border-amber-400"
+          />
+          <span className="font-extrabold tracking-wide">TASTEBOX MEALS CO.</span>
         </div>
       </div>
 

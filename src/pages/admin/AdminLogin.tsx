@@ -25,14 +25,18 @@ export const AdminLogin: React.FC = () => {
         <div className="absolute -right-16 -top-16 w-36 h-36 bg-[#0D9488]/10 rounded-full blur-2xl pointer-events-none" />
 
         <div className="text-center mb-8">
-          <div
-            className="w-14 h-14 rounded-2xl text-white flex items-center justify-center mx-auto mb-4 shadow-lg shadow-[#0D9488]/25"
-            style={{ backgroundColor: '#0D9488' }}
-          >
-            <Shield className="w-7 h-7 text-emerald-200" />
+          <div className="w-16 h-16 rounded-full mx-auto mb-3.5 shadow-lg border-2 border-amber-400 overflow-hidden bg-black flex items-center justify-center">
+            <img
+              src="/tastebox-logo.jpg"
+              alt="Tastebox Meals Co."
+              className="w-full h-full object-cover"
+            />
           </div>
-          <h2 className="text-2xl font-black text-slate-900 tracking-tight">HOSTEL MESS Admin</h2>
-          <p className="text-xs text-slate-500 mt-1 font-medium">Authorized warden and mess manager control portal</p>
+          <h2 className="text-2xl font-black text-slate-900 tracking-tight">TASTEBOX</h2>
+          <span className="inline-block mt-0.5 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-widest bg-amber-50 text-amber-800 border border-amber-300">
+            MEALS CO.
+          </span>
+          <p className="text-xs text-slate-500 mt-1.5 font-medium">Authorized warden and mess manager control portal</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">

@@ -95,23 +95,25 @@ export const Navbar: React.FC = () => {
     <header className="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-slate-200/80 transition-all shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 sm:h-[4.25rem]">
-          {/* Logo & Hostel Name */}
-          <div className="flex items-center gap-3.5 group cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
+          {/* Logo & Brand Name: TASTEBOX MEALS CO. */}
+          <div className="flex items-center gap-3 group cursor-pointer" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}>
             <div className="relative">
-              <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-[#134E4A] via-[#0D9488] to-[#10b981] flex items-center justify-center text-white shadow-lg shadow-[#0D9488]/25 group-hover:scale-105 transition-transform duration-300">
-                <Utensils className="w-5 h-5 text-emerald-100" />
-              </div>
-              <span className="absolute -bottom-1 -right-1 w-3.5 h-3.5 bg-amber-400 border-2 border-white rounded-full flex items-center justify-center text-[7px] font-black text-amber-950">
+              <img
+                src="/tastebox-logo.jpg"
+                alt="Tastebox Meals Co."
+                className="w-11 h-11 rounded-full object-cover border-2 border-amber-400/80 shadow-md group-hover:scale-105 transition-transform duration-300 bg-black"
+              />
+              <span className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-amber-400 border-2 border-white rounded-full flex items-center justify-center text-[7px] font-black text-black">
                 ★
               </span>
             </div>
             <div>
-              <div className="flex items-center gap-2">
-                <span className="font-extrabold text-base sm:text-lg text-slate-900 tracking-tight leading-none group-hover:text-[#0D9488] transition-colors">
-                  HOSTEL MESS
+              <div className="flex items-center gap-1.5">
+                <span className="font-black text-base sm:text-lg text-slate-900 tracking-tight leading-none group-hover:text-[#0D9488] transition-colors">
+                  TASTEBOX
                 </span>
-                <span className="hidden sm:inline-block px-2 py-0.5 rounded-full text-[10px] font-bold tracking-wider uppercase bg-emerald-50 text-[#0D9488] border border-emerald-200/80">
-                  Hostel Dining
+                <span className="px-2 py-0.5 rounded-full text-[10px] font-extrabold tracking-wider uppercase bg-amber-50 text-amber-800 border border-amber-300">
+                  MEALS CO.
                 </span>
               </div>
               <p className="text-[11px] text-slate-500 font-medium leading-tight mt-1">

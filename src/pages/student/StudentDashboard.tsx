@@ -148,17 +148,14 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
   };
 
   const today = new Date().toISOString().split('T')[0];
-  const isMealCollected = (mealId: string) => {
-    return collections.find(c => c.meal_id === mealId && c.collection_date === today);
-  };
 
   const isDishCollected = (dishId: string, dishName: string) => {
     return collections.some(
       c =>
         c.collection_date === today &&
         ((c.food_item_id && c.food_item_id === dishId) ||
-          (c.food_item_name && c.food_item_name === dishName) ||
-          (c.food_items_snapshot && c.food_items_snapshot.length === 1 && c.food_items_snapshot[0] === dishName))
+          (c.food_item_name && c.food_item_name.toLowerCase() === dishName.toLowerCase()) ||
+          (c.food_items_snapshot && c.food_items_snapshot.length === 1 && c.food_items_snapshot[0].toLowerCase() === dishName.toLowerCase()))
     );
   };
 
@@ -210,7 +207,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
             </h1>
 
             <p className="text-teal-100/90 text-xs sm:text-sm max-w-xl leading-relaxed">
-              Welcome to the <strong>HOSTEL MESS</strong> Dining Hall. Review today's dishes below and tap <strong>COLLECT</strong> at the counter when you receive your tray.
+              Welcome to <strong>TASTEBOX MEALS CO.</strong> Review today's dishes below and tap <strong>COLLECT</strong> on your selected dish at the counter.
             </p>
           </div>
 
@@ -305,7 +302,6 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
       {/* Meal Sessions & Food Cards Grid */}
       <div className="space-y-8">
         {filteredMeals.map(meal => {
-          const collected = isMealCollected(meal.id);
           const visuals = getMealVisuals(meal.meal_type);
 
           return (
@@ -335,23 +331,11 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
                   </div>
                 </div>
 
-                {/* The Collect / Collected Button Only */}
-                <div>
-                  {collected ? (
-                    <div className="px-6 py-2.5 rounded-2xl bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-black uppercase tracking-wider flex items-center gap-2 shadow-xs">
-                      <CheckCircle2 className="w-4 h-4 text-emerald-600" />
-                      <span>COLLECTED</span>
-                    </div>
-                  ) : (
-                    <button
-                      onClick={() => initiateCollectDish(meal.id, undefined, meal.name, meal.meal_type, 40)}
-                      disabled={isMarking}
-                      className="px-6 py-2.5 rounded-2xl bg-[#0D9488] hover:bg-[#0F766E] text-white text-xs font-black uppercase tracking-wider shadow-md shadow-[#0D9488]/20 transition-all flex items-center gap-2 active:scale-95 cursor-pointer disabled:opacity-50"
-                    >
-                      <CheckCircle2 className="w-4 h-4 text-white" />
-                      <span>COLLECT</span>
-                    </button>
-                  )}
+                {/* Unique Dish Collection Counter */}
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-bold text-slate-600 bg-slate-100 px-3 py-1.5 rounded-xl border border-slate-200">
+                    {meal.items?.filter(d => isDishCollected(d.id, d.name)).length || 0} of {meal.items?.length || 0} collected
+                  </span>
                 </div>
               </div>
 

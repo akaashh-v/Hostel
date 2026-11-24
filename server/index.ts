@@ -986,31 +986,29 @@ class Database {
     foodItemId?: string,
     foodItemName?: string
   ): { success: boolean; collection?: FoodCollection; notification?: Notification; error?: string } {
-    // Check duplicate collection constraint
-    if (foodItemId || foodItemName) {
+    const effectiveDishName = foodItemName || (foodItemNames && foodItemNames.length > 0 ? foodItemNames[0] : undefined);
+
+    // Check duplicate collection constraint strictly for this exact dish item on this date
+    if (foodItemId || effectiveDishName) {
       const existing = this.data.food_collections.find(
         c => c.student_id === studentId &&
              c.collection_date === date &&
-             ((foodItemId && c.food_item_id === foodItemId) || (foodItemName && (c.food_item_name === foodItemName || c.food_items_snapshot?.includes(foodItemName))))
+             ((foodItemId && c.food_item_id === foodItemId) ||
+              (effectiveDishName && (
+                (c.food_item_name && c.food_item_name.toLowerCase() === effectiveDishName.toLowerCase()) ||
+                (c.food_items_snapshot && c.food_items_snapshot.length === 1 && c.food_items_snapshot[0].toLowerCase() === effectiveDishName.toLowerCase())
+              )))
       );
       if (existing) {
         return {
           success: false,
-          error: `${foodItemName || 'Item'} has already been collected today at ${new Date(existing.collected_at).toLocaleTimeString()}`
-        };
-      }
-    } else {
-      const existing = this.findCollection(studentId, mealId, date);
-      if (existing) {
-        return {
-          success: false,
-          error: `Food for ${mealType} has already been marked as collected on ${date} at ${new Date(existing.collected_at).toLocaleTimeString()}`
+          error: `${effectiveDishName || 'This dish'} has already been collected today at ${new Date(existing.collected_at).toLocaleTimeString()}`
         };
       }
     }
 
     const itemObj = (foodItemId && this.data.food_items.find(i => i.id === foodItemId)) ||
-                    (foodItemName && this.data.food_items.find(i => i.name === foodItemName));
+                    (effectiveDishName && this.data.food_items.find(i => i.name.toLowerCase() === effectiveDishName.toLowerCase()));
     const amount = itemObj ? itemObj.price : this.getMealRate(mealType);
 
     const newCollection: FoodCollection = {
@@ -1020,11 +1018,11 @@ class Database {
       student_phone: studentPhone,
       meal_id: mealId,
       meal_type: mealType,
-      food_item_id: foodItemId,
-      food_item_name: foodItemName,
+      food_item_id: foodItemId || itemObj?.id,
+      food_item_name: effectiveDishName || 'Meal',
       collection_date: date,
       collected_at: new Date().toISOString(),
-      food_items_snapshot: foodItemName ? [foodItemName] : foodItemNames,
+      food_items_snapshot: effectiveDishName ? [effectiveDishName] : ['Meal'],
       amount,
       payment_status: 'PENDING'
     };
@@ -1714,11 +1712,12 @@ apiRouter.post('/collections/mark', (req: Request, res: Response) => {
 
   const today = getTodayDateString();
   const currentItems = db.getFoodItems(today).filter(i => i.meal_id === meal!.id || i.meal_type === meal!.meal_type);
-  const matchedItem = food_item_id ? currentItems.find(i => i.id === food_item_id) : (food_item_name ? currentItems.find(i => i.name === food_item_name) : undefined);
-  const resolvedFoodName = food_item_name || matchedItem?.name;
-  const itemNames = resolvedFoodName ? [resolvedFoodName] : currentItems.map(i => i.name);
+  const matchedItem = food_item_id ? currentItems.find(i => i.id === food_item_id) : (food_item_name ? currentItems.find(i => i.name.toLowerCase() === food_item_name.toLowerCase()) : undefined);
+  const resolvedFoodName = matchedItem?.name || food_item_name || (currentItems.length > 0 ? currentItems[0].name : meal.name);
+  const resolvedFoodId = matchedItem?.id || food_item_id;
+  const itemNames = [resolvedFoodName];
 
-  // Attempt to mark collection with strict duplicate validation
+  // Attempt to mark unique dish collection with strict single-dish validation
   const result = db.markFoodCollected(
     student.id,
     student.full_name,
@@ -1727,7 +1726,7 @@ apiRouter.post('/collections/mark', (req: Request, res: Response) => {
     meal.meal_type,
     today,
     itemNames,
-    food_item_id,
+    resolvedFoodId,
     resolvedFoodName
   );
 

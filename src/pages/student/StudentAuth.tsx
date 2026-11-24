@@ -82,14 +82,18 @@ export const StudentAuth: React.FC = () => {
 
         {/* Branding & Header */}
         <div className="relative text-center mb-6">
-          <div
-            className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-3.5 shadow-lg shadow-[#0D9488]/25"
-            style={{ backgroundColor: '#0D9488' }}
-          >
-            <Utensils className="w-7 h-7 text-white" />
+          <div className="w-16 h-16 rounded-full mx-auto mb-3.5 shadow-lg border-2 border-amber-400 overflow-hidden bg-black flex items-center justify-center">
+            <img
+              src="/tastebox-logo.jpg"
+              alt="Tastebox Meals Co."
+              className="w-full h-full object-cover"
+            />
           </div>
-          <h2 className="text-2xl font-black text-slate-900 tracking-tight">HOSTEL MESS</h2>
-          <p className="text-xs text-slate-500 mt-1 font-medium">
+          <h2 className="text-2xl font-black text-slate-900 tracking-tight">TASTEBOX</h2>
+          <span className="inline-block mt-0.5 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-widest bg-amber-50 text-amber-800 border border-amber-300">
+            MEALS CO.
+          </span>
+          <p className="text-xs text-slate-500 mt-1.5 font-medium">
             Student Portal • Scheduled daily meals & food collection
           </p>
         </div>

@@ -134,8 +134,8 @@ export const StudentMenu: React.FC<StudentMenuProps> = ({ onNavigateToPayment })
       c =>
         c.collection_date === todayStr &&
         ((c.food_item_id && c.food_item_id === dishId) ||
-          (c.food_item_name && c.food_item_name === dishName) ||
-          (c.food_items_snapshot && c.food_items_snapshot.length === 1 && c.food_items_snapshot[0] === dishName))
+          (c.food_item_name && c.food_item_name.toLowerCase() === dishName.toLowerCase()) ||
+          (c.food_items_snapshot && c.food_items_snapshot.length === 1 && c.food_items_snapshot[0].toLowerCase() === dishName.toLowerCase()))
     );
   };
 
@@ -164,10 +164,10 @@ export const StudentMenu: React.FC<StudentMenuProps> = ({ onNavigateToPayment })
           <div>
             <div className="flex items-center gap-2 text-[#0D9488] text-xs font-bold uppercase tracking-wider mb-1">
               <Sparkles className="w-3.5 h-3.5" />
-              <span>HOSTEL MESS Scheduled Dining</span>
+              <span>TASTEBOX MEALS CO. Dining</span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-              Hostel Food Menu
+              Food Menu & Dining
             </h1>
             <p className="text-xs sm:text-sm text-slate-500 mt-1 max-w-xl leading-relaxed">
               Explore today's freshly prepared South and North Indian dishes. All meals are served on schedule at the hostel dining counters.

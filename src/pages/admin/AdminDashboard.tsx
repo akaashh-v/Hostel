@@ -181,10 +181,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateTab })
         <div>
           <div className="flex items-center gap-2 text-[#0D9488] text-xs font-bold uppercase tracking-wider mb-1">
             <Sparkles className="w-3.5 h-3.5" />
-            <span>Hostel Mess Daily Operations</span>
+            <span>TASTEBOX MEALS CO. Operations</span>
           </div>
           <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-            Mess Warden Dashboard
+            Warden & Admin Dashboard
           </h1>
           <p className="text-xs text-slate-500 mt-0.5">
             Realtime visibility for today's food preparation, collections, and settlement records • {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric', year: 'numeric' })}
