@@ -17,6 +17,7 @@ import {
 import { api } from '../../services/api';
 import { FoodCollection, MonthlyBill, Payment } from '../../types';
 import { useToast } from '../../context/ToastContext';
+import { getTodayDateString } from '../../utils/date';
 
 type ReportType =
   | 'daily_collections'
@@ -35,7 +36,7 @@ export const AdminReports: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(true);
 
   // Filters
-  const [selectedDate, setSelectedDate] = useState<string>(new Date().toISOString().split('T')[0]);
+  const [selectedDate, setSelectedDate] = useState<string>(getTodayDateString());
   const [selectedMonth, setSelectedMonth] = useState<number>(new Date().getMonth() + 1);
   const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
   const [selectedMealCategory, setSelectedMealCategory] = useState<string>('ALL');

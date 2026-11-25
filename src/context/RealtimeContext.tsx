@@ -74,7 +74,25 @@ export const RealtimeProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
     connect();
 
+    // Periodic synchronization fallback every 4 seconds
+    // Guarantees all admin tables, feeds, and badges auto-sync reliably even if SSE disconnects or drops on serverless/mobile
+    const syncInterval = setInterval(() => {
+      const pollEvent: RealtimeEvent = {
+        type: 'POLL_SYNC',
+        timestamp: new Date().toISOString(),
+        data: null
+      };
+      handlers.forEach(fn => {
+        try {
+          fn(pollEvent);
+        } catch (err) {
+          console.error('Error in realtime handler sync', err);
+        }
+      });
+    }, 4000);
+
     return () => {
+      clearInterval(syncInterval);
       if (reconnectTimeout) clearTimeout(reconnectTimeout);
       if (eventSource) eventSource.close();
     };

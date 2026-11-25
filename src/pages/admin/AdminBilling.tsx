@@ -24,6 +24,7 @@ import {
 import { MonthlyBill, BillingSettings, PaymentMethod } from '../../types';
 import { api } from '../../services/api';
 import { useToast } from '../../context/ToastContext';
+import { useRealtime } from '../../context/RealtimeContext';
 
 export const AdminBilling: React.FC = () => {
   const [bills, setBills] = useState<MonthlyBill[]>([]);
@@ -54,6 +55,7 @@ export const AdminBilling: React.FC = () => {
   const [lateFee, setLateFee] = useState<number>(100);
 
   const { success, error } = useToast();
+  const { subscribe } = useRealtime();
 
   const loadBillingData = async () => {
     try {
@@ -81,7 +83,26 @@ export const AdminBilling: React.FC = () => {
 
   useEffect(() => {
     loadBillingData();
-  }, [month, year]);
+
+    const unsub = subscribe(e => {
+      if (
+        e.type === 'BILL_UPDATED' ||
+        e.type === 'PAYMENT_RECORDED' ||
+        e.type === 'COLLECTION_MARKED' ||
+        e.type === 'POLL_SYNC'
+      ) {
+        Promise.all([
+          api.getMonthlyBills(month, year),
+          api.getBillingSettings()
+        ]).then(([billsData, settingsData]) => {
+          if (billsData) setBills(billsData);
+          if (settingsData) setSettings(settingsData);
+        }).catch(() => {});
+      }
+    });
+
+    return () => unsub();
+  }, [month, year, subscribe]);
 
   const handleOpenPaymentModal = (bill: MonthlyBill) => {
     setSelectedBill(bill);

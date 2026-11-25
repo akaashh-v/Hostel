@@ -24,6 +24,7 @@ import { api } from '../../services/api';
 import { useRealtime } from '../../context/RealtimeContext';
 import { useToast } from '../../context/ToastContext';
 import { AdminTab } from '../../components/AdminSidebar';
+import { getTodayDateString } from '../../utils/date';
 
 interface AdminDashboardProps {
   onNavigateTab: (tab: AdminTab) => void;
@@ -46,7 +47,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateTab })
 
   const paymentRegistryRef = useRef<HTMLDivElement>(null);
 
-  const todayStr = new Date().toISOString().split('T')[0];
+  const todayStr = getTodayDateString();
 
   const loadDashboardData = useCallback(async () => {
     try {
@@ -95,9 +96,20 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateTab })
         e.type === 'COLLECTION_MARKED' ||
         e.type === 'PAYMENT_RECORDED' ||
         e.type === 'MENU_UPDATED' ||
-        e.type === 'NOTIFICATION_CREATED'
+        e.type === 'NOTIFICATION_CREATED' ||
+        e.type === 'STUDENT_CREATED' ||
+        e.type === 'STUDENT_UPDATED' ||
+        e.type === 'POLL_SYNC'
       ) {
-        loadDashboardData();
+        Promise.all([
+          api.getTodayMenu(),
+          api.getAllCollections({ date: todayStr }),
+          api.getCollectionsSummary(todayStr)
+        ]).then(([menuData, collsData, summaryData]) => {
+          setTodayMenu(menuData);
+          setCollections(collsData || []);
+          setSummary(summaryData);
+        }).catch(() => {});
       }
     });
 

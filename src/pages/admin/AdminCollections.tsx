@@ -15,11 +15,12 @@ import { FoodCollection } from '../../types';
 import { api } from '../../services/api';
 import { useRealtime } from '../../context/RealtimeContext';
 import { useToast } from '../../context/ToastContext';
+import { getTodayDateString } from '../../utils/date';
 
 export const AdminCollections: React.FC = () => {
   const [collections, setCollections] = useState<FoodCollection[]>([]);
   const [summary, setSummary] = useState<any>(null);
-  const [date, setDate] = useState<string>(new Date().toISOString().split('T')[0]);
+  const [date, setDate] = useState<string>(getTodayDateString());
   const [mealType, setMealType] = useState<string>('');
   const [search, setSearch] = useState<string>('');
   const [activeTab, setActiveTab] = useState<'collected' | 'uncollected'>('collected');
@@ -28,7 +29,8 @@ export const AdminCollections: React.FC = () => {
   const { subscribe } = useRealtime();
   const { success } = useToast();
 
-  const loadData = async () => {
+  const loadData = async (showLoading: boolean = true) => {
+    if (showLoading) setIsLoading(true);
     try {
       const [colls, sum] = await Promise.all([
         api.getAllCollections({ date, meal_type: mealType, search }),
@@ -39,15 +41,27 @@ export const AdminCollections: React.FC = () => {
     } catch (err) {
       console.error(err);
     } finally {
-      setIsLoading(false);
+      if (showLoading) setIsLoading(false);
     }
   };
 
   useEffect(() => {
     loadData();
     const unsub = subscribe(e => {
-      if (e.type === 'COLLECTION_MARKED') {
-        loadData();
+      if (
+        e.type === 'COLLECTION_MARKED' ||
+        e.type === 'NOTIFICATION_CREATED' ||
+        e.type === 'PAYMENT_RECORDED' ||
+        e.type === 'STUDENT_CREATED' ||
+        e.type === 'POLL_SYNC'
+      ) {
+        Promise.all([
+          api.getAllCollections({ date, meal_type: mealType, search }),
+          api.getCollectionsSummary(date)
+        ]).then(([colls, sum]) => {
+          if (colls) setCollections(colls);
+          if (sum) setSummary(sum);
+        }).catch(() => {});
       }
     });
     return () => unsub();
@@ -113,7 +127,7 @@ export const AdminCollections: React.FC = () => {
           />
         </div>
 
-        <div className="flex items-center gap-2 w-full md:w-auto">
+        <div className="flex flex-wrap items-center gap-2 w-full md:w-auto">
           <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 bg-white">
             <Calendar className="w-4 h-4 text-slate-400" />
             <input
@@ -123,6 +137,31 @@ export const AdminCollections: React.FC = () => {
               className="text-xs font-semibold focus:outline-none text-slate-800 font-mono"
             />
           </div>
+
+          <button
+            type="button"
+            onClick={() => setDate(getTodayDateString())}
+            className={`px-2.5 py-1.5 text-xs font-bold rounded-xl transition-all ${
+              date === getTodayDateString()
+                ? 'bg-teal-700 text-white shadow-xs'
+                : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+            }`}
+          >
+            Today
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setDate('')}
+            className={`px-2.5 py-1.5 text-xs font-bold rounded-xl transition-all ${
+              !date
+                ? 'bg-teal-700 text-white shadow-xs'
+                : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+            }`}
+            title="View all collections across all dates"
+          >
+            All Dates
+          </button>
 
           <select
             value={mealType}

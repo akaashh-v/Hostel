@@ -138,8 +138,8 @@ export const Navbar: React.FC = () => {
 
           {/* Right Actions & Profile */}
           <div className="flex items-center gap-2.5 sm:gap-3">
-            {/* Portal Switcher for Admin */}
-            {admin && (
+            {/* Portal Switcher */}
+            {admin ? (
               <div className="flex items-center bg-slate-100 p-1 rounded-xl text-xs font-bold">
                 <button
                   onClick={() => setActivePortal('student')}
@@ -162,6 +162,15 @@ export const Navbar: React.FC = () => {
                   Admin Portal
                 </button>
               </div>
+            ) : (
+              <button
+                onClick={() => setActivePortal(activePortal === 'admin' ? 'student' : 'admin')}
+                className="px-3 py-1.5 rounded-xl text-xs font-bold transition-all border border-slate-200 text-slate-700 hover:text-slate-900 hover:bg-slate-100 flex items-center gap-1.5 shadow-2xs"
+                title="Switch between Student & Admin Portal"
+              >
+                <Shield className="w-3.5 h-3.5 text-teal-600" />
+                <span>{activePortal === 'admin' ? 'Student View' : 'Admin Portal'}</span>
+              </button>
             )}
 
             {/* Student User Profile Badge */}

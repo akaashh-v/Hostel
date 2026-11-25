@@ -1,56 +1,5 @@
 {
-  "students": [
-    {
-      "id": "stu-db4f43fb-e4c8-48c9-b698-e2ce398da81f",
-      "full_name": "AKASH",
-      "phone_number": "8590870325",
-      "password_hash": "$2b$10$UT6eajAREem6C7dACcWE.evMQEoPEKzMXQVY0gkjV9qlOhWdAhr.e",
-      "room_number": "Room 101",
-      "status": "ACTIVE",
-      "created_at": "2026-11-25T13:47:24.784Z",
-      "updated_at": "2026-11-25T18:07:14.423Z"
-    },
-    {
-      "id": "stu-ce6b35ab-1163-42ee-a65f-9a90d9907e27",
-      "full_name": "Ahmed",
-      "phone_number": "7894561230",
-      "password_hash": "$2b$10$9Ib8m4TQIxWDh6SmsTY5DeCzDymrdGWpEXpK6e637XAIZuDTlk9Vi",
-      "room_number": "Room 101",
-      "status": "ACTIVE",
-      "created_at": "2026-11-25T19:22:37.475Z",
-      "updated_at": "2026-11-25T19:22:37.475Z"
-    },
-    {
-      "id": "stu-3b2a008d-814c-4b5a-a21d-844a7ae79400",
-      "full_name": "Karan Patel",
-      "phone_number": "9123456780",
-      "password_hash": "$2b$10$niGSbYg0kGwwsp3RHHmeoudcDnkJqQ9tXj4A1d5OZPirXCUSWgnei",
-      "room_number": "C-101",
-      "status": "ACTIVE",
-      "created_at": "2026-11-25T19:34:07.561Z",
-      "updated_at": "2026-11-25T19:34:07.561Z"
-    },
-    {
-      "id": "stu-a7906d92-5246-4291-9a3a-dbcf275b9e1a",
-      "full_name": "Aman",
-      "phone_number": "1234567890",
-      "password_hash": "$2b$10$Qbnp8yWMpTaB0VhALf2TWeYhmmWGU7ibCRHbroNDeQBFYphtGoZcu",
-      "room_number": "Room 101",
-      "status": "ACTIVE",
-      "created_at": "2026-11-25T19:40:29.731Z",
-      "updated_at": "2026-11-25T19:40:29.731Z"
-    },
-    {
-      "id": "stu-45bc59a7-33df-46e1-99b4-1ec7ac18a8d1",
-      "full_name": "Ahmed",
-      "phone_number": "78945612",
-      "password_hash": "$2b$10$sjpsHc31pBYxkYVjzX6tK.XUXpVi2VRa06ixDWPZMraRdwarmwGsq",
-      "room_number": "Room 101",
-      "status": "ACTIVE",
-      "created_at": "2026-11-25T19:42:04.427Z",
-      "updated_at": "2026-11-25T19:42:04.427Z"
-    }
-  ],
+  "students": [],
   "admins": [
     {
       "id": "admin-1",
@@ -448,33 +397,16 @@
   ],
   "food_collections": [
     {
-      "id": "col-ee5eaf1c-33e3-4c88-b85f-28234206c34a",
-      "student_id": "stu-db4f43fb-e4c8-48c9-b698-e2ce398da81f",
-      "student_name": "AKASH",
-      "student_phone": "8590870325",
-      "meal_id": "meal-breakfast",
-      "meal_type": "BREAKFAST",
-      "food_item_id": "food-bf-1",
-      "food_item_name": "Idli",
-      "collection_date": "2026-11-25",
-      "collected_at": "2026-11-25T13:48:37.100Z",
-      "food_items_snapshot": [
-        "Idli"
-      ],
-      "amount": 25,
-      "payment_status": "PENDING"
-    },
-    {
-      "id": "col-2926502b-37d5-4c06-aca9-67b8fb679213",
-      "student_id": "stu-ce6b35ab-1163-42ee-a65f-9a90d9907e27",
+      "id": "col-a8e9e088-ecf4-4a92-a7bd-0debb4667f5e",
+      "student_id": "stu-45bc59a7-33df-46e1-99b4-1ec7ac18a8d1",
       "student_name": "Ahmed",
-      "student_phone": "7894561230",
+      "student_phone": "78945612",
       "meal_id": "meal-breakfast",
       "meal_type": "BREAKFAST",
       "food_item_id": "food-bf-2",
       "food_item_name": "Masala Dosa",
       "collection_date": "2026-11-26",
-      "collected_at": "2026-11-25T19:22:50.041Z",
+      "collected_at": "2026-11-25T19:43:13.874Z",
       "food_items_snapshot": [
         "Masala Dosa"
       ],
@@ -499,20 +431,37 @@
       "payment_status": "PENDING"
     },
     {
-      "id": "col-a8e9e088-ecf4-4a92-a7bd-0debb4667f5e",
-      "student_id": "stu-45bc59a7-33df-46e1-99b4-1ec7ac18a8d1",
+      "id": "col-2926502b-37d5-4c06-aca9-67b8fb679213",
+      "student_id": "stu-ce6b35ab-1163-42ee-a65f-9a90d9907e27",
       "student_name": "Ahmed",
-      "student_phone": "78945612",
+      "student_phone": "7894561230",
       "meal_id": "meal-breakfast",
       "meal_type": "BREAKFAST",
       "food_item_id": "food-bf-2",
       "food_item_name": "Masala Dosa",
       "collection_date": "2026-11-26",
-      "collected_at": "2026-11-25T19:43:13.874Z",
+      "collected_at": "2026-11-25T19:22:50.041Z",
       "food_items_snapshot": [
         "Masala Dosa"
       ],
       "amount": 40,
+      "payment_status": "PENDING"
+    },
+    {
+      "id": "col-ee5eaf1c-33e3-4c88-b85f-28234206c34a",
+      "student_id": "stu-db4f43fb-e4c8-48c9-b698-e2ce398da81f",
+      "student_name": "AKASH",
+      "student_phone": "8590870325",
+      "meal_id": "meal-breakfast",
+      "meal_type": "BREAKFAST",
+      "food_item_id": "food-bf-1",
+      "food_item_name": "Idli",
+      "collection_date": "2026-11-25",
+      "collected_at": "2026-11-25T13:48:37.100Z",
+      "food_items_snapshot": [
+        "Idli"
+      ],
+      "amount": 25,
       "payment_status": "PENDING"
     }
   ],
@@ -690,33 +639,62 @@
       "role": "admin",
       "expiresAt": "2026-12-25T17:43:05.857Z"
     },
-    "eyJ1c2VySWQiOiJzdHUtZGI0ZjQzZmItZTRjOC00OGM5LWI2OTgtZTJjZTM5OGRhODFmIiwicm9sZSI6InN0dWRlbnQiLCJ0cyI6MTc5NTYzMDQ0NjU2OX0.33Q5H_-OC02eYlvPxydsO7qZIuxI71dylrvpE1ZFehQ": {
-      "userId": "stu-db4f43fb-e4c8-48c9-b698-e2ce398da81f",
-      "role": "student",
-      "expiresAt": "2026-12-25T18:14:06.570Z"
-    },
-    "eyJ1c2VySWQiOiJzdHUtM2IyYTAwOGQtODE0Yy00YjVhLWEyMWQtODQ0YTdhZTc5NDAwIiwicm9sZSI6InN0dWRlbnQiLCJ0cyI6MTc5NTYzNTI0NzU2MiwicGhvbmVfbnVtYmVyIjoiOTEyMzQ1Njc4MCIsImZ1bGxfbmFtZSI6IkthcmFuIFBhdGVsIiwicm9vbV9udW1iZXIiOiJDLTEwMSJ9.Y6ayVHWd5ysci0vM_gmizvBwIITujKi8mKTLRR4t5kM": {
-      "userId": "stu-3b2a008d-814c-4b5a-a21d-844a7ae79400",
-      "role": "student",
-      "expiresAt": "2026-12-25T19:34:07.563Z"
-    },
     "eyJ1c2VySWQiOiJhZG1pbi0xIiwicm9sZSI6ImFkbWluIiwidHMiOjE3OTU2MzUyNDc2MjV9.1ZDdeYFkaUTMvuZzw35ftOM2V-lI_of0U7VOkC_BN9k": {
       "userId": "admin-1",
       "role": "admin",
       "expiresAt": "2026-12-25T19:34:07.625Z"
     },
-    "eyJ1c2VySWQiOiJzdHUtM2IyYTAwOGQtODE0Yy00YjVhLWEyMWQtODQ0YTdhZTc5NDAwIiwicm9sZSI6InN0dWRlbnQiLCJ0cyI6MTc5NTYzNTI1NzM3OSwicGhvbmVfbnVtYmVyIjoiOTEyMzQ1Njc4MCIsImZ1bGxfbmFtZSI6IkthcmFuIFBhdGVsIiwicm9vbV9udW1iZXIiOiJDLTEwMSJ9.CeqYtdqoGojArwh4rlwpwJlps5vFih7eNLu595VyJl4": {
-      "userId": "stu-3b2a008d-814c-4b5a-a21d-844a7ae79400",
-      "role": "student",
-      "expiresAt": "2026-12-25T19:34:17.380Z"
+    "eyJ1c2VySWQiOiJhZG1pbi0xIiwicm9sZSI6ImFkbWluIiwidHMiOjE3OTU2MzcxMTY5Mjd9.nSdr5GlRxutLJ1WV5gtPL0wDfHpIRiTHwSLj3RBu_qQ": {
+      "userId": "admin-1",
+      "role": "admin",
+      "expiresAt": "2026-12-25T20:05:16.927Z"
     },
-    "eyJ1c2VySWQiOiJzdHUtNDViYzU5YTctMzNkZi00NmUxLTk5YjQtMWVjN2FjMThhOGQxIiwicm9sZSI6InN0dWRlbnQiLCJ0cyI6MTc5NTYzNTcyNDQyOCwicGhvbmVfbnVtYmVyIjoiNzg5NDU2MTIiLCJmdWxsX25hbWUiOiJBaG1lZCIsInJvb21fbnVtYmVyIjoiUm9vbSAxMDEifQ.qGnTSPQ8U9DZQfouYL4P_cqjnrQ6eRsVJZ-xpGavMDk": {
-      "userId": "stu-45bc59a7-33df-46e1-99b4-1ec7ac18a8d1",
-      "role": "student",
-      "expiresAt": "2026-12-25T19:42:04.428Z"
+    "eyJ1c2VySWQiOiJhZG1pbi0xIiwicm9sZSI6ImFkbWluIiwidHMiOjE3OTU2Mzc1NDAyMjR9.pItaab36GNd_L237A8f63CFqFqStqdPAcd1A20FtiEw": {
+      "userId": "admin-1",
+      "role": "admin",
+      "expiresAt": "2026-12-25T20:12:20.225Z"
+    },
+    "eyJ1c2VySWQiOiJhZG1pbi0xIiwicm9sZSI6ImFkbWluIiwidHMiOjE3OTU2Mzc2OTU3NDN9.WObuZVa0zSQJ0DbPeUXEAcNb0RRGEHGb4mFWDp4N5B4": {
+      "userId": "admin-1",
+      "role": "admin",
+      "expiresAt": "2026-12-25T20:14:55.743Z"
+    },
+    "eyJ1c2VySWQiOiJhZG1pbi0xIiwicm9sZSI6ImFkbWluIiwidHMiOjE3OTU2Mzc4Nzk5ODl9.7ZihYzHMjASXXDnyUkPhM6CCExMDnwHuvhHoTOAXBrk": {
+      "userId": "admin-1",
+      "role": "admin",
+      "expiresAt": "2026-12-25T20:17:59.989Z"
+    },
+    "eyJ1c2VySWQiOiJhZG1pbi0xIiwicm9sZSI6ImFkbWluIiwidHMiOjE3OTU2Mzc5NDAyMzF9.YjvE75q4r7gZLhDRACT8HMjiQJPkUm3xLeeEqnRJUs8": {
+      "userId": "admin-1",
+      "role": "admin",
+      "expiresAt": "2026-12-25T20:19:00.231Z"
     }
   },
   "notifications": [
+    {
+      "id": "notif-e16ad8dc-3ff0-4f50-857b-c493810ecfda",
+      "student_id": "stu-998b8cca-6483-4a8b-b6f8-b13ba6231b5d",
+      "student_name": "Temp Student To Delete",
+      "meal_category": "REGISTRATION",
+      "food_name": "Room B-303",
+      "date": "2026-11-26",
+      "timestamp": "2026-11-25T20:20:16.223Z",
+      "message": "Student account created for Temp Student To Delete (Room B-303) (9993337596).",
+      "is_read": true,
+      "created_at": "2026-11-25T20:20:16.223Z"
+    },
+    {
+      "id": "notif-eb138772-3af3-4ac3-b61e-f48dd4de310d",
+      "student_id": "stu-66cfc0ff-5d6c-4be6-94b2-5f859802cd4a",
+      "student_name": "Test ToDelete",
+      "meal_category": "REGISTRATION",
+      "food_name": "Room Temp-99",
+      "date": "2026-11-26",
+      "timestamp": "2026-11-25T20:18:00.089Z",
+      "message": "Student account created for Test ToDelete (Room Temp-99) (9991112223).",
+      "is_read": true,
+      "created_at": "2026-11-25T20:18:00.089Z"
+    },
     {
       "id": "notif-a8aa18a3-3ff2-439d-8843-bcb46e560afc",
       "student_id": "stu-45bc59a7-33df-46e1-99b4-1ec7ac18a8d1",
@@ -727,7 +705,7 @@
       "date": "2026-11-26",
       "timestamp": "2026-11-25T19:43:13.874Z",
       "message": "Ahmed has collected Breakfast.",
-      "is_read": false,
+      "is_read": true,
       "created_at": "2026-11-25T19:43:13.874Z"
     },
     {
@@ -739,7 +717,7 @@
       "date": "2026-11-26",
       "timestamp": "2026-11-25T19:42:04.429Z",
       "message": "Ahmed (Room Room 101) created a new student account (78945612).",
-      "is_read": false,
+      "is_read": true,
       "created_at": "2026-11-25T19:42:04.429Z"
     },
     {
@@ -751,7 +729,7 @@
       "date": "2026-11-26",
       "timestamp": "2026-11-25T19:40:29.733Z",
       "message": "Aman (Room Room 101) created a new student account (1234567890).",
-      "is_read": false,
+      "is_read": true,
       "created_at": "2026-11-25T19:40:29.733Z"
     },
     {

@@ -10,11 +10,13 @@ import {
   Eye,
   EyeOff,
   Shield,
-  X
+  X,
+  Trash2
 } from 'lucide-react';
 import { Student } from '../../types';
 import { api } from '../../services/api';
 import { useToast } from '../../context/ToastContext';
+import { useRealtime } from '../../context/RealtimeContext';
 
 export const AdminStudents: React.FC = () => {
   const [students, setStudents] = useState<Student[]>([]);
@@ -26,6 +28,7 @@ export const AdminStudents: React.FC = () => {
   const [editingStudent, setEditingStudent] = useState<Student | null>(null);
   const [fullName, setFullName] = useState<string>('');
   const [phoneNumber, setPhoneNumber] = useState<string>('');
+  const [roomNumber, setRoomNumber] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [showPassword, setShowPassword] = useState<boolean>(false);
 
@@ -33,27 +36,50 @@ export const AdminStudents: React.FC = () => {
   const [profileData, setProfileData] = useState<any>(null);
   const [isProfileOpen, setIsProfileOpen] = useState<boolean>(false);
 
-  const { success, error } = useToast();
+  // Delete Confirmation
+  const [deletingStudent, setDeletingStudent] = useState<Student | null>(null);
+  const [isDeleting, setIsDeleting] = useState<boolean>(false);
 
-  const loadStudents = async () => {
+  const { success, error } = useToast();
+  const { subscribe } = useRealtime();
+
+  const loadStudents = async (showLoading: boolean = true) => {
+    if (showLoading) setIsLoading(true);
     try {
       const data = await api.getStudents(search);
       setStudents(data || []);
     } catch (err) {
       console.error(err);
     } finally {
-      setIsLoading(false);
+      if (showLoading) setIsLoading(false);
     }
   };
 
   useEffect(() => {
     loadStudents();
-  }, [search]);
+
+    const unsub = subscribe(e => {
+      if (
+        e.type === 'STUDENT_CREATED' ||
+        e.type === 'STUDENT_UPDATED' ||
+        e.type === 'STUDENT_DELETED' ||
+        e.type === 'NOTIFICATION_CREATED' ||
+        e.type === 'POLL_SYNC'
+      ) {
+        api.getStudents(search).then(data => {
+          if (data) setStudents(data);
+        }).catch(() => {});
+      }
+    });
+
+    return () => unsub();
+  }, [search, subscribe]);
 
   const handleOpenAddModal = () => {
     setEditingStudent(null);
     setFullName('');
     setPhoneNumber('');
+    setRoomNumber('');
     setPassword('Student@123');
     setIsModalOpen(true);
   };
@@ -62,6 +88,7 @@ export const AdminStudents: React.FC = () => {
     setEditingStudent(student);
     setFullName(student.full_name);
     setPhoneNumber(student.phone_number);
+    setRoomNumber(student.room_number || '');
     setPassword('');
     setIsModalOpen(true);
   };
@@ -78,6 +105,7 @@ export const AdminStudents: React.FC = () => {
         await api.updateStudent(editingStudent.id, {
           full_name: fullName,
           phone_number: phoneNumber,
+          room_number: roomNumber,
           ...(password ? { password } : {})
         });
         success('Student profile updated');
@@ -85,12 +113,13 @@ export const AdminStudents: React.FC = () => {
         await api.createStudentManually({
           full_name: fullName,
           phone_number: phoneNumber,
+          room_number: roomNumber,
           password
         });
         success('Student account created');
       }
       setIsModalOpen(false);
-      await loadStudents();
+      await loadStudents(false);
     } catch (err: any) {
       error(err.message || 'Failed to save student');
     }
@@ -114,6 +143,21 @@ export const AdminStudents: React.FC = () => {
       setIsProfileOpen(true);
     } catch (err: any) {
       error('Failed to load student profile');
+    }
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deletingStudent) return;
+    setIsDeleting(true);
+    try {
+      await api.deleteStudent(deletingStudent.id);
+      success(`Student account for ${deletingStudent.full_name} deleted`);
+      setDeletingStudent(null);
+      await loadStudents(false);
+    } catch (err: any) {
+      error(err.message || 'Failed to delete student');
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -178,7 +222,14 @@ export const AdminStudents: React.FC = () => {
               <tbody className="divide-y divide-slate-100 text-slate-700">
                 {students.map(student => (
                   <tr key={student.id} className="hover:bg-slate-50/60 transition-colors">
-                    <td className="py-3.5 px-4 font-bold text-slate-900">{student.full_name}</td>
+                    <td className="py-3.5 px-4 font-bold text-slate-900">
+                      {student.full_name}
+                      {student.room_number && (
+                        <span className="block text-[11px] font-normal text-slate-400 font-sans">
+                          {student.room_number}
+                        </span>
+                      )}
+                    </td>
                     <td className="py-3.5 px-4 font-mono text-slate-600">{student.phone_number}</td>
                     <td className="py-3.5 px-4 font-mono text-slate-500">
                       {new Date(student.created_at).toLocaleDateString()}
@@ -222,6 +273,13 @@ export const AdminStudents: React.FC = () => {
                           ) : (
                             <CheckCircle2 className="w-3.5 h-3.5" />
                           )}
+                        </button>
+                        <button
+                          onClick={() => setDeletingStudent(student)}
+                          title="Delete student"
+                          className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
                         </button>
                       </div>
                     </td>
@@ -272,6 +330,19 @@ export const AdminStudents: React.FC = () => {
                   value={phoneNumber}
                   onChange={e => setPhoneNumber(e.target.value)}
                   className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-forest-900 font-mono"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">
+                  Room Number (Optional)
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. Room 101, B-204"
+                  value={roomNumber}
+                  onChange={e => setRoomNumber(e.target.value)}
+                  className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-forest-900"
                 />
               </div>
 
@@ -369,6 +440,42 @@ export const AdminStudents: React.FC = () => {
                   <p className="text-xs text-slate-400">No collections logged yet.</p>
                 )}
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Dialog */}
+      {deletingStudent && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm animate-in fade-in duration-150">
+          <div className="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl border border-slate-100 text-center">
+            <div className="w-12 h-12 rounded-full bg-red-100 text-red-600 mx-auto mb-3 flex items-center justify-center">
+              <Trash2 className="w-6 h-6" />
+            </div>
+            <h3 className="font-bold text-base text-slate-900">Delete Student Account</h3>
+            <p className="text-xs text-slate-500 mt-2">
+              Are you sure you want to permanently delete{' '}
+              <strong>{deletingStudent.full_name}</strong> ({deletingStudent.phone_number})?
+              This action cannot be undone and will revoke their login access.
+            </p>
+
+            <div className="flex gap-2.5 mt-5">
+              <button
+                type="button"
+                onClick={() => setDeletingStudent(null)}
+                disabled={isDeleting}
+                className="flex-1 py-2 rounded-xl border border-slate-200 text-xs font-semibold text-slate-600 hover:bg-slate-50 transition-colors"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmDelete}
+                disabled={isDeleting}
+                className="flex-1 py-2 rounded-xl bg-red-600 text-white text-xs font-bold hover:bg-red-700 transition-colors shadow-sm disabled:opacity-50"
+              >
+                {isDeleting ? 'Deleting...' : 'Yes, Delete'}
+              </button>
             </div>
           </div>
         </div>

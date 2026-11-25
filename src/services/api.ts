@@ -157,6 +157,11 @@ export const api = {
       body: JSON.stringify(data)
     }),
 
+  deleteStudent: (id: string) =>
+    fetchJSON<{ message: string; id: string }>(`/students/${id}`, {
+      method: 'DELETE'
+    }),
+
   getStudentProfile: (id: string) =>
     fetchJSON<{
       student: Student;

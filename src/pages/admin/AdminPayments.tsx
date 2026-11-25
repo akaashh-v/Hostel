@@ -17,6 +17,7 @@ import {
 import { api } from '../../services/api';
 import { MonthlyBill, Payment, PaymentMethod } from '../../types';
 import { useToast } from '../../context/ToastContext';
+import { useRealtime } from '../../context/RealtimeContext';
 
 export const AdminPayments: React.FC = () => {
   const [bills, setBills] = useState<MonthlyBill[]>([]);
@@ -39,9 +40,10 @@ export const AdminPayments: React.FC = () => {
   const [isSaving, setIsSaving] = useState<boolean>(false);
 
   const { success, error } = useToast();
+  const { subscribe } = useRealtime();
 
-  const loadData = async () => {
-    setIsLoading(true);
+  const loadData = async (showLoading: boolean = true) => {
+    if (showLoading) setIsLoading(true);
     try {
       const [billsData, studentsData] = await Promise.all([
         api.getMonthlyBills(month, year),
@@ -63,15 +65,46 @@ export const AdminPayments: React.FC = () => {
       setPayments(allPayments);
     } catch (err: any) {
       console.error(err);
-      error('Failed to load payment records');
+      if (showLoading) error('Failed to load payment records');
     } finally {
-      setIsLoading(false);
+      if (showLoading) setIsLoading(false);
     }
   };
 
   useEffect(() => {
     loadData();
-  }, [month, year]);
+
+    const unsub = subscribe(e => {
+      if (
+        e.type === 'PAYMENT_RECORDED' ||
+        e.type === 'BILL_UPDATED' ||
+        e.type === 'COLLECTION_MARKED' ||
+        e.type === 'POLL_SYNC'
+      ) {
+        Promise.all([
+          api.getMonthlyBills(month, year),
+          api.getStudents()
+        ]).then(([billsData, studentsData]) => {
+          if (billsData) {
+            setBills(billsData);
+            const allPayments: Payment[] = billsData.flatMap((b: any) =>
+              (b.payments || []).map((p: any) => ({
+                ...p,
+                student_name: b.student_name,
+                student_phone: b.student_phone,
+                month: b.month,
+                year: b.year
+              }))
+            );
+            setPayments(allPayments);
+          }
+          if (studentsData) setStudents(studentsData);
+        }).catch(() => {});
+      }
+    });
+
+    return () => unsub();
+  }, [month, year, subscribe]);
 
   const handleOpenRecordPayment = (bill?: MonthlyBill) => {
     if (bill) {

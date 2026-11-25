@@ -142,7 +142,16 @@ export interface HostelSettings {
 }
 
 export interface RealtimeEvent {
-  type: 'COLLECTION_MARKED' | 'MENU_UPDATED' | 'BILL_UPDATED' | 'NOTIFICATION_CREATED' | 'PAYMENT_RECORDED';
+  type:
+    | 'COLLECTION_MARKED'
+    | 'MENU_UPDATED'
+    | 'BILL_UPDATED'
+    | 'NOTIFICATION_CREATED'
+    | 'PAYMENT_RECORDED'
+    | 'STUDENT_CREATED'
+    | 'STUDENT_UPDATED'
+    | 'STUDENT_DELETED'
+    | 'POLL_SYNC';
   timestamp: string;
   data: any;
 }

@@ -691,6 +691,24 @@ class Database {
     return this.data.students[idx];
   }
 
+  public deleteStudent(id: string): boolean {
+    const idx = this.data.students.findIndex(s => s.id === id);
+    if (idx === -1) return false;
+    this.data.students.splice(idx, 1);
+
+    // Invalidate active session tokens for deleted student
+    if (this.data.sessions) {
+      for (const [token, sess] of Object.entries(this.data.sessions)) {
+        if (sess.userId === id) {
+          delete this.data.sessions[token];
+        }
+      }
+    }
+
+    this.save();
+    return true;
+  }
+
   // --- Admins ---
   public getAdmins(): Admin[] {
     return this.data.admins;
@@ -1409,6 +1427,13 @@ apiRouter.post('/auth/student/register', (req: Request, res: Response) => {
   });
 
   const { password_hash, ...safeStudent } = student;
+
+  realtimeManager.broadcast({
+    type: 'STUDENT_CREATED' as any,
+    timestamp: new Date().toISOString(),
+    data: safeStudent
+  });
+
   res.status(201).json({
     message: 'Account created successfully',
     token,
@@ -2036,6 +2061,13 @@ apiRouter.post('/students', (req: Request, res: Response) => {
   });
 
   const { password_hash, ...safe } = newStudent;
+
+  realtimeManager.broadcast({
+    type: 'STUDENT_CREATED' as any,
+    timestamp: new Date().toISOString(),
+    data: safe
+  });
+
   res.status(201).json(safe);
 });
 
@@ -2058,7 +2090,38 @@ apiRouter.put('/students/:id', (req: Request, res: Response) => {
   }
 
   const { password_hash, ...safe } = updated;
+
+  realtimeManager.broadcast({
+    type: 'STUDENT_UPDATED' as any,
+    timestamp: new Date().toISOString(),
+    data: safe
+  });
+
   res.json(safe);
+});
+
+// Delete student
+apiRouter.delete('/students/:id', (req: Request, res: Response) => {
+  const id = getParamId(req.params.id);
+  const student = db.findStudentById(id);
+  if (!student) {
+    res.status(404).json({ error: 'Student not found' });
+    return;
+  }
+
+  const deleted = db.deleteStudent(id);
+  if (!deleted) {
+    res.status(500).json({ error: 'Failed to delete student' });
+    return;
+  }
+
+  realtimeManager.broadcast({
+    type: 'STUDENT_DELETED' as any,
+    timestamp: new Date().toISOString(),
+    data: { id, full_name: student.full_name, phone_number: student.phone_number }
+  });
+
+  res.json({ message: 'Student account deleted successfully', id });
 });
 
 // Student Profile with History & Billing

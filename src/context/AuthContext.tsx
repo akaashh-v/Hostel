@@ -38,15 +38,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   });
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [activePortal, setActivePortal] = useState<'student' | 'admin'>('student');
+  const [activePortal, setActivePortal] = useState<'student' | 'admin'>(() => {
+    if (typeof window !== 'undefined' && window.location.pathname.startsWith('/admin')) {
+      return 'admin';
+    }
+    return 'student';
+  });
   const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
   const { success, error } = useToast();
 
   const refreshSession = useCallback(async () => {
     try {
-      // Check admin session first if path has admin or portal is admin
+      // Check admin session if path has admin or admin is cached
       const path = window.location.pathname;
-      if (path.startsWith('/admin')) {
+      const isExplicitAdmin = path.startsWith('/admin') || !!localStorage.getItem('mess_admin_user');
+      if (isExplicitAdmin) {
         try {
           const res = await api.getAdminSession();
           if (res.authenticated && res.admin) {
@@ -67,7 +73,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (studentRes.authenticated && studentRes.student) {
           setStudent(studentRes.student);
           localStorage.setItem('mess_student_user', JSON.stringify(studentRes.student));
-          setActivePortal('student');
+          if (!path.startsWith('/admin')) {
+            setActivePortal('student');
+          }
           setIsLoading(false);
           return;
         } else if (studentRes && studentRes.authenticated === false) {
@@ -93,6 +101,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
       } catch {
         // not admin
+      }
+
+      if (path.startsWith('/admin')) {
+        setActivePortal('admin');
       }
     } catch {
       // no session
