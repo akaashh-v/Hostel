@@ -396,9 +396,25 @@ export const StudentBill: React.FC<StudentBillProps> = ({
                         </div>
                       </div>
 
-                      {/* Direct Launch Google Pay Button */}
-                      <a
-                        href={`upi://pay?pa=ismailpk153@okicici&pn=Sinsiya%20Nihala&am=${payableAmount}&cu=INR&tn=Tastebox%20Food%20Collection`}
+                      {/* Direct Launch Google Pay Button (iOS & Android optimized) */}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const isIOSDevice = typeof navigator !== 'undefined' && (/iPad|iPhone|iPod/.test(navigator.userAgent || '') || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1));
+                          const upiQuery = `pa=ismailpk153@okicici&pn=Sinsiya%20Nihala&am=${payableAmount}&cu=INR&tn=Tastebox%20Food%20Collection`;
+                          
+                          if (isIOSDevice) {
+                            // On iOS: trigger gpay:// so iOS opens Google Pay directly instead of WhatsApp!
+                            window.location.href = `gpay://upi/pay?${upiQuery}`;
+                            // Fallback to tez:// in case older Google Pay Tez is installed
+                            setTimeout(() => {
+                              window.location.href = `tez://upi/pay?${upiQuery}`;
+                            }, 600);
+                          } else {
+                            // On Android / desktop: standard upi:// triggers Google Pay intent
+                            window.location.href = `upi://pay?${upiQuery}`;
+                          }
+                        }}
                         className="w-full flex items-center justify-center gap-3 px-6 py-3.5 rounded-2xl bg-white hover:bg-slate-100 text-slate-900 font-black text-sm shadow-xl active:scale-95 transition-all text-center cursor-pointer"
                       >
                         <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none">
@@ -409,7 +425,30 @@ export const StudentBill: React.FC<StudentBillProps> = ({
                         </svg>
                         <span>Pay ₹{payableAmount} via Google Pay</span>
                         <ExternalLink className="w-4 h-4 text-slate-500" />
-                      </a>
+                      </button>
+
+                      {/* Additional UPI Apps options */}
+                      <div className="flex flex-wrap items-center justify-center gap-2 pt-1 text-[11px] font-bold text-slate-300">
+                        <span>Or pay with:</span>
+                        <a
+                          href={`phonepe://pay?pa=ismailpk153@okicici&pn=Sinsiya%20Nihala&am=${payableAmount}&cu=INR&tn=Tastebox`}
+                          className="px-2.5 py-1 rounded-lg bg-white/10 hover:bg-white/20 text-white transition-colors"
+                        >
+                          PhonePe
+                        </a>
+                        <a
+                          href={`paytmmp://pay?pa=ismailpk153@okicici&pn=Sinsiya%20Nihala&am=${payableAmount}&cu=INR&tn=Tastebox`}
+                          className="px-2.5 py-1 rounded-lg bg-white/10 hover:bg-white/20 text-white transition-colors"
+                        >
+                          Paytm
+                        </a>
+                        <a
+                          href={`upi://pay?pa=ismailpk153@okicici&pn=Sinsiya%20Nihala&am=${payableAmount}&cu=INR&tn=Tastebox`}
+                          className="px-2.5 py-1 rounded-lg bg-white/10 hover:bg-white/20 text-white transition-colors"
+                        >
+                          Universal UPI
+                        </a>
+                      </div>
                     </div>
                   </div>
                 </div>

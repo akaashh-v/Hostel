@@ -87,11 +87,12 @@ export function hashPassword(plainText: string): string {
 
 export function verifyPassword(plainText: string, storedHash: string): boolean {
   if (storedHash.startsWith('$2')) {
-    return bcrypt.compareSync(plainText, storedHash);
+    return bcrypt.compareSync(plainText, storedHash) || bcrypt.compareSync(plainText.trim(), storedHash);
   }
   // Backward compatibility for existing SHA-256 hashes
   const sha = crypto.createHash('sha256').update(plainText).digest('hex');
-  return sha === storedHash;
+  const shaTrim = crypto.createHash('sha256').update(plainText.trim()).digest('hex');
+  return sha === storedHash || shaTrim === storedHash;
 }
 
 export function generateToken(): string {
@@ -797,7 +798,15 @@ class Database {
 
   public findStudentByPhone(phone: string): Student | undefined {
     const cleanPhone = phone.trim().replace(/\s+/g, '');
-    return this.data.students.find(s => s.phone_number.trim().replace(/\s+/g, '') === cleanPhone);
+    const digitsOnly = cleanPhone.replace(/\D/g, '');
+    const last10 = digitsOnly.length >= 10 ? digitsOnly.slice(-10) : digitsOnly;
+
+    return this.data.students.find(s => {
+      const sClean = s.phone_number.trim().replace(/\s+/g, '');
+      const sDigits = sClean.replace(/\D/g, '');
+      const sLast10 = sDigits.length >= 10 ? sDigits.slice(-10) : sDigits;
+      return sClean === cleanPhone || (last10 && sLast10 === last10);
+    });
   }
 
   public createStudent(fullName: string, phoneNumber: string, passwordHash: string, roomNumber?: string): Student {

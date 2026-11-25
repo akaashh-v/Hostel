@@ -1,26 +1,17 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import confetti from 'canvas-confetti';
 import {
   CheckCircle2,
   Clock,
   Sparkles,
   Calendar,
-  Coffee,
-  Sun,
-  Sunset,
-  Moon,
   Utensils,
   ArrowRight,
-  ShieldCheck,
-  ReceiptIndianRupee,
-  AlertCircle,
-  X
+  ReceiptIndianRupee
 } from 'lucide-react';
-import { Meal, FoodItem, FoodCollection, MealType } from '../../types';
+import { Meal, FoodItem, FoodCollection } from '../../types';
 import { api } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import { useRealtime } from '../../context/RealtimeContext';
-import { useToast } from '../../context/ToastContext';
 
 interface StudentDashboardProps {
   onNavigateToTab?: (tab: 'menu' | 'history' | 'bill') => void;
@@ -33,22 +24,12 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
 }) => {
   const { student } = useAuth();
   const { subscribe } = useRealtime();
-  const { success, error } = useToast();
 
   const [meals, setMeals] = useState<(Meal & { items: FoodItem[] })[]>([]);
   const [collections, setCollections] = useState<FoodCollection[]>([]);
   const [bill, setBill] = useState<any>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [isMarking, setIsMarking] = useState<boolean>(false);
   const [selectedSessionFilter, setSelectedSessionFilter] = useState<string>('ALL');
-  const [confirmModal, setConfirmModal] = useState<{
-    isOpen: boolean;
-    mealId: string;
-    dishId?: string;
-    dishName: string;
-    mealType: string;
-    price: number;
-  } | null>(null);
 
   const fetchDashboardData = useCallback(async () => {
     try {
@@ -85,85 +66,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
     return () => unsubscribe();
   }, [fetchDashboardData, subscribe]);
 
-  const initiateCollectDish = (mealId: string, dishId: string, dishName: string, mealType: string, price: number) => {
-    setConfirmModal({
-      isOpen: true,
-      mealId,
-      dishId,
-      dishName,
-      mealType,
-      price
-    });
-  };
-
-  const handleConfirmCollection = async () => {
-    if (!confirmModal) return;
-
-    setIsMarking(true);
-    const { mealId, dishId, dishName } = confirmModal;
-
-    try {
-      const res = await api.markFoodCollected(mealId, dishId, dishName);
-      success(res.message || `${dishName} marked as collected!`);
-
-      // Trigger Celebration Confetti!
-      confetti({
-        particleCount: 90,
-        spread: 60,
-        origin: { y: 0.6 }
-      });
-
-      setConfirmModal(null);
-      await fetchDashboardData();
-
-      // Navigate immediately to Payment option as requested
-      if (onNavigateToPayment && res.collection) {
-        onNavigateToPayment(res.collection);
-      } else if (onNavigateToTab) {
-        onNavigateToTab('bill');
-      }
-    } catch (err: any) {
-      error(err.message || 'Could not record food collection');
-    } finally {
-      setIsMarking(false);
-    }
-  };
-
-  const getMealVisuals = (type: MealType) => {
-    switch (type) {
-      case 'BREAKFAST':
-        return {
-          icon: <Coffee className="w-5 h-5 text-amber-500" />,
-          badgeBg: 'bg-amber-500/10 text-amber-700 border-amber-200/60'
-        };
-      case 'LUNCH':
-        return {
-          icon: <Sun className="w-5 h-5 text-emerald-600" />,
-          badgeBg: 'bg-emerald-500/10 text-emerald-800 border-emerald-200/60'
-        };
-      case 'SNACKS':
-        return {
-          icon: <Sunset className="w-5 h-5 text-rose-500" />,
-          badgeBg: 'bg-rose-500/10 text-rose-700 border-rose-200/60'
-        };
-      case 'DINNER':
-        return {
-          icon: <Moon className="w-5 h-5 text-indigo-500" />,
-          badgeBg: 'bg-indigo-500/10 text-indigo-700 border-indigo-200/60'
-        };
-    }
-  };
-
   const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Kolkata' }).format(new Date());
-
-  const isDishCollected = (dishId: string, dishName: string) => {
-    return collections.some(
-      c =>
-        c.collection_date === today &&
-        ((c.food_item_id && c.food_item_id === dishId) ||
-          (c.food_item_name && c.food_item_name.trim().toLowerCase() === dishName.trim().toLowerCase()))
-    );
-  };
 
   const getGreeting = () => {
     const hour = new Date().getHours();
@@ -183,8 +86,12 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
     );
   }
 
-  const collectedTodayCount = collections.filter(c => c.collection_date === today).length;
-  const filteredMeals = meals.filter(m => selectedSessionFilter === 'ALL' || m.meal_type === selectedSessionFilter);
+  const todayCollections = collections.filter(c => c.collection_date === today);
+  const collectedTodayCount = todayCollections.length;
+  const filteredCollections = todayCollections.filter(
+    c => selectedSessionFilter === 'ALL' || c.meal_type === selectedSessionFilter
+  );
+  const allDishes = meals.flatMap(m => m.items || []);
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-24 space-y-8">
@@ -213,8 +120,17 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
             </h1>
 
             <p className="text-teal-100/90 text-xs sm:text-sm max-w-xl leading-relaxed">
-              Welcome to <strong>TASTEBOX MEALS CO.</strong> Review today's dishes below and tap <strong>COLLECT</strong> on your selected dish at the counter.
+              Welcome to <strong>TASTEBOX MEALS CO.</strong> Below are your collected meal trays for today. To collect additional dishes, visit Today's Menu.
             </p>
+
+            <button
+              type="button"
+              onClick={() => onNavigateToTab?.('menu')}
+              className="mt-2 inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white text-teal-800 text-xs font-bold hover:bg-teal-50 transition-all shadow-md active:scale-95 cursor-pointer"
+            >
+              <Utensils className="w-3.5 h-3.5 text-teal-700" />
+              <span>Browse Today's Menu & Collect Dishes →</span>
+            </button>
           </div>
 
           {/* Quick Attendance & Billing Status Widget */}
@@ -288,290 +204,179 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
         </div>
       </div>
 
-      {/* Session Filter Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
-            Today's Scheduled Dining Sessions
-          </h2>
-          <p className="text-xs text-slate-500 mt-0.5">
-            Operating on scheduled hostel timetable • Tap COLLECT upon taking your meal tray
-          </p>
+      {/* Today's Collected Food Items Section */}
+      <div className="space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-2.5">
+              <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+                Today's Collected Food Items
+              </h2>
+              <span className="text-xs font-bold px-3 py-1 rounded-full bg-teal-50 text-teal-800 border border-teal-200">
+                {todayCollections.length} collected
+              </span>
+            </div>
+            <p className="text-xs text-slate-500 mt-0.5">
+              Food items collected by you at the counter today • Track collected trays and settlement status
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => onNavigateToTab?.('menu')}
+              className="px-4 py-2 rounded-2xl bg-[#0D9488] hover:bg-[#0F766E] text-white text-xs font-bold transition-all shadow-sm flex items-center gap-1.5 active:scale-95 cursor-pointer"
+            >
+              <Utensils className="w-3.5 h-3.5" />
+              <span>Collect More in Today's Menu</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </button>
+          </div>
         </div>
 
-        {/* Meal Session Filter Pills */}
-        <div className="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
-          {[
-            { id: 'ALL', label: 'All Sessions' },
-            { id: 'BREAKFAST', label: 'Breakfast' },
-            { id: 'LUNCH', label: 'Lunch' },
-            { id: 'SNACKS', label: 'Snacks' },
-            { id: 'DINNER', label: 'Dinner' }
-          ].map(cat => {
-            const isSelected = selectedSessionFilter === cat.id;
-            return (
+        {/* Filter Pills for Collected Items */}
+        {todayCollections.length > 0 && (
+          <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
+            {[
+              { id: 'ALL', label: 'All Collected' },
+              { id: 'BREAKFAST', label: 'Breakfast' },
+              { id: 'LUNCH', label: 'Lunch' },
+              { id: 'SNACKS', label: 'Snacks' },
+              { id: 'DINNER', label: 'Dinner' }
+            ].map(cat => (
               <button
                 key={cat.id}
                 onClick={() => setSelectedSessionFilter(cat.id)}
-                className={`px-4 py-2 rounded-2xl text-xs font-bold whitespace-nowrap transition-all shadow-sm active:scale-95 ${
-                  isSelected
-                    ? 'bg-[#0D9488] text-white shadow-md shadow-[#0D9488]/20'
+                className={`px-4 py-2 rounded-2xl text-xs font-bold whitespace-nowrap transition-all shadow-sm active:scale-95 cursor-pointer ${
+                  selectedSessionFilter === cat.id
+                    ? 'bg-slate-900 text-white shadow-md'
                     : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50'
                 }`}
               >
                 {cat.label}
               </button>
-            );
-          })}
-        </div>
-      </div>
+            ))}
+          </div>
+        )}
 
-      {/* Meal Sessions & Food Cards Grid */}
-      <div className="space-y-8">
-        {filteredMeals.map(meal => {
-          const visuals = getMealVisuals(meal.meal_type);
-
-          return (
-            <div
-              key={meal.id}
-              className="bg-white rounded-3xl border border-slate-200/90 p-6 sm:p-7 shadow-sm space-y-6"
+        {/* Empty State when no food collected yet today */}
+        {todayCollections.length === 0 ? (
+          <div className="bg-white rounded-3xl border border-slate-200/90 p-10 sm:p-14 text-center max-w-2xl mx-auto shadow-sm">
+            <div className="w-16 h-16 rounded-2xl bg-teal-50 border border-teal-100 text-[#0D9488] flex items-center justify-center mx-auto mb-4 shadow-2xs">
+              <Utensils className="w-8 h-8" />
+            </div>
+            <h3 className="text-lg font-black text-slate-900">No Meals Collected Yet Today</h3>
+            <p className="text-xs text-slate-500 mt-1.5 max-w-md mx-auto leading-relaxed">
+              Dishes you collect at the hostel mess counter will be displayed here immediately along with your collection timestamps and payment settlement.
+            </p>
+            <button
+              type="button"
+              onClick={() => onNavigateToTab?.('menu')}
+              className="mt-6 px-6 py-3 rounded-2xl bg-[#0D9488] hover:bg-[#0F766E] text-white text-xs font-black uppercase tracking-wider transition-all shadow-md shadow-[#0D9488]/20 flex items-center justify-center gap-2 mx-auto cursor-pointer active:scale-95"
             >
-              {/* Session Header Bar */}
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5 border-b border-slate-100">
-                <div className="flex items-center gap-3.5">
-                  <div className="w-12 h-12 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center shadow-sm">
-                    {visuals.icon}
-                  </div>
+              <Utensils className="w-4 h-4" />
+              <span>Open Today's Menu to Collect Food</span>
+              <ArrowRight className="w-4 h-4" />
+            </button>
+          </div>
+        ) : filteredCollections.length === 0 ? (
+          <div className="bg-white rounded-3xl border border-slate-200/90 p-8 text-center text-slate-500 shadow-xs">
+            <p className="text-xs text-slate-400">No collected dishes found for this meal category today.</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+            {filteredCollections.map(coll => {
+              const matchedDish = allDishes.find(
+                d => (coll.food_item_id && d.id === coll.food_item_id) ||
+                     (coll.food_item_name && d.name.toLowerCase() === coll.food_item_name.toLowerCase())
+              );
+              const imageUrl = matchedDish?.image_url || 'https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=600';
+              const dishName = coll.food_item_name || matchedDish?.name || coll.meal_type;
+              const price = coll.amount || matchedDish?.price || 40;
+
+              return (
+                <div
+                  key={coll.id}
+                  className="bg-white rounded-3xl border border-slate-200/90 overflow-hidden shadow-sm hover:shadow-md transition-all flex flex-col justify-between"
+                >
                   <div>
-                    <div className="flex items-center gap-2">
-                      <h3 className="font-black text-xl text-slate-900 tracking-tight">
-                        {meal.name}
-                      </h3>
-                      <span className="text-[11px] font-bold text-slate-500 bg-slate-100 px-2.5 py-0.5 rounded-full border border-slate-200/60">
-                        {meal.items?.length || 0} Dishes
+                    {/* Food Image with Category badge */}
+                    <div className="relative aspect-[4/3] overflow-hidden bg-slate-100">
+                      <img
+                        src={imageUrl}
+                        alt={dishName}
+                        className="w-full h-full object-cover"
+                        loading="lazy"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 via-transparent to-black/20 pointer-events-none" />
+
+                      {/* Collected Top Badge */}
+                      <div className="absolute top-3 left-3">
+                        <span className="px-2.5 py-1 rounded-full bg-emerald-600 text-white text-[10px] font-black uppercase tracking-wider shadow-md flex items-center gap-1">
+                          <CheckCircle2 className="w-3.5 h-3.5" />
+                          COLLECTED
+                        </span>
+                      </div>
+
+                      {/* Meal Category */}
+                      <div className="absolute top-3 right-3">
+                        <span className="text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-1 rounded-full bg-slate-900/80 text-white backdrop-blur-sm border border-white/20 shadow-sm">
+                          {coll.meal_type}
+                        </span>
+                      </div>
+
+                      {/* Price Pill */}
+                      <div className="absolute bottom-3 right-3">
+                        <span className="font-black font-mono text-sm px-3 py-1 rounded-xl bg-white text-slate-900 shadow-lg border border-slate-100">
+                          ₹{price}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Card Body */}
+                    <div className="p-4 sm:p-5">
+                      <h4 className="font-bold text-base text-slate-900 leading-tight">
+                        {dishName}
+                      </h4>
+                      <p className="text-xs text-slate-500 flex items-center gap-1.5 font-mono mt-1.5">
+                        <Clock className="w-3.5 h-3.5 text-slate-400" />
+                        <span>Collected at {new Date(coll.collected_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Card Footer: Payment status & Action */}
+                  <div className="p-4 border-t border-slate-100 bg-slate-50/60 flex items-center justify-between gap-3">
+                    <div>
+                      <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">Amount</span>
+                      <span className="font-mono text-base font-black text-slate-900">
+                        ₹{price}
                       </span>
                     </div>
-                    <p className="text-xs text-slate-500 flex items-center gap-1.5 font-mono mt-1">
-                      <Clock className="w-3.5 h-3.5 text-slate-400" />
-                      <span>{meal.start_time} – {meal.end_time}</span>
-                    </p>
+
+                    <div>
+                      {coll.payment_status === 'PAID' ? (
+                        <div className="px-3.5 py-1.5 rounded-xl bg-emerald-50 text-emerald-800 border border-emerald-200/80 text-xs font-black uppercase tracking-wider flex items-center gap-1.5 shadow-2xs select-none">
+                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" />
+                          <span>PAID</span>
+                        </div>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => onNavigateToPayment?.(coll)}
+                          className="px-4 py-2 rounded-xl bg-[#0D9488] hover:bg-[#0F766E] text-white text-xs font-black uppercase tracking-wider shadow-sm hover:shadow-md shadow-[#0D9488]/20 transition-all flex items-center gap-1.5 active:scale-95 cursor-pointer"
+                        >
+                          <ReceiptIndianRupee className="w-3.5 h-3.5 text-white flex-shrink-0" />
+                          <span>PAY NOW</span>
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </div>
-
-                {/* Unique Dish Collection Counter */}
-                <div className="flex items-center gap-2">
-                  <span className="text-xs font-bold text-slate-600 bg-slate-100 px-3 py-1.5 rounded-xl border border-slate-200">
-                    {meal.items?.filter(d => isDishCollected(d.id, d.name)).length || 0} of {meal.items?.length || 0} collected
-                  </span>
-                </div>
-              </div>
-
-              {/* Food Dishes Grid (Exactly Like Today's Menu Screenshot) */}
-              {meal.items && meal.items.length > 0 ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-                  {meal.items.map(dish => {
-                    const dishCollected = isDishCollected(dish.id, dish.name);
-
-                    return (
-                      <div
-                        key={dish.id}
-                        className="bg-white rounded-3xl border border-slate-200/90 overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 flex flex-col justify-between"
-                      >
-                        <div>
-                          {/* Food Image with Overlays */}
-                          <div className="relative aspect-[4/3] overflow-hidden bg-slate-100">
-                            <img
-                              src={dish.image_url}
-                              alt={dish.name}
-                              className="w-full h-full object-cover"
-                              loading="lazy"
-                            />
-
-                            {/* Gradient Overlay for Text Legibility */}
-                            <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 via-transparent to-black/20 pointer-events-none" />
-
-                            {/* Dietary Marker (Square with dot) */}
-                            <div className="absolute top-3 left-3 bg-white/95 backdrop-blur-sm p-1 rounded-md shadow-md flex items-center justify-center">
-                              <div
-                                className={`w-3.5 h-3.5 border-2 flex items-center justify-center rounded-[3px] ${
-                                  dish.category === 'VEG'
-                                    ? 'border-emerald-600'
-                                    : dish.category === 'NON_VEG'
-                                    ? 'border-red-600'
-                                    : 'border-amber-600'
-                                }`}
-                              >
-                                <div
-                                  className={`w-1.5 h-1.5 rounded-full ${
-                                    dish.category === 'VEG'
-                                      ? 'bg-emerald-600'
-                                      : dish.category === 'NON_VEG'
-                                      ? 'bg-red-600'
-                                      : 'bg-amber-600'
-                                  }`}
-                                />
-                              </div>
-                            </div>
-
-                            {/* Meal Category Pill */}
-                            <div className="absolute top-3 right-3">
-                              <span className="text-[10px] font-extrabold uppercase tracking-wider px-2.5 py-1 rounded-full bg-slate-900/80 text-white backdrop-blur-sm border border-white/20 shadow-sm">
-                                {dish.meal_type}
-                              </span>
-                            </div>
-
-                            {/* Prominent Price Tag Floating Pill */}
-                            <div className="absolute bottom-3 right-3">
-                              <span className="font-black font-mono text-sm px-3 py-1 rounded-xl bg-white text-slate-900 shadow-lg border border-slate-100">
-                                ₹{dish.price}
-                              </span>
-                            </div>
-                          </div>
-
-                          {/* Card Body */}
-                          <div className="p-4 sm:p-5">
-                            <h4 className="font-bold text-base text-slate-900 leading-tight">
-                              {dish.name}
-                            </h4>
-
-                            {dish.description && (
-                              <p className="text-xs text-slate-500 line-clamp-2 mt-1 leading-relaxed">
-                                {dish.description}
-                              </p>
-                            )}
-                          </div>
-                        </div>
-
-                        {/* Card Footer: Action button specifically on each food card */}
-                        <div className="p-4 border-t border-slate-100 bg-slate-50/60 flex items-center justify-between gap-3">
-                          <div>
-                            <span className="text-[10px] uppercase font-bold text-slate-400 block tracking-wider">Price</span>
-                            <span className="font-mono text-base font-black text-slate-900">
-                              ₹{dish.price}
-                            </span>
-                          </div>
-
-                          <div>
-                            {dishCollected ? (
-                              <div className="px-4 py-2 rounded-xl bg-emerald-50 text-emerald-800 border border-emerald-200/80 text-xs font-black uppercase tracking-wider flex items-center gap-1.5 shadow-xs select-none">
-                                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 flex-shrink-0" />
-                                <span>COLLECTED</span>
-                              </div>
-                            ) : (
-                              <button
-                                type="button"
-                                onClick={() =>
-                                  initiateCollectDish(
-                                    meal.id,
-                                    dish.id,
-                                    dish.name,
-                                    meal.meal_type,
-                                    dish.price
-                                  )
-                                }
-                                disabled={isMarking}
-                                className="px-5 py-2 rounded-xl bg-[#0D9488] hover:bg-[#0F766E] text-white text-xs font-black uppercase tracking-wider shadow-sm hover:shadow-md shadow-[#0D9488]/20 transition-all flex items-center gap-1.5 active:scale-95 cursor-pointer disabled:opacity-50"
-                              >
-                                <CheckCircle2 className="w-3.5 h-3.5 text-white flex-shrink-0" />
-                                <span>COLLECT</span>
-                              </button>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              ) : (
-                <p className="text-xs text-slate-400 italic py-4 text-center">
-                  No dishes scheduled for this session.
-                </p>
-              )}
-            </div>
-          );
-        })}
-
-        {filteredMeals.length === 0 && (
-          <div className="bg-white rounded-3xl border border-slate-200/90 p-8 text-center text-slate-500 shadow-xs">
-            <Utensils className="w-10 h-10 text-slate-300 mx-auto mb-2" />
-            <h3 className="text-base font-bold text-slate-700">No dining sessions scheduled</h3>
-            <p className="text-xs text-slate-400 mt-1">Please select "All Sessions" to view the full day schedule.</p>
+              );
+            })}
           </div>
         )}
       </div>
-
-      {/* Confirmation Modal */}
-      {confirmModal && confirmModal.isOpen && (
-        <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100 animate-in fade-in zoom-in-95 duration-200">
-            <div className="flex items-center justify-between pb-4 border-b border-slate-100">
-              <div className="flex items-center gap-2.5">
-                <div className="w-10 h-10 rounded-2xl bg-teal-50 text-teal-700 flex items-center justify-center border border-teal-100">
-                  <Utensils className="w-5 h-5" />
-                </div>
-                <div>
-                  <h3 className="font-bold text-base text-slate-900">Confirm Food Collection</h3>
-                  <span className="text-[11px] text-slate-400 uppercase tracking-wider font-semibold">
-                    {confirmModal.mealType}
-                  </span>
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={() => setConfirmModal(null)}
-                className="p-1.5 text-slate-400 hover:text-slate-600 rounded-xl hover:bg-slate-100 transition-colors"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            <div className="py-5 space-y-3">
-              <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100 flex items-center justify-between">
-                <div>
-                  <h4 className="font-extrabold text-sm text-slate-900">{confirmModal.dishName}</h4>
-                  <span className="text-xs text-slate-500 font-medium">1 serving portion</span>
-                </div>
-                <span className="font-mono text-base font-black text-slate-900">
-                  ₹{confirmModal.price}
-                </span>
-              </div>
-
-              <p className="text-xs text-slate-500 leading-relaxed">
-                Are you sure you want to mark <strong>{confirmModal.dishName}</strong> as collected? Your collection will be recorded and you will proceed to the payment settlement screen.
-              </p>
-            </div>
-
-            <div className="flex items-center justify-end gap-2.5 pt-2 border-t border-slate-100">
-              <button
-                type="button"
-                onClick={() => setConfirmModal(null)}
-                disabled={isMarking}
-                className="px-4 py-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 text-xs font-bold text-slate-700 transition-colors"
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                onClick={handleConfirmCollection}
-                disabled={isMarking}
-                className="px-5 py-2.5 rounded-xl bg-[#0D9488] hover:bg-[#0F766E] text-white text-xs font-bold transition-all shadow-md shadow-[#0D9488]/20 flex items-center gap-2 cursor-pointer disabled:opacity-50"
-              >
-                {isMarking ? (
-                  <>
-                    <div className="w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                    <span>Recording...</span>
-                  </>
-                ) : (
-                  <>
-                    <CheckCircle2 className="w-4 h-4" />
-                    <span>MARK AS COLLECTED</span>
-                  </>
-                )}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

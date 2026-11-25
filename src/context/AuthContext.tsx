@@ -139,6 +139,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       localStorage.removeItem('mess_session_token');
       setStudent(null);
       setAdmin(null);
+      setActivePortal('student');
       success('Logged out successfully');
     }
   };

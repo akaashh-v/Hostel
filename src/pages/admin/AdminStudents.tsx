@@ -25,7 +25,6 @@ export const AdminStudents: React.FC = () => {
   const [editingStudent, setEditingStudent] = useState<Student | null>(null);
   const [fullName, setFullName] = useState<string>('');
   const [phoneNumber, setPhoneNumber] = useState<string>('');
-  const [roomNumber, setRoomNumber] = useState<string>('');
   const [password, setPassword] = useState<string>('');
 
   // Profile Drawer
@@ -53,7 +52,6 @@ export const AdminStudents: React.FC = () => {
     setEditingStudent(null);
     setFullName('');
     setPhoneNumber('');
-    setRoomNumber('');
     setPassword('Student@123');
     setIsModalOpen(true);
   };
@@ -62,7 +60,6 @@ export const AdminStudents: React.FC = () => {
     setEditingStudent(student);
     setFullName(student.full_name);
     setPhoneNumber(student.phone_number);
-    setRoomNumber(student.room_number || '');
     setPassword('');
     setIsModalOpen(true);
   };
@@ -79,7 +76,6 @@ export const AdminStudents: React.FC = () => {
         await api.updateStudent(editingStudent.id, {
           full_name: fullName,
           phone_number: phoneNumber,
-          room_number: roomNumber,
           ...(password ? { password } : {})
         });
         success('Student profile updated');
@@ -87,7 +83,6 @@ export const AdminStudents: React.FC = () => {
         await api.createStudentManually({
           full_name: fullName,
           phone_number: phoneNumber,
-          room_number: roomNumber,
           password
         });
         success('Student account created');
@@ -173,7 +168,6 @@ export const AdminStudents: React.FC = () => {
                 <tr>
                   <th className="py-3 px-4">Student Name</th>
                   <th className="py-3 px-4">Phone Number</th>
-                  <th className="py-3 px-4">Room No.</th>
                   <th className="py-3 px-4 font-mono">Registered On</th>
                   <th className="py-3 px-4 text-center">Status</th>
                   <th className="py-3 px-4 text-right">Actions</th>
@@ -184,7 +178,6 @@ export const AdminStudents: React.FC = () => {
                   <tr key={student.id} className="hover:bg-slate-50/60 transition-colors">
                     <td className="py-3.5 px-4 font-bold text-slate-900">{student.full_name}</td>
                     <td className="py-3.5 px-4 font-mono text-slate-600">{student.phone_number}</td>
-                    <td className="py-3.5 px-4">{student.room_number || 'N/A'}</td>
                     <td className="py-3.5 px-4 font-mono text-slate-500">
                       {new Date(student.created_at).toLocaleDateString()}
                     </td>
@@ -282,19 +275,6 @@ export const AdminStudents: React.FC = () => {
 
               <div>
                 <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">
-                  Hostel Room Number (Optional)
-                </label>
-                <input
-                  type="text"
-                  placeholder="e.g. C-302"
-                  value={roomNumber}
-                  onChange={e => setRoomNumber(e.target.value)}
-                  className="w-full px-3.5 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-forest-900"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1">
                   {editingStudent ? 'Reset Password (Optional)' : 'Default Password'}
                 </label>
                 <input
@@ -334,7 +314,7 @@ export const AdminStudents: React.FC = () => {
               <div>
                 <h3 className="font-bold text-lg text-slate-900">{profileData.student.full_name}</h3>
                 <p className="text-xs text-slate-500 font-mono">
-                  {profileData.student.phone_number} • Room: {profileData.student.room_number || 'N/A'}
+                  {profileData.student.phone_number}
                 </p>
               </div>
               <button onClick={() => setIsProfileOpen(false)} className="text-slate-400 hover:text-slate-600">
