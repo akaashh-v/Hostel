@@ -1,787 +1,914 @@
 {
-  "students": [],
-  "admins": [
-    {
-      "id": "admin-1",
-      "username": "admin",
-      "password_hash": "e86f78a8a3caf0b60d8e74e5942aa6d86dc150cd3c03338aef25b7d2d7e3acc7",
-      "full_name": "Chief Mess Warden",
-      "email": "warden@hostel.edu",
-      "role": "SUPER_ADMIN",
-      "created_at": "2026-11-20T15:21:18.084Z"
-    }
-  ],
   "meals": [
     {
       "id": "meal-breakfast",
-      "meal_type": "BREAKFAST",
       "name": "Breakfast",
-      "start_time": "07:30",
       "end_time": "09:30",
+      "meal_type": "BREAKFAST",
+      "start_time": "07:30",
       "display_order": 1
     },
     {
       "id": "meal-lunch",
-      "meal_type": "LUNCH",
       "name": "Lunch",
-      "start_time": "12:30",
       "end_time": "14:30",
+      "meal_type": "LUNCH",
+      "start_time": "12:30",
       "display_order": 2
     },
     {
       "id": "meal-snacks",
-      "meal_type": "SNACKS",
       "name": "Evening Snacks & Tea",
-      "start_time": "17:00",
       "end_time": "18:15",
+      "meal_type": "SNACKS",
+      "start_time": "17:00",
       "display_order": 3
     },
     {
       "id": "meal-dinner",
-      "meal_type": "DINNER",
       "name": "Dinner",
-      "start_time": "19:45",
       "end_time": "21:45",
+      "meal_type": "DINNER",
+      "start_time": "19:45",
       "display_order": 4
+    }
+  ],
+  "admins": [
+    {
+      "id": "admin-1",
+      "role": "SUPER_ADMIN",
+      "email": "warden@hostel.edu",
+      "username": "admin",
+      "full_name": "Chief Mess Warden",
+      "created_at": "2026-11-20T15:21:18.084Z",
+      "password_hash": "e86f78a8a3caf0b60d8e74e5942aa6d86dc150cd3c03338aef25b7d2d7e3acc7"
+    }
+  ],
+  "payments": [
+    {
+      "id": "pay-1e8acd32-1a03-4e21-89a3-c9fe8362650c",
+      "notes": "Payment for Masala Dosa (2026-11-26)",
+      "amount": 40,
+      "bill_id": "col-a8e9e088-ecf4-4a92-a7bd-0debb4667f5e",
+      "paid_at": "2026-11-25T20:37:08.599Z",
+      "student_id": "stu-45bc59a7-33df-46e1-99b4-1ec7ac18a8d1",
+      "received_by": "Hostel Mess Counter",
+      "reference_id": "ADMIN-CASH-028596",
+      "student_name": "Ahmed",
+      "payment_method": "CASH"
+    },
+    {
+      "id": "pay-f35039c2-0920-4e76-b69f-fbe4b6289fcc",
+      "notes": "Payment for Chicken Biriyani (2026-11-26)",
+      "amount": 100,
+      "bill_id": "col-b2537e3c-1e24-46bb-b932-db41b9f488d0",
+      "paid_at": "2026-11-25T20:37:09.582Z",
+      "student_id": "stu-ce6b35ab-1163-42ee-a65f-9a90d9907e27",
+      "received_by": "Hostel Mess Counter",
+      "reference_id": "ADMIN-CASH-029580",
+      "student_name": "Ahmed",
+      "payment_method": "CASH"
+    },
+    {
+      "id": "pay-1f6c89bd-67a1-4cb8-afcf-b9768745abc5",
+      "notes": "Payment for Masala Dosa (2026-11-26)",
+      "amount": 40,
+      "bill_id": "col-2926502b-37d5-4c06-aca9-67b8fb679213",
+      "paid_at": "2026-11-25T20:37:10.414Z",
+      "student_id": "stu-ce6b35ab-1163-42ee-a65f-9a90d9907e27",
+      "received_by": "Hostel Mess Counter",
+      "reference_id": "ADMIN-CASH-030412",
+      "student_name": "Ahmed",
+      "payment_method": "CASH"
+    },
+    {
+      "id": "pay-3bb593f9-9522-4a54-8a8b-924477740795",
+      "notes": "",
+      "amount": 45,
+      "bill_id": "bill-a8b32095-b98a-4fe9-94e8-86a3e8b67966",
+      "paid_at": "2026-11-25T20:39:32.150Z",
+      "student_id": "stu-45bc59a7-33df-46e1-99b4-1ec7ac18a8d1",
+      "received_by": "Mess Warden",
+      "reference_id": "",
+      "student_name": "Ahmed",
+      "payment_method": "UPI"
+    },
+    {
+      "id": "pay-4d8791f9-8bc6-45ca-b1ea-5f099c4bb517",
+      "notes": "",
+      "amount": 45,
+      "bill_id": "bill-9ecdd763-f94d-4c19-8986-e3487da5bdf6",
+      "paid_at": "2026-11-25T20:39:35.949Z",
+      "student_id": "stu-db4f43fb-e4c8-48c9-b698-e2ce398da81f",
+      "received_by": "Mess Warden",
+      "reference_id": "",
+      "student_name": "AKASH",
+      "payment_method": "UPI"
+    }
+  ],
+  "sessions": {
+    "0860381e2ac8a797bc3d000f3d2c88e7641e329d32d4910df87c7e0154cf17a9": {
+      "role": "admin",
+      "userId": "admin-1",
+      "expiresAt": "2026-12-24T19:35:01.767Z"
+    },
+    "23b22c06bf637958e7f360cf22277dc5dbde7743d1c8cff199b96380cd92d7fd": {
+      "role": "admin",
+      "userId": "admin-1",
+      "expiresAt": "2026-12-20T16:08:52.465Z"
+    },
+    "281ce0b62118c3e4207ce63e336a69a9bd6e29e101a15a3c015a83ec8d50ad5c": {
+      "role": "admin",
+      "userId": "admin-1",
+      "expiresAt": "2026-12-23T16:34:27.734Z"
+    },
+    "2c776e2a92514346cc1cbc7fb957c32232f10028f529a29b375f26c2abf407dd": {
+      "role": "admin",
+      "userId": "admin-1",
+      "expiresAt": "2026-12-23T15:23:27.793Z"
+    },
+    "30f6f82c4433765b79c38750adee2d7d162ebb3b6aaf8507189982ebbba74579": {
+      "role": "admin",
+      "userId": "admin-1",
+      "expiresAt": "2026-12-23T15:26:31.295Z"
+    },
+    "3bed28f0f2a4d638a7bcc6a81c7e6157bdc01dc32425ca5fc695777624876039": {
+      "role": "admin",
+      "userId": "admin-1",
+      "expiresAt": "2026-12-23T17:03:00.140Z"
+    },
+    "414ce26dc946e45648be181e7d64009add3ca9cda68c6f2b6ccbd0c03782a083": {
+      "role": "admin",
+      "userId": "admin-1",
+      "expiresAt": "2026-12-20T16:32:37.226Z"
+    },
+    "50b9a34df5ec530af839331adec660a3cb6f4789dcf55759d7e7ebf82d6f0247": {
+      "role": "admin",
+      "userId": "admin-1",
+      "expiresAt": "2026-12-20T16:08:21.958Z"
+    },
+    "5170a940963e0efe3c0258047aa9386142eec86ec13befa7fc742a03698c3423": {
+      "role": "admin",
+      "userId": "admin-1",
+      "expiresAt": "2026-12-20T16:24:40.446Z"
+    },
+    "73359680f088f6d73237b7411cd867934cd55ecb95f7911fcd6dd7c93318e0a8": {
+      "role": "admin",
+      "userId": "admin-1",
+      "expiresAt": "2026-12-23T14:55:20.891Z"
+    },
+    "787dd8e1f5ba23c69508a3751e55fafd744839136a349c4421ac761a80b253cb": {
+      "role": "admin",
+      "userId": "admin-1",
+      "expiresAt": "2026-12-23T15:35:40.925Z"
+    },
+    "ba1ab4b4477ebd24ec79199046235d7fedac19a19c8dba8cb84f31bf88477de5": {
+      "role": "admin",
+      "userId": "admin-1",
+      "expiresAt": "2026-12-20T16:08:09.029Z"
+    },
+    "c43cdb68debbfdd17538b590b56d4a11efb3846fd4b003f7ec0ffdbb9b417dc0": {
+      "role": "admin",
+      "userId": "admin-1",
+      "expiresAt": "2026-12-23T15:47:41.003Z"
+    },
+    "ecbe21cc32b07359c53a1ac7138c5791e500f5f38b0b547b065fc20ec58b8b65": {
+      "role": "admin",
+      "userId": "admin-1",
+      "expiresAt": "2026-12-24T18:12:21.675Z"
+    },
+    "edbc669b22a11fd605548745f4efee9722f44249414279b0607b8b235ab761f1": {
+      "role": "admin",
+      "userId": "admin-1",
+      "expiresAt": "2026-12-20T15:31:10.023Z"
+    },
+    "eyJ1c2VySWQiOiJhZG1pbi0xIiwicm9sZSI6ImFkbWluIiwidHMiOjE3OTU2Mjg1ODU4NTZ9.Y88mliy-YGhC3j0qOLOjnwS6t50vThWzLbKYAz_iDJ8": {
+      "role": "admin",
+      "userId": "admin-1",
+      "expiresAt": "2026-12-25T17:43:05.857Z"
+    },
+    "eyJ1c2VySWQiOiJhZG1pbi0xIiwicm9sZSI6ImFkbWluIiwidHMiOjE3OTU2MzUyNDc2MjV9.1ZDdeYFkaUTMvuZzw35ftOM2V-lI_of0U7VOkC_BN9k": {
+      "role": "admin",
+      "userId": "admin-1",
+      "expiresAt": "2026-12-25T19:34:07.625Z"
+    },
+    "eyJ1c2VySWQiOiJhZG1pbi0xIiwicm9sZSI6ImFkbWluIiwidHMiOjE3OTU2Mzc1NDAyMjR9.pItaab36GNd_L237A8f63CFqFqStqdPAcd1A20FtiEw": {
+      "role": "admin",
+      "userId": "admin-1",
+      "expiresAt": "2026-12-25T20:12:20.225Z"
+    },
+    "eyJ1c2VySWQiOiJhZG1pbi0xIiwicm9sZSI6ImFkbWluIiwidHMiOjE3OTU2Mzc2OTU3NDN9.WObuZVa0zSQJ0DbPeUXEAcNb0RRGEHGb4mFWDp4N5B4": {
+      "role": "admin",
+      "userId": "admin-1",
+      "expiresAt": "2026-12-25T20:14:55.743Z"
+    },
+    "eyJ1c2VySWQiOiJhZG1pbi0xIiwicm9sZSI6ImFkbWluIiwidHMiOjE3OTU2Mzc4Nzk5ODl9.7ZihYzHMjASXXDnyUkPhM6CCExMDnwHuvhHoTOAXBrk": {
+      "role": "admin",
+      "userId": "admin-1",
+      "expiresAt": "2026-12-25T20:17:59.989Z"
+    },
+    "eyJ1c2VySWQiOiJhZG1pbi0xIiwicm9sZSI6ImFkbWluIiwidHMiOjE3OTU2Mzc5NDAyMzF9.YjvE75q4r7gZLhDRACT8HMjiQJPkUm3xLeeEqnRJUs8": {
+      "role": "admin",
+      "userId": "admin-1",
+      "expiresAt": "2026-12-25T20:19:00.231Z"
+    },
+    "eyJ1c2VySWQiOiJhZG1pbi0xIiwicm9sZSI6ImFkbWluIiwidHMiOjE3OTU2MzcxMTY5Mjd9.nSdr5GlRxutLJ1WV5gtPL0wDfHpIRiTHwSLj3RBu_qQ": {
+      "role": "admin",
+      "userId": "admin-1",
+      "expiresAt": "2026-12-25T20:05:16.927Z"
+    }
+  },
+  "students": [
+    {
+      "id": "stu-db4f43fb-e4c8-48c9-b698-e2ce398da81f",
+      "status": "ACTIVE",
+      "full_name": "AKASH",
+      "created_at": "2026-11-25T13:47:24.784Z",
+      "updated_at": "2026-11-25T18:07:14.423Z",
+      "room_number": "Room 101",
+      "phone_number": "8590870325",
+      "password_hash": "$2b$10$UT6eajAREem6C7dACcWE.evMQEoPEKzMXQVY0gkjV9qlOhWdAhr.e"
+    },
+    {
+      "id": "stu-ce6b35ab-1163-42ee-a65f-9a90d9907e27",
+      "status": "ACTIVE",
+      "full_name": "Ahmed",
+      "created_at": "2026-11-25T19:22:37.475Z",
+      "updated_at": "2026-11-25T19:22:37.475Z",
+      "room_number": "Room 101",
+      "phone_number": "7894561230",
+      "password_hash": "$2b$10$9Ib8m4TQIxWDh6SmsTY5DeCzDymrdGWpEXpK6e637XAIZuDTlk9Vi"
+    },
+    {
+      "id": "stu-3b2a008d-814c-4b5a-a21d-844a7ae79400",
+      "status": "ACTIVE",
+      "full_name": "Karan Patel",
+      "created_at": "2026-11-25T19:34:07.561Z",
+      "updated_at": "2026-11-25T19:34:07.561Z",
+      "room_number": "C-101",
+      "phone_number": "9123456780",
+      "password_hash": "$2b$10$niGSbYg0kGwwsp3RHHmeoudcDnkJqQ9tXj4A1d5OZPirXCUSWgnei"
+    },
+    {
+      "id": "stu-a7906d92-5246-4291-9a3a-dbcf275b9e1a",
+      "status": "ACTIVE",
+      "full_name": "Aman",
+      "created_at": "2026-11-25T19:40:29.731Z",
+      "updated_at": "2026-11-25T19:40:29.731Z",
+      "room_number": "Room 101",
+      "phone_number": "1234567890",
+      "password_hash": "$2b$10$Qbnp8yWMpTaB0VhALf2TWeYhmmWGU7ibCRHbroNDeQBFYphtGoZcu"
+    },
+    {
+      "id": "stu-45bc59a7-33df-46e1-99b4-1ec7ac18a8d1",
+      "status": "ACTIVE",
+      "full_name": "Ahmed",
+      "created_at": "2026-11-25T19:42:04.427Z",
+      "updated_at": "2026-11-25T19:42:04.427Z",
+      "room_number": "Room 101",
+      "phone_number": "78945612",
+      "password_hash": "$2b$10$sjpsHc31pBYxkYVjzX6tK.XUXpVi2VRa06ixDWPZMraRdwarmwGsq"
     }
   ],
   "food_items": [
     {
       "id": "food-bf-2",
-      "meal_id": "meal-breakfast",
-      "meal_type": "BREAKFAST",
       "name": "Masala Dosa",
-      "description": "Crispy golden fermented crepe stuffed with spiced potato masala and served with chutney",
       "price": 40,
+      "meal_id": "meal-breakfast",
       "category": "VEG",
       "image_url": "https://images.unsplash.com/photo-1668236543090-82eba5ee5976?w=600&auto=format&fit=crop&q=80",
-      "is_available": true,
-      "created_at": "2026-11-20T15:21:18.083Z"
+      "meal_type": "BREAKFAST",
+      "created_at": "2026-11-20T15:21:18.083Z",
+      "description": "Crispy golden fermented crepe stuffed with spiced potato masala and served with chutney",
+      "is_available": true
     },
     {
       "id": "food-bf-3",
-      "meal_id": "meal-breakfast",
-      "meal_type": "BREAKFAST",
       "name": "Poori Bhaji",
-      "description": "Fluffy deep-fried whole wheat pooris served with mild spiced potato bhaji curry",
       "price": 35,
+      "meal_id": "meal-breakfast",
       "category": "VEG",
       "image_url": "https://images.unsplash.com/photo-1606491956689-2ea866880c84?w=600&auto=format&fit=crop&q=80",
-      "is_available": true,
-      "created_at": "2026-11-20T15:21:18.083Z"
+      "meal_type": "BREAKFAST",
+      "created_at": "2026-11-20T15:21:18.083Z",
+      "description": "Fluffy deep-fried whole wheat pooris served with mild spiced potato bhaji curry",
+      "is_available": true
     },
     {
       "id": "food-bf-4",
-      "meal_id": "meal-breakfast",
-      "meal_type": "BREAKFAST",
       "name": "Appam",
-      "description": "Bowl-shaped soft fermented rice and coconut milk hoppers served with sweet coconut milk",
       "price": 30,
+      "meal_id": "meal-breakfast",
       "category": "VEG",
       "image_url": "https://images.unsplash.com/photo-1516714435131-44d6b64dc6a2?w=600&auto=format&fit=crop&q=80",
-      "is_available": true,
-      "created_at": "2026-11-20T15:21:18.083Z"
+      "meal_type": "BREAKFAST",
+      "created_at": "2026-11-20T15:21:18.083Z",
+      "description": "Bowl-shaped soft fermented rice and coconut milk hoppers served with sweet coconut milk",
+      "is_available": true
     },
     {
       "id": "food-bf-5",
-      "meal_id": "meal-breakfast",
-      "meal_type": "BREAKFAST",
       "name": "Upma",
-      "description": "Roasted semolina tempered with mustard seeds, curry leaves, ginger and vegetables",
       "price": 25,
+      "meal_id": "meal-breakfast",
       "category": "VEG",
       "image_url": "https://images.unsplash.com/photo-1610192244261-3f33de3f55e4?w=600&auto=format&fit=crop&q=80",
-      "is_available": true,
-      "created_at": "2026-11-20T15:21:18.083Z"
+      "meal_type": "BREAKFAST",
+      "created_at": "2026-11-20T15:21:18.083Z",
+      "description": "Roasted semolina tempered with mustard seeds, curry leaves, ginger and vegetables",
+      "is_available": true
     },
     {
       "id": "food-bf-6",
-      "meal_id": "meal-breakfast",
-      "meal_type": "BREAKFAST",
       "name": "Puttu & Kadala Curry",
-      "description": "Steamed layered ground rice cylinders served with flavorful black chickpea roasted gravy",
       "price": 40,
+      "meal_id": "meal-breakfast",
       "category": "VEG",
       "image_url": "https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=600&auto=format&fit=crop&q=80",
-      "is_available": true,
-      "created_at": "2026-11-20T15:21:18.083Z"
+      "meal_type": "BREAKFAST",
+      "created_at": "2026-11-20T15:21:18.083Z",
+      "description": "Steamed layered ground rice cylinders served with flavorful black chickpea roasted gravy",
+      "is_available": true
     },
     {
       "id": "food-bf-7",
-      "meal_id": "meal-breakfast",
-      "meal_type": "BREAKFAST",
       "name": "Tea",
-      "description": "Freshly brewed aromatic Indian milk tea infused with crushed cardamom and ginger",
       "price": 10,
+      "meal_id": "meal-breakfast",
       "category": "BEVERAGE",
       "image_url": "https://images.unsplash.com/photo-1544787219-7f47ccb76574?w=600&auto=format&fit=crop&q=80",
-      "is_available": true,
-      "created_at": "2026-11-20T15:21:18.083Z"
+      "meal_type": "BREAKFAST",
+      "created_at": "2026-11-20T15:21:18.083Z",
+      "description": "Freshly brewed aromatic Indian milk tea infused with crushed cardamom and ginger",
+      "is_available": true
     },
     {
       "id": "food-bf-8",
-      "meal_id": "meal-breakfast",
-      "meal_type": "BREAKFAST",
       "name": "Coffee",
-      "description": "South Indian filter coffee with organic cow milk and thick aromatic froth",
       "price": 15,
+      "meal_id": "meal-breakfast",
       "category": "BEVERAGE",
       "image_url": "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=600&auto=format&fit=crop&q=80",
-      "is_available": true,
-      "created_at": "2026-11-20T15:21:18.083Z"
+      "meal_type": "BREAKFAST",
+      "created_at": "2026-11-20T15:21:18.083Z",
+      "description": "South Indian filter coffee with organic cow milk and thick aromatic froth",
+      "is_available": true
     },
     {
       "id": "food-ln-1",
-      "meal_id": "meal-lunch",
-      "meal_type": "LUNCH",
       "name": "Kerala Meals",
-      "description": "Traditional thali feast with matta rice, sambar, avial, thoran, rasam, and pickle",
       "price": 60,
+      "meal_id": "meal-lunch",
       "category": "VEG",
       "image_url": "https://images.unsplash.com/photo-1626777552726-4a6b54c97e46?w=600&auto=format&fit=crop&q=80",
-      "is_available": true,
-      "created_at": "2026-11-20T15:21:18.083Z"
+      "meal_type": "LUNCH",
+      "created_at": "2026-11-20T15:21:18.083Z",
+      "description": "Traditional thali feast with matta rice, sambar, avial, thoran, rasam, and pickle",
+      "is_available": true
     },
     {
       "id": "food-ln-2",
-      "meal_id": "meal-lunch",
-      "meal_type": "LUNCH",
       "name": "Chicken Biriyani",
-      "description": "Fragrant basmati rice dum cooked with juicy marinated chicken pieces, mint and fried onions",
       "price": 100,
+      "meal_id": "meal-lunch",
       "category": "NON_VEG",
       "image_url": "https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=600&auto=format&fit=crop&q=80",
-      "is_available": true,
-      "created_at": "2026-11-20T15:21:18.083Z"
+      "meal_type": "LUNCH",
+      "created_at": "2026-11-20T15:21:18.083Z",
+      "description": "Fragrant basmati rice dum cooked with juicy marinated chicken pieces, mint and fried onions",
+      "is_available": true
     },
     {
       "id": "food-ln-3",
-      "meal_id": "meal-lunch",
-      "meal_type": "LUNCH",
       "name": "Veg Biriyani",
-      "description": "Aromatic layered basmati rice with farm fresh vegetables, saffron and royal spices",
       "price": 70,
+      "meal_id": "meal-lunch",
       "category": "VEG",
       "image_url": "https://images.unsplash.com/photo-1642821373181-696a54913e9a?w=600&auto=format&fit=crop&q=80",
-      "is_available": true,
-      "created_at": "2026-11-20T15:21:18.083Z"
+      "meal_type": "LUNCH",
+      "created_at": "2026-11-20T15:21:18.083Z",
+      "description": "Aromatic layered basmati rice with farm fresh vegetables, saffron and royal spices",
+      "is_available": true
     },
     {
       "id": "food-ln-4",
-      "meal_id": "meal-lunch",
-      "meal_type": "LUNCH",
       "name": "Chicken Curry",
-      "description": "Tender chicken slow-cooked in a robust roasted coconut, onion and garam masala gravy",
       "price": 50,
+      "meal_id": "meal-lunch",
       "category": "NON_VEG",
       "image_url": "https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?w=600&auto=format&fit=crop&q=80",
-      "is_available": true,
-      "created_at": "2026-11-20T15:21:18.083Z"
+      "meal_type": "LUNCH",
+      "created_at": "2026-11-20T15:21:18.083Z",
+      "description": "Tender chicken slow-cooked in a robust roasted coconut, onion and garam masala gravy",
+      "is_available": true
     },
     {
       "id": "food-ln-5",
-      "meal_id": "meal-lunch",
-      "meal_type": "LUNCH",
       "name": "Fish Curry",
-      "description": "Coastal catch simmered in authentic tangy kokum, red chili and coconut oil gravy",
       "price": 50,
+      "meal_id": "meal-lunch",
       "category": "NON_VEG",
       "image_url": "https://images.unsplash.com/photo-1534422298391-e4f8c172dddb?w=600&auto=format&fit=crop&q=80",
-      "is_available": true,
-      "created_at": "2026-11-20T15:21:18.083Z"
+      "meal_type": "LUNCH",
+      "created_at": "2026-11-20T15:21:18.083Z",
+      "description": "Coastal catch simmered in authentic tangy kokum, red chili and coconut oil gravy",
+      "is_available": true
     },
     {
       "id": "food-ln-6",
-      "meal_id": "meal-lunch",
-      "meal_type": "LUNCH",
       "name": "Rice & Sambar",
-      "description": "Hot steamed white rice served with drumstick lentil sambar and dollop of ghee",
       "price": 45,
+      "meal_id": "meal-lunch",
       "category": "STAPLE",
       "image_url": "https://images.unsplash.com/photo-1512058564366-18510be2db19?w=600&auto=format&fit=crop&q=80",
-      "is_available": true,
-      "created_at": "2026-11-20T15:21:18.083Z"
+      "meal_type": "LUNCH",
+      "created_at": "2026-11-20T15:21:18.083Z",
+      "description": "Hot steamed white rice served with drumstick lentil sambar and dollop of ghee",
+      "is_available": true
     },
     {
       "id": "food-ln-7",
-      "meal_id": "meal-lunch",
-      "meal_type": "LUNCH",
       "name": "Curd",
-      "description": "Fresh chilled homemade probiotic curd cup to aid digestion",
       "price": 15,
+      "meal_id": "meal-lunch",
       "category": "BEVERAGE",
       "image_url": "https://images.unsplash.com/photo-1488477181946-6428a0291777?w=600&auto=format&fit=crop&q=80",
-      "is_available": true,
-      "created_at": "2026-11-20T15:21:18.083Z"
+      "meal_type": "LUNCH",
+      "created_at": "2026-11-20T15:21:18.083Z",
+      "description": "Fresh chilled homemade probiotic curd cup to aid digestion",
+      "is_available": true
     },
     {
       "id": "food-ln-8",
-      "meal_id": "meal-lunch",
-      "meal_type": "LUNCH",
       "name": "Payasam",
-      "description": "Sweet festive pudding cooked with vermicelli, milk, cardamom, cashews and raisins",
       "price": 25,
+      "meal_id": "meal-lunch",
       "category": "DESSERT",
       "image_url": "https://images.unsplash.com/photo-1596797038530-2c107229654b?w=600&auto=format&fit=crop&q=80",
-      "is_available": true,
-      "created_at": "2026-11-20T15:21:18.083Z"
+      "meal_type": "LUNCH",
+      "created_at": "2026-11-20T15:21:18.083Z",
+      "description": "Sweet festive pudding cooked with vermicelli, milk, cardamom, cashews and raisins",
+      "is_available": true
     },
     {
       "id": "food-sn-1",
-      "meal_id": "meal-snacks",
-      "meal_type": "SNACKS",
       "name": "Samosa",
-      "description": "Crispy fried golden triangle pastry stuffed with seasoned potatoes and green peas",
       "price": 15,
+      "meal_id": "meal-snacks",
       "category": "VEG",
       "image_url": "https://images.unsplash.com/photo-1601050690597-df0568f70950?w=600&auto=format&fit=crop&q=80",
-      "is_available": true,
-      "created_at": "2026-11-20T15:21:18.083Z"
+      "meal_type": "SNACKS",
+      "created_at": "2026-11-20T15:21:18.083Z",
+      "description": "Crispy fried golden triangle pastry stuffed with seasoned potatoes and green peas",
+      "is_available": true
     },
     {
       "id": "food-sn-2",
-      "meal_id": "meal-snacks",
-      "meal_type": "SNACKS",
       "name": "Parippu Vada",
-      "description": "Crunchy tea-time fritter made with chana dal, chopped onions, ginger and curry leaves",
       "price": 10,
+      "meal_id": "meal-snacks",
       "category": "VEG",
       "image_url": "https://images.unsplash.com/photo-1589301760014-d929f3979dbc?w=600&auto=format&fit=crop&q=80",
-      "is_available": true,
-      "created_at": "2026-11-20T15:21:18.083Z"
+      "meal_type": "SNACKS",
+      "created_at": "2026-11-20T15:21:18.083Z",
+      "description": "Crunchy tea-time fritter made with chana dal, chopped onions, ginger and curry leaves",
+      "is_available": true
     },
     {
       "id": "food-sn-3",
-      "meal_id": "meal-snacks",
-      "meal_type": "SNACKS",
       "name": "Banana Fry",
-      "description": "Ripe sweet plantain slices coated in light batter and deep-fried to golden perfection",
       "price": 15,
+      "meal_id": "meal-snacks",
       "category": "VEG",
       "image_url": "https://images.unsplash.com/photo-1528825871115-3581a5387919?w=600&auto=format&fit=crop&q=80",
-      "is_available": true,
-      "created_at": "2026-11-20T15:21:18.083Z"
+      "meal_type": "SNACKS",
+      "created_at": "2026-11-20T15:21:18.083Z",
+      "description": "Ripe sweet plantain slices coated in light batter and deep-fried to golden perfection",
+      "is_available": true
     },
     {
       "id": "food-sn-4",
-      "meal_id": "meal-snacks",
-      "meal_type": "SNACKS",
       "name": "Puffs",
-      "description": "Flaky baked golden pastry filled with savory spiced egg or vegetable masala filling",
       "price": 20,
+      "meal_id": "meal-snacks",
       "category": "VEG",
       "image_url": "https://images.unsplash.com/photo-1509440159596-0249088772ff?w=600&auto=format&fit=crop&q=80",
-      "is_available": true,
-      "created_at": "2026-11-20T15:21:18.083Z"
+      "meal_type": "SNACKS",
+      "created_at": "2026-11-20T15:21:18.083Z",
+      "description": "Flaky baked golden pastry filled with savory spiced egg or vegetable masala filling",
+      "is_available": true
     },
     {
       "id": "food-sn-5",
-      "meal_id": "meal-snacks",
-      "meal_type": "SNACKS",
       "name": "Tea",
-      "description": "Hot brewed evening milk tea with fresh crushed ginger",
       "price": 10,
+      "meal_id": "meal-snacks",
       "category": "BEVERAGE",
       "image_url": "https://images.unsplash.com/photo-1544787219-7f47ccb76574?w=600&auto=format&fit=crop&q=80",
-      "is_available": true,
-      "created_at": "2026-11-20T15:21:18.083Z"
+      "meal_type": "SNACKS",
+      "created_at": "2026-11-20T15:21:18.083Z",
+      "description": "Hot brewed evening milk tea with fresh crushed ginger",
+      "is_available": true
     },
     {
       "id": "food-sn-6",
-      "meal_id": "meal-snacks",
-      "meal_type": "SNACKS",
       "name": "Coffee",
-      "description": "Hot South Indian filter brew with rich crema",
       "price": 15,
+      "meal_id": "meal-snacks",
       "category": "BEVERAGE",
       "image_url": "https://images.unsplash.com/photo-1514432324607-a09d9b4aefdd?w=600&auto=format&fit=crop&q=80",
-      "is_available": true,
-      "created_at": "2026-11-20T15:21:18.083Z"
+      "meal_type": "SNACKS",
+      "created_at": "2026-11-20T15:21:18.083Z",
+      "description": "Hot South Indian filter brew with rich crema",
+      "is_available": true
     },
     {
       "id": "food-sn-7",
-      "meal_id": "meal-snacks",
-      "meal_type": "SNACKS",
       "name": "Sandwich",
-      "description": "Toasted vegetable club sandwich layered with mint chutney, cucumber, tomato and butter",
       "price": 35,
+      "meal_id": "meal-snacks",
       "category": "VEG",
       "image_url": "https://images.unsplash.com/photo-1528735602780-2552fd46c7af?w=600&auto=format&fit=crop&q=80",
-      "is_available": true,
-      "created_at": "2026-11-20T15:21:18.083Z"
+      "meal_type": "SNACKS",
+      "created_at": "2026-11-20T15:21:18.083Z",
+      "description": "Toasted vegetable club sandwich layered with mint chutney, cucumber, tomato and butter",
+      "is_available": true
     },
     {
       "id": "food-dn-1",
-      "meal_id": "meal-dinner",
-      "meal_type": "DINNER",
       "name": "Chapati",
-      "description": "Freshly tossed whole wheat flatbread roasted on tawa with light butter",
       "price": 12,
+      "meal_id": "meal-dinner",
       "category": "STAPLE",
       "image_url": "https://images.unsplash.com/photo-1565557623262-b51c2513a641?w=600&auto=format&fit=crop&q=80",
-      "is_available": true,
-      "created_at": "2026-11-20T15:21:18.083Z"
+      "meal_type": "DINNER",
+      "created_at": "2026-11-20T15:21:18.083Z",
+      "description": "Freshly tossed whole wheat flatbread roasted on tawa with light butter",
+      "is_available": true
     },
     {
       "id": "food-dn-2",
-      "meal_id": "meal-dinner",
-      "meal_type": "DINNER",
       "name": "Porotta",
-      "description": "Soft multi-layered Kerala style flaky flatbread made hot on iron skillet",
       "price": 15,
+      "meal_id": "meal-dinner",
       "category": "STAPLE",
       "image_url": "https://images.unsplash.com/photo-1505253758473-96b3015f27eb?w=600&auto=format&fit=crop&q=80",
-      "is_available": true,
-      "created_at": "2026-11-20T15:21:18.083Z"
+      "meal_type": "DINNER",
+      "created_at": "2026-11-20T15:21:18.083Z",
+      "description": "Soft multi-layered Kerala style flaky flatbread made hot on iron skillet",
+      "is_available": true
     },
     {
       "id": "food-dn-3",
-      "meal_id": "meal-dinner",
-      "meal_type": "DINNER",
       "name": "Chicken Curry",
-      "description": "Rich homestyle chicken curry simmered with caramelized onions and whole spices",
       "price": 50,
+      "meal_id": "meal-dinner",
       "category": "NON_VEG",
       "image_url": "https://images.unsplash.com/photo-1603894584373-5ac82b2ae398?w=600&auto=format&fit=crop&q=80",
-      "is_available": true,
-      "created_at": "2026-11-20T15:21:18.083Z"
+      "meal_type": "DINNER",
+      "created_at": "2026-11-20T15:21:18.083Z",
+      "description": "Rich homestyle chicken curry simmered with caramelized onions and whole spices",
+      "is_available": true
     },
     {
       "id": "food-dn-4",
-      "meal_id": "meal-dinner",
-      "meal_type": "DINNER",
       "name": "Egg Curry",
-      "description": "Boiled country eggs stewed in spicy tomato and onion masala sauce",
       "price": 30,
+      "meal_id": "meal-dinner",
       "category": "NON_VEG",
       "image_url": "https://images.unsplash.com/photo-1546833999-b9f581a1996d?w=600&auto=format&fit=crop&q=80",
-      "is_available": true,
-      "created_at": "2026-11-20T15:21:18.083Z"
+      "meal_type": "DINNER",
+      "created_at": "2026-11-20T15:21:18.083Z",
+      "description": "Boiled country eggs stewed in spicy tomato and onion masala sauce",
+      "is_available": true
     },
     {
       "id": "food-dn-5",
-      "meal_id": "meal-dinner",
-      "meal_type": "DINNER",
       "name": "Vegetable Curry",
-      "description": "Assorted seasonal vegetables stewed in mildly spiced coconut milk broth",
       "price": 30,
+      "meal_id": "meal-dinner",
       "category": "VEG",
       "image_url": "https://images.unsplash.com/photo-1546833998-877b37c2e5c6?w=600&auto=format&fit=crop&q=80",
-      "is_available": true,
-      "created_at": "2026-11-20T15:21:18.083Z"
+      "meal_type": "DINNER",
+      "created_at": "2026-11-20T15:21:18.083Z",
+      "description": "Assorted seasonal vegetables stewed in mildly spiced coconut milk broth",
+      "is_available": true
     },
     {
       "id": "food-dn-6",
-      "meal_id": "meal-dinner",
-      "meal_type": "DINNER",
       "name": "Fried Rice",
-      "description": "Wok-tossed basmati rice with crisp vegetables, soy seasonings and white pepper",
       "price": 70,
+      "meal_id": "meal-dinner",
       "category": "VEG",
       "image_url": "https://images.unsplash.com/photo-1603133872878-684f208fb84b?w=600&auto=format&fit=crop&q=80",
-      "is_available": true,
-      "created_at": "2026-11-20T15:21:18.083Z"
+      "meal_type": "DINNER",
+      "created_at": "2026-11-20T15:21:18.083Z",
+      "description": "Wok-tossed basmati rice with crisp vegetables, soy seasonings and white pepper",
+      "is_available": true
     },
     {
       "id": "food-dn-7",
-      "meal_id": "meal-dinner",
-      "meal_type": "DINNER",
       "name": "Ghee Rice",
-      "description": "Fragrant jeerakasala rice sautéed in desi cow ghee with golden onions, cashews and raisins",
       "price": 60,
+      "meal_id": "meal-dinner",
       "category": "STAPLE",
       "image_url": "https://images.unsplash.com/photo-1512058564366-18510be2db19?w=600&auto=format&fit=crop&q=80",
-      "is_available": true,
-      "created_at": "2026-11-20T15:21:18.083Z"
+      "meal_type": "DINNER",
+      "created_at": "2026-11-20T15:21:18.083Z",
+      "description": "Fragrant jeerakasala rice sautéed in desi cow ghee with golden onions, cashews and raisins",
+      "is_available": true
     }
   ],
-  "food_collections": [
-    {
-      "id": "col-a8e9e088-ecf4-4a92-a7bd-0debb4667f5e",
-      "student_id": "stu-45bc59a7-33df-46e1-99b4-1ec7ac18a8d1",
-      "student_name": "Ahmed",
-      "student_phone": "78945612",
-      "meal_id": "meal-breakfast",
-      "meal_type": "BREAKFAST",
-      "food_item_id": "food-bf-2",
-      "food_item_name": "Masala Dosa",
-      "collection_date": "2026-11-26",
-      "collected_at": "2026-11-25T19:43:13.874Z",
-      "food_items_snapshot": [
-        "Masala Dosa"
-      ],
-      "amount": 40,
-      "payment_status": "PENDING"
-    },
-    {
-      "id": "col-b2537e3c-1e24-46bb-b932-db41b9f488d0",
-      "student_id": "stu-ce6b35ab-1163-42ee-a65f-9a90d9907e27",
-      "student_name": "Ahmed",
-      "student_phone": "7894561230",
-      "meal_id": "meal-lunch",
-      "meal_type": "LUNCH",
-      "food_item_id": "food-ln-2",
-      "food_item_name": "Chicken Biriyani",
-      "collection_date": "2026-11-26",
-      "collected_at": "2026-11-25T19:23:02.075Z",
-      "food_items_snapshot": [
-        "Chicken Biriyani"
-      ],
-      "amount": 100,
-      "payment_status": "PENDING"
-    },
-    {
-      "id": "col-2926502b-37d5-4c06-aca9-67b8fb679213",
-      "student_id": "stu-ce6b35ab-1163-42ee-a65f-9a90d9907e27",
-      "student_name": "Ahmed",
-      "student_phone": "7894561230",
-      "meal_id": "meal-breakfast",
-      "meal_type": "BREAKFAST",
-      "food_item_id": "food-bf-2",
-      "food_item_name": "Masala Dosa",
-      "collection_date": "2026-11-26",
-      "collected_at": "2026-11-25T19:22:50.041Z",
-      "food_items_snapshot": [
-        "Masala Dosa"
-      ],
-      "amount": 40,
-      "payment_status": "PENDING"
-    },
-    {
-      "id": "col-ee5eaf1c-33e3-4c88-b85f-28234206c34a",
-      "student_id": "stu-db4f43fb-e4c8-48c9-b698-e2ce398da81f",
-      "student_name": "AKASH",
-      "student_phone": "8590870325",
-      "meal_id": "meal-breakfast",
-      "meal_type": "BREAKFAST",
-      "food_item_id": "food-bf-1",
-      "food_item_name": "Idli",
-      "collection_date": "2026-11-25",
-      "collected_at": "2026-11-25T13:48:37.100Z",
-      "food_items_snapshot": [
-        "Idli"
-      ],
-      "amount": 25,
-      "payment_status": "PENDING"
-    }
-  ],
-  "billing_settings": {
-    "id": "billing-setting-1",
-    "mode": "PER_MEAL",
-    "fixed_monthly_rate": 3600,
-    "breakfast_rate": 45,
-    "lunch_rate": 85,
-    "snacks_rate": 35,
-    "dinner_rate": 85,
-    "late_fee_grace_days": 5,
-    "late_fee_amount": 100,
-    "currency": "₹",
-    "updated_at": "2026-11-20T15:21:18.084Z"
-  },
   "monthly_bills": [
     {
       "id": "bill-9ecdd763-f94d-4c19-8986-e3487da5bdf6",
-      "student_id": "stu-db4f43fb-e4c8-48c9-b698-e2ce398da81f",
-      "student_name": "AKASH",
-      "student_phone": "8590870325",
-      "month": 11,
       "year": 2026,
-      "breakfast_count": 1,
+      "month": 11,
+      "late_fee": 0,
+      "student_id": "stu-db4f43fb-e4c8-48c9-b698-e2ce398da81f",
+      "updated_at": "2026-11-25T20:39:35.949Z",
+      "base_amount": 45,
       "lunch_count": 0,
-      "snacks_count": 0,
-      "dinner_count": 0,
+      "paid_amount": 45,
       "total_meals": 1,
       "billing_mode": "PER_MEAL",
-      "base_amount": 45,
-      "late_fee": 0,
-      "total_amount": 45,
-      "paid_amount": 0,
-      "balance_amount": 45,
-      "payment_status": "PENDING",
+      "dinner_count": 0,
       "generated_at": "2026-11-25T13:48:37.105Z",
-      "updated_at": "2026-11-25T13:48:37.105Z"
+      "snacks_count": 0,
+      "student_name": "AKASH",
+      "total_amount": 45,
+      "student_phone": "8590870325",
+      "balance_amount": 0,
+      "payment_status": "PAID",
+      "breakfast_count": 1
     },
     {
       "id": "bill-8ee2953a-86ba-4f7e-891c-6b6f3708a0be",
-      "student_id": "stu-ce6b35ab-1163-42ee-a65f-9a90d9907e27",
-      "student_name": "Ahmed",
-      "student_phone": "7894561230",
-      "month": 11,
       "year": 2026,
-      "breakfast_count": 1,
+      "month": 11,
+      "late_fee": 0,
+      "student_id": "stu-ce6b35ab-1163-42ee-a65f-9a90d9907e27",
+      "updated_at": "2026-11-25T20:37:10.414Z",
+      "base_amount": 130,
       "lunch_count": 1,
-      "snacks_count": 0,
-      "dinner_count": 0,
+      "paid_amount": 140,
       "total_meals": 2,
       "billing_mode": "PER_MEAL",
-      "base_amount": 130,
-      "late_fee": 0,
-      "total_amount": 130,
-      "paid_amount": 0,
-      "balance_amount": 130,
-      "payment_status": "PENDING",
+      "dinner_count": 0,
       "generated_at": "2026-11-25T19:22:50.043Z",
-      "updated_at": "2026-11-25T19:23:02.077Z"
+      "snacks_count": 0,
+      "student_name": "Ahmed",
+      "total_amount": 130,
+      "student_phone": "7894561230",
+      "balance_amount": 0,
+      "payment_status": "PAID",
+      "breakfast_count": 1
     },
     {
       "id": "bill-a8b32095-b98a-4fe9-94e8-86a3e8b67966",
-      "student_id": "stu-45bc59a7-33df-46e1-99b4-1ec7ac18a8d1",
-      "student_name": "Ahmed",
-      "student_phone": "78945612",
-      "month": 11,
       "year": 2026,
-      "breakfast_count": 1,
+      "month": 11,
+      "late_fee": 0,
+      "student_id": "stu-45bc59a7-33df-46e1-99b4-1ec7ac18a8d1",
+      "updated_at": "2026-11-25T20:39:32.150Z",
+      "base_amount": 45,
       "lunch_count": 0,
-      "snacks_count": 0,
-      "dinner_count": 0,
+      "paid_amount": 85,
       "total_meals": 1,
       "billing_mode": "PER_MEAL",
-      "base_amount": 45,
-      "late_fee": 0,
-      "total_amount": 45,
-      "paid_amount": 0,
-      "balance_amount": 45,
-      "payment_status": "PENDING",
+      "dinner_count": 0,
       "generated_at": "2026-11-25T19:43:13.876Z",
-      "updated_at": "2026-11-25T19:43:13.876Z"
+      "snacks_count": 0,
+      "student_name": "Ahmed",
+      "total_amount": 45,
+      "student_phone": "78945612",
+      "balance_amount": 0,
+      "payment_status": "PAID",
+      "breakfast_count": 1
     }
   ],
-  "payments": [],
-  "hostel_settings": {
-    "hostel_name": "Hostel Dining",
-    "mess_name": "TASTEBOX MEALS CO. Dining Hall",
-    "address": "Campus Block-B, University Road, Bangalore - 560012",
-    "contact_phone": "+91 98765 00000",
-    "contact_email": "mess@tastebox.edu",
-    "qr_code_url": "/payment-qr.jpg",
-    "notice": "Welcome to TASTEBOX MEALS CO. Dining runs according to daily schedule. Please mark your meal collected at the counter.",
-    "upi_id": "ismailpk153@okicici",
-    "upi_payee_name": "Sinsiya Nihala"
-  },
-  "sessions": {
-    "edbc669b22a11fd605548745f4efee9722f44249414279b0607b8b235ab761f1": {
-      "userId": "admin-1",
-      "role": "admin",
-      "expiresAt": "2026-12-20T15:31:10.023Z"
-    },
-    "ba1ab4b4477ebd24ec79199046235d7fedac19a19c8dba8cb84f31bf88477de5": {
-      "userId": "admin-1",
-      "role": "admin",
-      "expiresAt": "2026-12-20T16:08:09.029Z"
-    },
-    "50b9a34df5ec530af839331adec660a3cb6f4789dcf55759d7e7ebf82d6f0247": {
-      "userId": "admin-1",
-      "role": "admin",
-      "expiresAt": "2026-12-20T16:08:21.958Z"
-    },
-    "23b22c06bf637958e7f360cf22277dc5dbde7743d1c8cff199b96380cd92d7fd": {
-      "userId": "admin-1",
-      "role": "admin",
-      "expiresAt": "2026-12-20T16:08:52.465Z"
-    },
-    "5170a940963e0efe3c0258047aa9386142eec86ec13befa7fc742a03698c3423": {
-      "userId": "admin-1",
-      "role": "admin",
-      "expiresAt": "2026-12-20T16:24:40.446Z"
-    },
-    "414ce26dc946e45648be181e7d64009add3ca9cda68c6f2b6ccbd0c03782a083": {
-      "userId": "admin-1",
-      "role": "admin",
-      "expiresAt": "2026-12-20T16:32:37.226Z"
-    },
-    "73359680f088f6d73237b7411cd867934cd55ecb95f7911fcd6dd7c93318e0a8": {
-      "userId": "admin-1",
-      "role": "admin",
-      "expiresAt": "2026-12-23T14:55:20.891Z"
-    },
-    "2c776e2a92514346cc1cbc7fb957c32232f10028f529a29b375f26c2abf407dd": {
-      "userId": "admin-1",
-      "role": "admin",
-      "expiresAt": "2026-12-23T15:23:27.793Z"
-    },
-    "30f6f82c4433765b79c38750adee2d7d162ebb3b6aaf8507189982ebbba74579": {
-      "userId": "admin-1",
-      "role": "admin",
-      "expiresAt": "2026-12-23T15:26:31.295Z"
-    },
-    "787dd8e1f5ba23c69508a3751e55fafd744839136a349c4421ac761a80b253cb": {
-      "userId": "admin-1",
-      "role": "admin",
-      "expiresAt": "2026-12-23T15:35:40.925Z"
-    },
-    "c43cdb68debbfdd17538b590b56d4a11efb3846fd4b003f7ec0ffdbb9b417dc0": {
-      "userId": "admin-1",
-      "role": "admin",
-      "expiresAt": "2026-12-23T15:47:41.003Z"
-    },
-    "281ce0b62118c3e4207ce63e336a69a9bd6e29e101a15a3c015a83ec8d50ad5c": {
-      "userId": "admin-1",
-      "role": "admin",
-      "expiresAt": "2026-12-23T16:34:27.734Z"
-    },
-    "3bed28f0f2a4d638a7bcc6a81c7e6157bdc01dc32425ca5fc695777624876039": {
-      "userId": "admin-1",
-      "role": "admin",
-      "expiresAt": "2026-12-23T17:03:00.140Z"
-    },
-    "ecbe21cc32b07359c53a1ac7138c5791e500f5f38b0b547b065fc20ec58b8b65": {
-      "userId": "admin-1",
-      "role": "admin",
-      "expiresAt": "2026-12-24T18:12:21.675Z"
-    },
-    "0860381e2ac8a797bc3d000f3d2c88e7641e329d32d4910df87c7e0154cf17a9": {
-      "userId": "admin-1",
-      "role": "admin",
-      "expiresAt": "2026-12-24T19:35:01.767Z"
-    },
-    "eyJ1c2VySWQiOiJhZG1pbi0xIiwicm9sZSI6ImFkbWluIiwidHMiOjE3OTU2Mjg1ODU4NTZ9.Y88mliy-YGhC3j0qOLOjnwS6t50vThWzLbKYAz_iDJ8": {
-      "userId": "admin-1",
-      "role": "admin",
-      "expiresAt": "2026-12-25T17:43:05.857Z"
-    },
-    "eyJ1c2VySWQiOiJhZG1pbi0xIiwicm9sZSI6ImFkbWluIiwidHMiOjE3OTU2MzUyNDc2MjV9.1ZDdeYFkaUTMvuZzw35ftOM2V-lI_of0U7VOkC_BN9k": {
-      "userId": "admin-1",
-      "role": "admin",
-      "expiresAt": "2026-12-25T19:34:07.625Z"
-    },
-    "eyJ1c2VySWQiOiJhZG1pbi0xIiwicm9sZSI6ImFkbWluIiwidHMiOjE3OTU2MzcxMTY5Mjd9.nSdr5GlRxutLJ1WV5gtPL0wDfHpIRiTHwSLj3RBu_qQ": {
-      "userId": "admin-1",
-      "role": "admin",
-      "expiresAt": "2026-12-25T20:05:16.927Z"
-    },
-    "eyJ1c2VySWQiOiJhZG1pbi0xIiwicm9sZSI6ImFkbWluIiwidHMiOjE3OTU2Mzc1NDAyMjR9.pItaab36GNd_L237A8f63CFqFqStqdPAcd1A20FtiEw": {
-      "userId": "admin-1",
-      "role": "admin",
-      "expiresAt": "2026-12-25T20:12:20.225Z"
-    },
-    "eyJ1c2VySWQiOiJhZG1pbi0xIiwicm9sZSI6ImFkbWluIiwidHMiOjE3OTU2Mzc2OTU3NDN9.WObuZVa0zSQJ0DbPeUXEAcNb0RRGEHGb4mFWDp4N5B4": {
-      "userId": "admin-1",
-      "role": "admin",
-      "expiresAt": "2026-12-25T20:14:55.743Z"
-    },
-    "eyJ1c2VySWQiOiJhZG1pbi0xIiwicm9sZSI6ImFkbWluIiwidHMiOjE3OTU2Mzc4Nzk5ODl9.7ZihYzHMjASXXDnyUkPhM6CCExMDnwHuvhHoTOAXBrk": {
-      "userId": "admin-1",
-      "role": "admin",
-      "expiresAt": "2026-12-25T20:17:59.989Z"
-    },
-    "eyJ1c2VySWQiOiJhZG1pbi0xIiwicm9sZSI6ImFkbWluIiwidHMiOjE3OTU2Mzc5NDAyMzF9.YjvE75q4r7gZLhDRACT8HMjiQJPkUm3xLeeEqnRJUs8": {
-      "userId": "admin-1",
-      "role": "admin",
-      "expiresAt": "2026-12-25T20:19:00.231Z"
-    }
-  },
   "notifications": [
     {
+      "id": "notif-0b00b50d-c3e7-44e1-a5db-6506b8fc6cf3",
+      "student_id": "stu-cfdeac45-2f0f-449b-96fc-cf920629494b",
+      "student_name": "Supabase Test Student",
+      "meal_category": "REGISTRATION",
+      "food_name": "Room Room 205",
+      "date": "2026-11-26",
+      "timestamp": "2026-11-25T21:14:47.013Z",
+      "message": "Student account created for Supabase Test Student (Room Room 205) (9995558009).",
+      "is_read": false,
+      "created_at": "2026-11-25T21:14:47.013Z"
+    },
+    {
       "id": "notif-e16ad8dc-3ff0-4f50-857b-c493810ecfda",
+      "date": "2026-11-26",
+      "is_read": true,
+      "message": "Student account created for Temp Student To Delete (Room B-303) (9993337596).",
+      "food_name": "Room B-303",
+      "timestamp": "2026-11-25T20:20:16.223Z",
+      "created_at": "2026-11-25T20:20:16.223Z",
       "student_id": "stu-998b8cca-6483-4a8b-b6f8-b13ba6231b5d",
       "student_name": "Temp Student To Delete",
-      "meal_category": "REGISTRATION",
-      "food_name": "Room B-303",
-      "date": "2026-11-26",
-      "timestamp": "2026-11-25T20:20:16.223Z",
-      "message": "Student account created for Temp Student To Delete (Room B-303) (9993337596).",
-      "is_read": true,
-      "created_at": "2026-11-25T20:20:16.223Z"
+      "meal_category": "REGISTRATION"
     },
     {
       "id": "notif-eb138772-3af3-4ac3-b61e-f48dd4de310d",
+      "date": "2026-11-26",
+      "is_read": true,
+      "message": "Student account created for Test ToDelete (Room Temp-99) (9991112223).",
+      "food_name": "Room Temp-99",
+      "timestamp": "2026-11-25T20:18:00.089Z",
+      "created_at": "2026-11-25T20:18:00.089Z",
       "student_id": "stu-66cfc0ff-5d6c-4be6-94b2-5f859802cd4a",
       "student_name": "Test ToDelete",
-      "meal_category": "REGISTRATION",
-      "food_name": "Room Temp-99",
-      "date": "2026-11-26",
-      "timestamp": "2026-11-25T20:18:00.089Z",
-      "message": "Student account created for Test ToDelete (Room Temp-99) (9991112223).",
-      "is_read": true,
-      "created_at": "2026-11-25T20:18:00.089Z"
+      "meal_category": "REGISTRATION"
     },
     {
       "id": "notif-a8aa18a3-3ff2-439d-8843-bcb46e560afc",
+      "date": "2026-11-26",
+      "is_read": true,
+      "message": "Ahmed has collected Breakfast.",
+      "food_name": "Masala Dosa",
+      "timestamp": "2026-11-25T19:43:13.874Z",
+      "created_at": "2026-11-25T19:43:13.874Z",
       "student_id": "stu-45bc59a7-33df-46e1-99b4-1ec7ac18a8d1",
       "student_name": "Ahmed",
-      "meal_category": "BREAKFAST",
-      "food_name": "Masala Dosa",
       "collection_id": "col-a8e9e088-ecf4-4a92-a7bd-0debb4667f5e",
-      "date": "2026-11-26",
-      "timestamp": "2026-11-25T19:43:13.874Z",
-      "message": "Ahmed has collected Breakfast.",
-      "is_read": true,
-      "created_at": "2026-11-25T19:43:13.874Z"
+      "meal_category": "BREAKFAST"
     },
     {
       "id": "notif-37a91ab4-a4c1-48fe-bb47-9edb9075a8b9",
+      "date": "2026-11-26",
+      "is_read": true,
+      "message": "Ahmed (Room Room 101) created a new student account (78945612).",
+      "food_name": "Room Room 101",
+      "timestamp": "2026-11-25T19:42:04.429Z",
+      "created_at": "2026-11-25T19:42:04.429Z",
       "student_id": "stu-45bc59a7-33df-46e1-99b4-1ec7ac18a8d1",
       "student_name": "Ahmed",
-      "meal_category": "REGISTRATION",
-      "food_name": "Room Room 101",
-      "date": "2026-11-26",
-      "timestamp": "2026-11-25T19:42:04.429Z",
-      "message": "Ahmed (Room Room 101) created a new student account (78945612).",
-      "is_read": true,
-      "created_at": "2026-11-25T19:42:04.429Z"
+      "meal_category": "REGISTRATION"
     },
     {
       "id": "notif-4e15fa52-b9c3-4548-aa65-942b988e3043",
+      "date": "2026-11-26",
+      "is_read": true,
+      "message": "Aman (Room Room 101) created a new student account (1234567890).",
+      "food_name": "Room Room 101",
+      "timestamp": "2026-11-25T19:40:29.733Z",
+      "created_at": "2026-11-25T19:40:29.733Z",
       "student_id": "stu-a7906d92-5246-4291-9a3a-dbcf275b9e1a",
       "student_name": "Aman",
-      "meal_category": "REGISTRATION",
-      "food_name": "Room Room 101",
-      "date": "2026-11-26",
-      "timestamp": "2026-11-25T19:40:29.733Z",
-      "message": "Aman (Room Room 101) created a new student account (1234567890).",
-      "is_read": true,
-      "created_at": "2026-11-25T19:40:29.733Z"
+      "meal_category": "REGISTRATION"
     },
     {
       "id": "notif-cf17d4db-e121-4e2b-9e16-9f4f1ab6e34f",
+      "date": "2026-11-26",
+      "is_read": true,
+      "message": "Karan Patel (Room C-101) created a new student account (9123456780).",
+      "food_name": "Room C-101",
+      "timestamp": "2026-11-25T19:34:07.563Z",
+      "created_at": "2026-11-25T19:34:07.564Z",
       "student_id": "stu-3b2a008d-814c-4b5a-a21d-844a7ae79400",
       "student_name": "Karan Patel",
-      "meal_category": "REGISTRATION",
-      "food_name": "Room C-101",
-      "date": "2026-11-26",
-      "timestamp": "2026-11-25T19:34:07.563Z",
-      "message": "Karan Patel (Room C-101) created a new student account (9123456780).",
-      "is_read": true,
-      "created_at": "2026-11-25T19:34:07.564Z"
+      "meal_category": "REGISTRATION"
     },
     {
       "id": "notif-8268969c-33bd-4fd8-ae85-98fd27a871e3",
+      "date": "2026-11-26",
+      "is_read": true,
+      "message": "Ahmed has collected Lunch.",
+      "food_name": "Chicken Biriyani",
+      "timestamp": "2026-11-25T19:23:02.075Z",
+      "created_at": "2026-11-25T19:23:02.075Z",
       "student_id": "stu-ce6b35ab-1163-42ee-a65f-9a90d9907e27",
       "student_name": "Ahmed",
-      "meal_category": "LUNCH",
-      "food_name": "Chicken Biriyani",
       "collection_id": "col-b2537e3c-1e24-46bb-b932-db41b9f488d0",
-      "date": "2026-11-26",
-      "timestamp": "2026-11-25T19:23:02.075Z",
-      "message": "Ahmed has collected Lunch.",
-      "is_read": true,
-      "created_at": "2026-11-25T19:23:02.075Z"
+      "meal_category": "LUNCH"
     },
     {
       "id": "notif-6a04e7fc-3a55-48ff-9841-1c2ae54541ca",
+      "date": "2026-11-26",
+      "is_read": true,
+      "message": "Ahmed has collected Breakfast.",
+      "food_name": "Masala Dosa",
+      "timestamp": "2026-11-25T19:22:50.041Z",
+      "created_at": "2026-11-25T19:22:50.041Z",
       "student_id": "stu-ce6b35ab-1163-42ee-a65f-9a90d9907e27",
       "student_name": "Ahmed",
-      "meal_category": "BREAKFAST",
-      "food_name": "Masala Dosa",
       "collection_id": "col-2926502b-37d5-4c06-aca9-67b8fb679213",
-      "date": "2026-11-26",
-      "timestamp": "2026-11-25T19:22:50.041Z",
-      "message": "Ahmed has collected Breakfast.",
-      "is_read": true,
-      "created_at": "2026-11-25T19:22:50.041Z"
+      "meal_category": "BREAKFAST"
     },
     {
       "id": "notif-a26e6e1d-a95f-4f19-9df3-67406d48b432",
+      "date": "2026-11-25",
+      "is_read": true,
+      "message": "AKASH has collected Breakfast.",
+      "food_name": "Idli",
+      "timestamp": "2026-11-25T13:48:37.100Z",
+      "created_at": "2026-11-25T13:48:37.100Z",
       "student_id": "stu-db4f43fb-e4c8-48c9-b698-e2ce398da81f",
       "student_name": "AKASH",
-      "meal_category": "BREAKFAST",
-      "food_name": "Idli",
       "collection_id": "col-ee5eaf1c-33e3-4c88-b85f-28234206c34a",
-      "date": "2026-11-25",
-      "timestamp": "2026-11-25T13:48:37.100Z",
-      "message": "AKASH has collected Breakfast.",
-      "is_read": true,
-      "created_at": "2026-11-25T13:48:37.100Z"
+      "meal_category": "BREAKFAST"
+    }
+  ],
+  "hostel_settings": {
+    "notice": "Welcome to TASTEBOX MEALS CO. Dining runs according to daily schedule. Please mark your meal collected at the counter.",
+    "upi_id": "ismailpk153@okicici",
+    "address": "Campus Block-B, University Road, Bangalore - 560012",
+    "mess_name": "TASTEBOX MEALS CO. Dining Hall",
+    "hostel_name": "Hostel Dining",
+    "qr_code_url": "/payment-qr.jpg",
+    "contact_email": "mess@tastebox.edu",
+    "contact_phone": "+91 98765 00000",
+    "upi_payee_name": "Sinsiya Nihala"
+  },
+  "billing_settings": {
+    "id": "billing-setting-1",
+    "mode": "PER_MEAL",
+    "currency": "₹",
+    "lunch_rate": 85,
+    "updated_at": "2026-11-20T15:21:18.084Z",
+    "dinner_rate": 85,
+    "snacks_rate": 35,
+    "breakfast_rate": 45,
+    "late_fee_amount": 100,
+    "fixed_monthly_rate": 3600,
+    "late_fee_grace_days": 5
+  },
+  "food_collections": [
+    {
+      "id": "col-a8e9e088-ecf4-4a92-a7bd-0debb4667f5e",
+      "amount": 40,
+      "meal_id": "meal-breakfast",
+      "meal_type": "BREAKFAST",
+      "payment_id": "pay-1e8acd32-1a03-4e21-89a3-c9fe8362650c",
+      "student_id": "stu-45bc59a7-33df-46e1-99b4-1ec7ac18a8d1",
+      "collected_at": "2026-11-25T19:43:13.874Z",
+      "food_item_id": "food-bf-2",
+      "student_name": "Ahmed",
+      "student_phone": "78945612",
+      "food_item_name": "Masala Dosa",
+      "payment_status": "PAID",
+      "collection_date": "2026-11-26",
+      "food_items_snapshot": [
+        "Masala Dosa"
+      ]
+    },
+    {
+      "id": "col-b2537e3c-1e24-46bb-b932-db41b9f488d0",
+      "amount": 100,
+      "meal_id": "meal-lunch",
+      "meal_type": "LUNCH",
+      "payment_id": "pay-f35039c2-0920-4e76-b69f-fbe4b6289fcc",
+      "student_id": "stu-ce6b35ab-1163-42ee-a65f-9a90d9907e27",
+      "collected_at": "2026-11-25T19:23:02.075Z",
+      "food_item_id": "food-ln-2",
+      "student_name": "Ahmed",
+      "student_phone": "7894561230",
+      "food_item_name": "Chicken Biriyani",
+      "payment_status": "PAID",
+      "collection_date": "2026-11-26",
+      "food_items_snapshot": [
+        "Chicken Biriyani"
+      ]
+    },
+    {
+      "id": "col-2926502b-37d5-4c06-aca9-67b8fb679213",
+      "amount": 40,
+      "meal_id": "meal-breakfast",
+      "meal_type": "BREAKFAST",
+      "payment_id": "pay-1f6c89bd-67a1-4cb8-afcf-b9768745abc5",
+      "student_id": "stu-ce6b35ab-1163-42ee-a65f-9a90d9907e27",
+      "collected_at": "2026-11-25T19:22:50.041Z",
+      "food_item_id": "food-bf-2",
+      "student_name": "Ahmed",
+      "student_phone": "7894561230",
+      "food_item_name": "Masala Dosa",
+      "payment_status": "PAID",
+      "collection_date": "2026-11-26",
+      "food_items_snapshot": [
+        "Masala Dosa"
+      ]
+    },
+    {
+      "id": "col-ee5eaf1c-33e3-4c88-b85f-28234206c34a",
+      "amount": 25,
+      "meal_id": "meal-breakfast",
+      "meal_type": "BREAKFAST",
+      "student_id": "stu-db4f43fb-e4c8-48c9-b698-e2ce398da81f",
+      "collected_at": "2026-11-25T13:48:37.100Z",
+      "food_item_id": "food-bf-1",
+      "student_name": "AKASH",
+      "student_phone": "8590870325",
+      "food_item_name": "Idli",
+      "payment_status": "PENDING",
+      "collection_date": "2026-11-25",
+      "food_items_snapshot": [
+        "Idli"
+      ]
     }
   ]
 }

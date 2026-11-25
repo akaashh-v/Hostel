@@ -229,5 +229,18 @@ export const api = {
     fetchJSON<HostelSettings>('/settings/info', {
       method: 'PUT',
       body: JSON.stringify(data)
+    }),
+
+  // Database Management & Cloud Persistence
+  getDatabaseStatus: () =>
+    fetchJSON<import('../types').DatabaseStatus>('/database/status'),
+
+  getDatabaseBackup: () =>
+    fetchJSON<any>('/database/backup'),
+
+  restoreDatabase: (data: any) =>
+    fetchJSON<{ message: string; stats: any }>('/database/restore', {
+      method: 'POST',
+      body: JSON.stringify(data)
     })
 };

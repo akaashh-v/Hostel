@@ -7,6 +7,7 @@ import os from 'os';
 import crypto from 'crypto';
 import bcrypt from 'bcryptjs';
 import { z } from 'zod';
+import { PrismaClient } from '@prisma/client';
 import {
   Student,
   Admin,
@@ -23,6 +24,31 @@ import {
   BillingMode,
   RealtimeEvent
 } from '../src/types.js';
+
+// Load local .env variables into process.env if not already set
+try {
+  const envPath = path.resolve(process.cwd(), '.env');
+  if (fs.existsSync(envPath)) {
+    const lines = fs.readFileSync(envPath, 'utf-8').split('\n');
+    for (const line of lines) {
+      const trimmed = line.trim();
+      if (!trimmed || trimmed.startsWith('#')) continue;
+      const eqIdx = trimmed.indexOf('=');
+      if (eqIdx !== -1) {
+        const key = trimmed.slice(0, eqIdx).trim();
+        let val = trimmed.slice(eqIdx + 1).trim();
+        if ((val.startsWith('"') && val.endsWith('"')) || (val.startsWith("'") && val.endsWith("'"))) {
+          val = val.slice(1, -1);
+        }
+        if (!process.env[key]) {
+          process.env[key] = val;
+        }
+      }
+    }
+  }
+} catch {
+  // Ignore local env read errors
+}
 
 // =============================================================================
 // 1. REALTIME STREAM EVENT MANAGER
@@ -554,8 +580,29 @@ const DEFAULT_DB: DatabaseSchema = {
 
 class Database {
   private data: DatabaseSchema;
+  private cloudUrl: string;
+  private cloudToken: string;
+  private lastCloudSyncTime: number = 0;
+  private lastLoadedTmpMtime: number = 0;
+  private prisma: PrismaClient | null = null;
+  private hasSupabase: boolean = false;
 
   constructor() {
+    this.cloudUrl = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL || '';
+    this.cloudToken = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN || '';
+
+    const dbUrl = process.env.DATABASE_URL || '';
+    if (dbUrl && (dbUrl.includes('supabase') || dbUrl.includes('pooler') || dbUrl.includes('postgresql'))) {
+      try {
+        this.prisma = new PrismaClient({
+          datasources: { db: { url: dbUrl } }
+        });
+        this.hasSupabase = true;
+      } catch (err) {
+        console.error('Failed to initialize PrismaClient for Supabase:', err);
+      }
+    }
+
     this.ensureDirectory();
     this.data = this.load();
     if (!this.data.food_items || !Array.isArray(this.data.food_items)) {
@@ -566,6 +613,150 @@ class Database {
     }
     if (!this.data.notifications) {
       this.data.notifications = [];
+    }
+    if (this.hasSupabase) {
+      this.syncFromSupabase().catch(console.error);
+    } else if (this.hasCloudConfigured()) {
+      this.syncFromCloud().catch(console.error);
+    }
+  }
+
+  public hasSupabaseConfigured(): boolean {
+    return Boolean(this.hasSupabase && this.prisma);
+  }
+
+  public async syncFromSupabase(): Promise<void> {
+    if (!this.prisma) return;
+    const now = Date.now();
+    if (now - this.lastCloudSyncTime < 1500) return;
+
+    try {
+      const rows: any = await this.prisma.$queryRawUnsafe(
+        "SELECT data FROM hostel_mess_state WHERE id = 'active_state' LIMIT 1;"
+      );
+      if (rows && rows.length > 0 && rows[0].data) {
+        const parsed = rows[0].data;
+        if (parsed && Array.isArray(parsed.students)) {
+          if (!parsed.sessions) parsed.sessions = {};
+          if (!parsed.notifications) parsed.notifications = [];
+          if (!Array.isArray(parsed.food_items)) parsed.food_items = [...DEMO_FOOD_ITEMS];
+          this.data = parsed;
+          this.lastCloudSyncTime = Date.now();
+        }
+      }
+    } catch (err) {
+      console.error('Error syncing state from Supabase:', err);
+    }
+  }
+
+  public async saveToSupabase(): Promise<void> {
+    if (!this.prisma) return;
+    try {
+      const jsonStr = JSON.stringify(this.data);
+      await this.prisma.$executeRawUnsafe(
+        `INSERT INTO hostel_mess_state (id, data, updated_at)
+         VALUES ('active_state', $1::jsonb, NOW())
+         ON CONFLICT (id) DO UPDATE SET data = $1::jsonb, updated_at = NOW();`,
+        jsonStr
+      );
+      this.lastCloudSyncTime = Date.now();
+
+      // Mirror students to students_directory table for direct view in Supabase Table Editor
+      if (Array.isArray(this.data.students)) {
+        for (const s of this.data.students) {
+          await this.prisma.$executeRawUnsafe(
+            `INSERT INTO students_directory (id, full_name, phone_number, room_number, status, created_at)
+             VALUES ($1, $2, $3, $4, $5, $6::timestamptz)
+             ON CONFLICT (id) DO UPDATE SET
+               full_name = EXCLUDED.full_name,
+               phone_number = EXCLUDED.phone_number,
+               room_number = EXCLUDED.room_number,
+               status = EXCLUDED.status;`,
+            s.id,
+            s.full_name,
+            s.phone_number,
+            s.room_number || 'Room 101',
+            s.status || 'ACTIVE',
+            s.created_at || new Date().toISOString()
+          ).catch(() => {});
+        }
+      }
+    } catch (err) {
+      console.error('Error saving state to Supabase:', err);
+    }
+  }
+
+  public hasCloudConfigured(): boolean {
+    return Boolean(this.cloudUrl && this.cloudToken);
+  }
+
+  public async syncFromCloud(): Promise<void> {
+    if (!this.hasCloudConfigured()) return;
+    const now = Date.now();
+    if (now - this.lastCloudSyncTime < 1500) return;
+
+    try {
+      const res = await fetch(this.cloudUrl, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${this.cloudToken}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(['GET', 'hostel_mess_database'])
+      });
+      if (res.ok) {
+        const json: any = await res.json();
+        if (json && json.result) {
+          const parsed = typeof json.result === 'string' ? JSON.parse(json.result) : json.result;
+          if (parsed && Array.isArray(parsed.students)) {
+            if (!parsed.sessions) parsed.sessions = {};
+            if (!parsed.notifications) parsed.notifications = [];
+            if (!Array.isArray(parsed.food_items)) parsed.food_items = [...DEMO_FOOD_ITEMS];
+            this.data = parsed;
+            this.lastCloudSyncTime = Date.now();
+          }
+        }
+      }
+    } catch (err) {
+      console.error('Error fetching data from Cloud KV:', err);
+    }
+  }
+
+  public async saveToCloud(): Promise<void> {
+    if (!this.hasCloudConfigured()) return;
+    try {
+      await fetch(this.cloudUrl, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${this.cloudToken}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(['SET', 'hostel_mess_database', JSON.stringify(this.data)])
+      });
+      this.lastCloudSyncTime = Date.now();
+    } catch (err) {
+      console.error('Error saving data to Cloud KV:', err);
+    }
+  }
+
+  public checkAndReloadTmpFile(): void {
+    try {
+      if (fs.existsSync(TMP_FILE)) {
+        const stats = fs.statSync(TMP_FILE);
+        if (stats.mtimeMs > this.lastLoadedTmpMtime) {
+          const raw = fs.readFileSync(TMP_FILE, 'utf-8');
+          const parsed = JSON.parse(raw);
+          if (parsed && Array.isArray(parsed.students)) {
+            if (!parsed.sessions) parsed.sessions = {};
+            if (!parsed.notifications) parsed.notifications = [];
+            if (!Array.isArray(parsed.food_items)) parsed.food_items = [...DEMO_FOOD_ITEMS];
+            this.data = parsed;
+            this.lastLoadedTmpMtime = stats.mtimeMs;
+          }
+        }
+      }
+    } catch {
+      // Ignore reading race conditions
     }
   }
 
@@ -583,6 +774,8 @@ class Database {
     // 1. Check tmp file (written during serverless runtime)
     try {
       if (fs.existsSync(TMP_FILE)) {
+        const stats = fs.statSync(TMP_FILE);
+        this.lastLoadedTmpMtime = stats.mtimeMs;
         const raw = fs.readFileSync(TMP_FILE, 'utf-8');
         const parsed = JSON.parse(raw);
         if (parsed && Array.isArray(parsed.students)) {
@@ -619,9 +812,12 @@ class Database {
     if (process.env.VERCEL) {
       try {
         fs.writeFileSync(TMP_FILE, JSON.stringify(payload, null, 2), 'utf-8');
+        this.lastLoadedTmpMtime = Date.now();
       } catch (tmpErr) {
         console.error('Error saving database to tmp', tmpErr);
       }
+      this.saveToSupabase().catch(() => {});
+      this.saveToCloud().catch(() => {});
       return;
     }
 
@@ -631,14 +827,78 @@ class Database {
     } catch (err) {
       try {
         fs.writeFileSync(TMP_FILE, JSON.stringify(payload, null, 2), 'utf-8');
+        this.lastLoadedTmpMtime = Date.now();
       } catch (tmpErr) {
         console.error('Error saving database to tmp', tmpErr);
       }
     }
+    this.saveToSupabase().catch(() => {});
+    this.saveToCloud().catch(() => {});
   }
 
   public save() {
     this.saveDirect(this.data);
+  }
+
+  public getData(): DatabaseSchema {
+    return this.data;
+  }
+
+  public async restoreData(newData: DatabaseSchema): Promise<boolean> {
+    try {
+      if (!Array.isArray(newData.students) || !Array.isArray(newData.food_collections)) {
+        return false;
+      }
+      this.data = {
+        students: newData.students,
+        admins: newData.admins || this.data.admins,
+        meals: newData.meals || this.data.meals,
+        food_items: Array.isArray(newData.food_items) && newData.food_items.length > 0 ? newData.food_items : this.data.food_items,
+        food_collections: newData.food_collections,
+        notifications: newData.notifications || [],
+        billing_settings: newData.billing_settings || this.data.billing_settings,
+        monthly_bills: newData.monthly_bills || [],
+        payments: newData.payments || [],
+        hostel_settings: newData.hostel_settings || this.data.hostel_settings,
+        sessions: newData.sessions || {}
+      };
+      this.save();
+      await this.saveToSupabase();
+      await this.saveToCloud();
+      return true;
+    } catch (err) {
+      console.error('Error restoring database:', err);
+      return false;
+    }
+  }
+
+  public getPersistenceStatus() {
+    const isSupabase = this.hasSupabaseConfigured();
+    const isCloud = isSupabase || this.hasCloudConfigured();
+    const isVercel = Boolean(process.env.VERCEL);
+    const storageType = isSupabase
+      ? 'SUPABASE_POSTGRES'
+      : isCloud
+      ? 'CLOUD_KV'
+      : isVercel
+      ? 'EPHEMERAL_TMP'
+      : 'LOCAL_DISK';
+    const isPersistent = isCloud || !isVercel;
+
+    return {
+      storage_type: storageType,
+      is_persistent: isPersistent,
+      cloud_configured: isCloud,
+      environment: isVercel ? 'vercel' : (process.env.NODE_ENV === 'production' ? 'standalone' : 'local'),
+      stats: {
+        students: (this.data.students || []).length,
+        collections: (this.data.food_collections || []).length,
+        bills: (this.data.monthly_bills || []).length,
+        payments: (this.data.payments || []).length,
+        notifications: (this.data.notifications || []).length
+      },
+      last_modified: new Date().toISOString()
+    };
   }
 
   // --- Students ---
@@ -1276,6 +1536,22 @@ export const db = new Database();
 // 3. REST API ROUTER & CONTROLLERS
 // =============================================================================
 export const apiRouter = Router();
+
+// Synchronize latest database state across serverless instances before handling request
+apiRouter.use(async (_req: Request, _res: Response, next: NextFunction) => {
+  try {
+    if (db.hasSupabaseConfigured()) {
+      await db.syncFromSupabase();
+    } else if (db.hasCloudConfigured()) {
+      await db.syncFromCloud();
+    } else if (process.env.VERCEL) {
+      db.checkAndReloadTmpFile();
+    }
+  } catch (err) {
+    console.error('Database sync hook error:', err);
+  }
+  next();
+});
 
 function getParamId(param: string | string[]): string {
   return Array.isArray(param) ? param[0] : param;
@@ -2259,6 +2535,63 @@ apiRouter.get('/settings/info', (_req: Request, res: Response) => {
 apiRouter.put('/settings/info', (req: Request, res: Response) => {
   const updated = db.updateHostelSettings(req.body);
   res.json(updated);
+});
+
+// -----------------------------------------------------------------------------
+// DATABASE STATUS, CLOUD PERSISTENCE, BACKUP & RESTORE
+// -----------------------------------------------------------------------------
+apiRouter.get('/database/status', (_req: Request, res: Response) => {
+  res.json(db.getPersistenceStatus());
+});
+
+apiRouter.get('/database/backup', (req: Request, res: Response) => {
+  const token = getSessionToken(req);
+  const session = db.validateSession(token);
+  if (!session || session.role !== 'admin') {
+    res.status(401).json({ error: 'Unauthorized. Admin credentials required to export database.' });
+    return;
+  }
+  const dateStr = getTodayDateString();
+  res.setHeader('Content-Type', 'application/json');
+  res.setHeader('Content-Disposition', `attachment; filename="hostel_mess_backup_${dateStr}.json"`);
+  res.send(JSON.stringify(db.getData(), null, 2));
+});
+
+apiRouter.post('/database/restore', async (req: Request, res: Response) => {
+  const token = getSessionToken(req);
+  const session = db.validateSession(token);
+  if (!session || session.role !== 'admin') {
+    res.status(401).json({ error: 'Unauthorized. Admin credentials required to restore database.' });
+    return;
+  }
+
+  const payload = req.body;
+  if (!payload || !Array.isArray(payload.students) || !Array.isArray(payload.food_collections)) {
+    res.status(400).json({ error: 'Invalid database backup structure. Required "students" and "food_collections" arrays.' });
+    return;
+  }
+
+  const restored = await db.restoreData(payload);
+  if (!restored) {
+    res.status(500).json({ error: 'Failed to restore database state.' });
+    return;
+  }
+
+  realtimeManager.broadcast({
+    type: 'POLL_SYNC',
+    timestamp: new Date().toISOString(),
+    data: { action: 'RESTORE' }
+  });
+
+  res.json({
+    message: 'Database restored successfully',
+    stats: {
+      students: payload.students.length,
+      collections: payload.food_collections.length,
+      bills: (payload.monthly_bills || []).length,
+      payments: (payload.payments || []).length
+    }
+  });
 });
 
 // =============================================================================

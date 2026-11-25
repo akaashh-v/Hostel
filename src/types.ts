@@ -155,3 +155,18 @@ export interface RealtimeEvent {
   timestamp: string;
   data: any;
 }
+
+export interface DatabaseStatus {
+  storage_type: 'SUPABASE_POSTGRES' | 'CLOUD_KV' | 'LOCAL_DISK' | 'EPHEMERAL_TMP';
+  is_persistent: boolean;
+  cloud_configured: boolean;
+  environment: 'vercel' | 'local' | 'standalone';
+  stats: {
+    students: number;
+    collections: number;
+    bills: number;
+    payments: number;
+    notifications: number;
+  };
+  last_modified: string;
+}
