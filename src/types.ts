@@ -69,9 +69,9 @@ export interface Notification {
   id: string;
   student_id: string;
   student_name: string;
-  meal_category: MealType;
+  meal_category?: MealType | 'REGISTRATION' | string;
   food_name?: string;
-  collection_id: string;
+  collection_id?: string;
   date: string;       // YYYY-MM-DD
   timestamp: string;  // ISO timestamp
   message: string;    // e.g. "[Student Name] has collected Lunch."

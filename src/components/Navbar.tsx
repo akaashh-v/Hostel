@@ -10,7 +10,8 @@ import {
   Bell,
   CheckCircle2,
   CheckCheck,
-  Calendar
+  Calendar,
+  UserPlus
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useRealtime } from '../context/RealtimeContext';
@@ -215,7 +216,7 @@ export const Navbar: React.FC = () => {
                       <div className="flex items-center gap-2">
                         <Bell className="w-4 h-4 text-emerald-600" />
                         <h4 className="text-xs font-bold text-slate-800 uppercase tracking-wider">
-                          Meal Notifications ({notifications.length})
+                          Live Notifications ({notifications.length})
                         </h4>
                       </div>
                       {unreadCount > 0 && (
@@ -233,7 +234,7 @@ export const Navbar: React.FC = () => {
                     <div className="max-h-80 overflow-y-auto divide-y divide-slate-100">
                       {notifications.length === 0 ? (
                         <div className="p-6 text-center text-xs text-slate-400">
-                          No notifications yet. When students collect meals, notifications will appear here instantly.
+                          No notifications yet. Student registrations and meal collections will appear here instantly.
                         </div>
                       ) : (
                         notifications.map(n => {
@@ -244,32 +245,54 @@ export const Navbar: React.FC = () => {
                           const formattedDate = !isNaN(dateObj.getTime())
                             ? dateObj.toLocaleDateString([], { month: 'short', day: 'numeric' })
                             : n.date;
+                          const isRegistration = n.meal_category === 'REGISTRATION';
 
                           return (
                             <div
                               key={n.id}
                               onClick={e => !n.is_read && handleMarkAsRead(n.id, e)}
                               className={`p-3.5 flex items-start gap-3 transition-colors cursor-pointer ${
-                                n.is_read ? 'hover:bg-slate-50/60 bg-white' : 'bg-emerald-50/40 hover:bg-emerald-50/60'
+                                n.is_read
+                                  ? 'hover:bg-slate-50/60 bg-white'
+                                  : isRegistration
+                                  ? 'bg-blue-50/40 hover:bg-blue-50/60'
+                                  : 'bg-emerald-50/40 hover:bg-emerald-50/60'
                               }`}
                             >
                               <div
                                 className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 mt-0.5 border ${
                                   n.is_read
                                     ? 'bg-slate-50 text-slate-400 border-slate-200'
+                                    : isRegistration
+                                    ? 'bg-blue-100 text-blue-700 border-blue-200 font-bold'
                                     : 'bg-emerald-100 text-[#087F5B] border-emerald-200 font-bold'
                                 }`}
                               >
-                                <CheckCircle2 className="w-4 h-4" />
+                                {isRegistration ? (
+                                  <UserPlus className="w-4 h-4" />
+                                ) : (
+                                  <CheckCircle2 className="w-4 h-4" />
+                                )}
                               </div>
 
                               <div className="flex-1 min-w-0">
                                 <div className="flex items-center justify-between gap-1">
-                                  <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">
-                                    {n.meal_category}
+                                  <span
+                                    className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full ${
+                                      isRegistration
+                                        ? 'bg-blue-100 text-blue-700 border border-blue-200'
+                                        : 'bg-slate-100 text-slate-600'
+                                    }`}
+                                  >
+                                    {isRegistration ? 'New Student' : (n.meal_category || 'Meal')}
                                   </span>
                                   {!n.is_read && (
-                                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" title="Unread" />
+                                    <span
+                                      className={`w-2 h-2 rounded-full animate-pulse ${
+                                        isRegistration ? 'bg-blue-500' : 'bg-emerald-500'
+                                      }`}
+                                      title="Unread"
+                                    />
                                   )}
                                 </div>
 

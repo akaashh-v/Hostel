@@ -1137,7 +1137,17 @@ class Database {
 
   // --- Sessions ---
   public createSession(userId: string, role: 'student' | 'admin'): string {
-    const token = createSignedSessionToken(userId, role);
+    let student: Student | undefined;
+    if (role === 'student') {
+      student = this.findStudentById(userId);
+    }
+    const token = createSignedSessionToken(
+      userId,
+      role,
+      student?.phone_number,
+      student?.full_name,
+      student?.room_number
+    );
     const expiresAt = new Date(Date.now() + 30 * 86400000).toISOString();
     if (!this.data.sessions) this.data.sessions = {};
     this.data.sessions[token] = { userId, role, expiresAt };
@@ -1152,14 +1162,35 @@ class Database {
     const signed = verifySignedSessionToken(token);
     if (signed) {
       if (signed.role === 'student') {
-        const student = this.findStudentById(signed.userId);
+        let student = this.findStudentById(signed.userId);
+        if (!student && signed.phone_number) {
+          student = this.findStudentByPhone(signed.phone_number);
+        }
+
+        // Resilient Vercel serverless cold-start & multi-instance fallback:
+        // If student is validly signed by our HMAC secret but missing from this container's temporary DB, restore it!
+        if (!student && signed.phone_number && signed.full_name) {
+          student = {
+            id: signed.userId,
+            full_name: signed.full_name,
+            phone_number: signed.phone_number,
+            room_number: signed.room_number || '',
+            password_hash: '',
+            status: 'ACTIVE',
+            created_at: new Date(signed.ts || Date.now()).toISOString(),
+            updated_at: new Date().toISOString()
+          };
+          this.data.students.push(student);
+          this.save();
+        }
+
         if (student && student.status === 'ACTIVE') {
-          return signed;
+          return { userId: student.id, role: 'student' };
         }
       } else if (signed.role === 'admin') {
         const admin = this.findAdminById(signed.userId);
         if (admin) {
-          return signed;
+          return { userId: admin.id, role: 'admin' };
         }
       }
     }
@@ -1187,22 +1218,34 @@ class Database {
 
 const SESSION_SECRET = process.env.SESSION_SECRET || 'tastebox-hostel-mess-hmac-key-2026';
 
-function createSignedSessionToken(userId: string, role: 'student' | 'admin'): string {
-  const payload = Buffer.from(JSON.stringify({ userId, role, ts: Date.now() })).toString('base64url');
+function createSignedSessionToken(
+  userId: string,
+  role: 'student' | 'admin',
+  phone_number?: string,
+  full_name?: string,
+  room_number?: string
+): string {
+  const payloadData: any = { userId, role, ts: Date.now() };
+  if (phone_number) payloadData.phone_number = phone_number;
+  if (full_name) payloadData.full_name = full_name;
+  if (room_number) payloadData.room_number = room_number;
+  const payload = Buffer.from(JSON.stringify(payloadData)).toString('base64url');
   const sig = crypto.createHmac('sha256', SESSION_SECRET).update(payload).digest('base64url');
   return `${payload}.${sig}`;
 }
 
-function verifySignedSessionToken(token: string): { userId: string; role: 'student' | 'admin' } | null {
+function verifySignedSessionToken(token: string): any | null {
   try {
     const parts = token.split('.');
     if (parts.length !== 2) return null;
     const [payload, sig] = parts;
     const expectedSig = crypto.createHmac('sha256', SESSION_SECRET).update(payload).digest('base64url');
-    if (crypto.timingSafeEqual(Buffer.from(sig), Buffer.from(expectedSig))) {
+    const sigBuf = Buffer.from(sig);
+    const expectedBuf = Buffer.from(expectedSig);
+    if (sigBuf.length === expectedBuf.length && crypto.timingSafeEqual(sigBuf, expectedBuf)) {
       const data = JSON.parse(Buffer.from(payload, 'base64url').toString('utf8'));
       if (Date.now() - data.ts < 30 * 86400000) {
-        return { userId: data.userId, role: data.role };
+        return data;
       }
     }
   } catch {}
@@ -1273,24 +1316,26 @@ export const recordPaymentSchema = z.object({
   received_by: z.string().optional()
 });
 
-// Helper to extract session token from cookie or Authorization header
+// Helper to extract session token from Authorization header or cookie
 function getSessionToken(req: Request): string | undefined {
-  if (req.cookies && req.cookies.mess_session) {
-    return req.cookies.mess_session;
-  }
   const authHeader = req.headers.authorization;
   if (authHeader && authHeader.startsWith('Bearer ')) {
-    return authHeader.substring(7);
+    const token = authHeader.substring(7).trim();
+    if (token) return token;
+  }
+  if (req.cookies && req.cookies.mess_session) {
+    return req.cookies.mess_session;
   }
   return undefined;
 }
 
 // Set persistent cookie
 function setSessionCookie(res: Response, token: string) {
+  const isProd = process.env.NODE_ENV === 'production' || !!process.env.VERCEL;
   res.cookie('mess_session', token, {
     httpOnly: true,
-    secure: false, // set false for localhost dev/preview
-    sameSite: 'lax',
+    secure: isProd,
+    sameSite: isProd ? 'none' : 'lax',
     maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
     path: '/'
   });
@@ -1345,6 +1390,23 @@ apiRouter.post('/auth/student/register', (req: Request, res: Response) => {
   const student = db.createStudent(full_name, cleanPhone, passwordHash, room_number);
   const token = db.createSession(student.id, 'student');
   setSessionCookie(res, token);
+
+  // Broadcast & persist notification for Admin Portal
+  const notif = db.addNotification({
+    student_id: student.id,
+    student_name: student.full_name,
+    meal_category: 'REGISTRATION' as any,
+    food_name: student.room_number ? `Room ${student.room_number}` : 'New Student',
+    date: getTodayDateString(),
+    timestamp: new Date().toISOString(),
+    message: `${student.full_name}${student.room_number ? ` (Room ${student.room_number})` : ''} created a new student account (${student.phone_number}).`
+  });
+
+  realtimeManager.broadcast({
+    type: 'NOTIFICATION_CREATED',
+    timestamp: new Date().toISOString(),
+    data: notif
+  });
 
   const { password_hash, ...safeStudent } = student;
   res.status(201).json({
@@ -1955,6 +2017,23 @@ apiRouter.post('/students', (req: Request, res: Response) => {
   if (room_number) {
     db.updateStudent(newStudent.id, { room_number });
   }
+
+  // Broadcast & persist notification for Admin Portal
+  const notif = db.addNotification({
+    student_id: newStudent.id,
+    student_name: newStudent.full_name,
+    meal_category: 'REGISTRATION' as any,
+    food_name: room_number ? `Room ${room_number}` : 'New Student',
+    date: getTodayDateString(),
+    timestamp: new Date().toISOString(),
+    message: `Student account created for ${newStudent.full_name}${room_number ? ` (Room ${room_number})` : ''} (${newStudent.phone_number}).`
+  });
+
+  realtimeManager.broadcast({
+    type: 'NOTIFICATION_CREATED',
+    timestamp: new Date().toISOString(),
+    data: notif
+  });
 
   const { password_hash, ...safe } = newStudent;
   res.status(201).json(safe);

@@ -21,8 +21,22 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [student, setStudent] = useState<Student | null>(null);
-  const [admin, setAdmin] = useState<Admin | null>(null);
+  const [student, setStudent] = useState<Student | null>(() => {
+    try {
+      const saved = localStorage.getItem('mess_student_user');
+      return saved ? JSON.parse(saved) : null;
+    } catch {
+      return null;
+    }
+  });
+  const [admin, setAdmin] = useState<Admin | null>(() => {
+    try {
+      const saved = localStorage.getItem('mess_admin_user');
+      return saved ? JSON.parse(saved) : null;
+    } catch {
+      return null;
+    }
+  });
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [activePortal, setActivePortal] = useState<'student' | 'admin'>('student');
   const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
@@ -37,6 +51,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           const res = await api.getAdminSession();
           if (res.authenticated && res.admin) {
             setAdmin(res.admin);
+            localStorage.setItem('mess_admin_user', JSON.stringify(res.admin));
             setActivePortal('admin');
             setIsLoading(false);
             return;
@@ -51,12 +66,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const studentRes = await api.getStudentSession();
         if (studentRes.authenticated && studentRes.student) {
           setStudent(studentRes.student);
+          localStorage.setItem('mess_student_user', JSON.stringify(studentRes.student));
           setActivePortal('student');
           setIsLoading(false);
           return;
+        } else if (studentRes && studentRes.authenticated === false) {
+          localStorage.removeItem('mess_student_user');
+          setStudent(null);
         }
-      } catch {
-        // not student
+      } catch (err: any) {
+        if (err?.message?.includes('401') || err?.message?.includes('deactivated')) {
+          localStorage.removeItem('mess_student_user');
+          setStudent(null);
+        }
       }
 
       // If student not found, try admin
@@ -64,6 +86,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const adminRes = await api.getAdminSession();
         if (adminRes.authenticated && adminRes.admin) {
           setAdmin(adminRes.admin);
+          localStorage.setItem('mess_admin_user', JSON.stringify(adminRes.admin));
           setActivePortal('admin');
           setIsLoading(false);
           return;
@@ -88,6 +111,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (res.token) {
         localStorage.setItem('mess_session_token', res.token);
       }
+      if (res.student) {
+        localStorage.setItem('mess_student_user', JSON.stringify(res.student));
+      }
       setStudent(res.student);
       setActivePortal('student');
       success(`Welcome back, ${res.student.full_name}!`);
@@ -104,6 +130,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       if (res.token) {
         localStorage.setItem('mess_session_token', res.token);
       }
+      if (res.student) {
+        localStorage.setItem('mess_student_user', JSON.stringify(res.student));
+      }
       setStudent(res.student);
       setActivePortal('student');
       success(`Welcome to TASTEBOX MEALS CO., ${res.student.full_name}! Account verified.`);
@@ -119,6 +148,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const res = await api.loginAdmin(user, pass);
       if (res.token) {
         localStorage.setItem('mess_session_token', res.token);
+      }
+      if (res.admin) {
+        localStorage.setItem('mess_admin_user', JSON.stringify(res.admin));
       }
       setAdmin(res.admin);
       setActivePortal('admin');
@@ -137,6 +169,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // ignore
     } finally {
       localStorage.removeItem('mess_session_token');
+      localStorage.removeItem('mess_student_user');
+      localStorage.removeItem('mess_admin_user');
       setStudent(null);
       setAdmin(null);
       setActivePortal('student');

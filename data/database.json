@@ -9,6 +9,46 @@
       "status": "ACTIVE",
       "created_at": "2026-11-25T13:47:24.784Z",
       "updated_at": "2026-11-25T18:07:14.423Z"
+    },
+    {
+      "id": "stu-ce6b35ab-1163-42ee-a65f-9a90d9907e27",
+      "full_name": "Ahmed",
+      "phone_number": "7894561230",
+      "password_hash": "$2b$10$9Ib8m4TQIxWDh6SmsTY5DeCzDymrdGWpEXpK6e637XAIZuDTlk9Vi",
+      "room_number": "Room 101",
+      "status": "ACTIVE",
+      "created_at": "2026-11-25T19:22:37.475Z",
+      "updated_at": "2026-11-25T19:22:37.475Z"
+    },
+    {
+      "id": "stu-3b2a008d-814c-4b5a-a21d-844a7ae79400",
+      "full_name": "Karan Patel",
+      "phone_number": "9123456780",
+      "password_hash": "$2b$10$niGSbYg0kGwwsp3RHHmeoudcDnkJqQ9tXj4A1d5OZPirXCUSWgnei",
+      "room_number": "C-101",
+      "status": "ACTIVE",
+      "created_at": "2026-11-25T19:34:07.561Z",
+      "updated_at": "2026-11-25T19:34:07.561Z"
+    },
+    {
+      "id": "stu-a7906d92-5246-4291-9a3a-dbcf275b9e1a",
+      "full_name": "Aman",
+      "phone_number": "1234567890",
+      "password_hash": "$2b$10$Qbnp8yWMpTaB0VhALf2TWeYhmmWGU7ibCRHbroNDeQBFYphtGoZcu",
+      "room_number": "Room 101",
+      "status": "ACTIVE",
+      "created_at": "2026-11-25T19:40:29.731Z",
+      "updated_at": "2026-11-25T19:40:29.731Z"
+    },
+    {
+      "id": "stu-45bc59a7-33df-46e1-99b4-1ec7ac18a8d1",
+      "full_name": "Ahmed",
+      "phone_number": "78945612",
+      "password_hash": "$2b$10$sjpsHc31pBYxkYVjzX6tK.XUXpVi2VRa06ixDWPZMraRdwarmwGsq",
+      "room_number": "Room 101",
+      "status": "ACTIVE",
+      "created_at": "2026-11-25T19:42:04.427Z",
+      "updated_at": "2026-11-25T19:42:04.427Z"
     }
   ],
   "admins": [
@@ -423,6 +463,57 @@
       ],
       "amount": 25,
       "payment_status": "PENDING"
+    },
+    {
+      "id": "col-2926502b-37d5-4c06-aca9-67b8fb679213",
+      "student_id": "stu-ce6b35ab-1163-42ee-a65f-9a90d9907e27",
+      "student_name": "Ahmed",
+      "student_phone": "7894561230",
+      "meal_id": "meal-breakfast",
+      "meal_type": "BREAKFAST",
+      "food_item_id": "food-bf-2",
+      "food_item_name": "Masala Dosa",
+      "collection_date": "2026-11-26",
+      "collected_at": "2026-11-25T19:22:50.041Z",
+      "food_items_snapshot": [
+        "Masala Dosa"
+      ],
+      "amount": 40,
+      "payment_status": "PENDING"
+    },
+    {
+      "id": "col-b2537e3c-1e24-46bb-b932-db41b9f488d0",
+      "student_id": "stu-ce6b35ab-1163-42ee-a65f-9a90d9907e27",
+      "student_name": "Ahmed",
+      "student_phone": "7894561230",
+      "meal_id": "meal-lunch",
+      "meal_type": "LUNCH",
+      "food_item_id": "food-ln-2",
+      "food_item_name": "Chicken Biriyani",
+      "collection_date": "2026-11-26",
+      "collected_at": "2026-11-25T19:23:02.075Z",
+      "food_items_snapshot": [
+        "Chicken Biriyani"
+      ],
+      "amount": 100,
+      "payment_status": "PENDING"
+    },
+    {
+      "id": "col-a8e9e088-ecf4-4a92-a7bd-0debb4667f5e",
+      "student_id": "stu-45bc59a7-33df-46e1-99b4-1ec7ac18a8d1",
+      "student_name": "Ahmed",
+      "student_phone": "78945612",
+      "meal_id": "meal-breakfast",
+      "meal_type": "BREAKFAST",
+      "food_item_id": "food-bf-2",
+      "food_item_name": "Masala Dosa",
+      "collection_date": "2026-11-26",
+      "collected_at": "2026-11-25T19:43:13.874Z",
+      "food_items_snapshot": [
+        "Masala Dosa"
+      ],
+      "amount": 40,
+      "payment_status": "PENDING"
     }
   ],
   "billing_settings": {
@@ -460,6 +551,50 @@
       "payment_status": "PENDING",
       "generated_at": "2026-11-25T13:48:37.105Z",
       "updated_at": "2026-11-25T13:48:37.105Z"
+    },
+    {
+      "id": "bill-8ee2953a-86ba-4f7e-891c-6b6f3708a0be",
+      "student_id": "stu-ce6b35ab-1163-42ee-a65f-9a90d9907e27",
+      "student_name": "Ahmed",
+      "student_phone": "7894561230",
+      "month": 11,
+      "year": 2026,
+      "breakfast_count": 1,
+      "lunch_count": 1,
+      "snacks_count": 0,
+      "dinner_count": 0,
+      "total_meals": 2,
+      "billing_mode": "PER_MEAL",
+      "base_amount": 130,
+      "late_fee": 0,
+      "total_amount": 130,
+      "paid_amount": 0,
+      "balance_amount": 130,
+      "payment_status": "PENDING",
+      "generated_at": "2026-11-25T19:22:50.043Z",
+      "updated_at": "2026-11-25T19:23:02.077Z"
+    },
+    {
+      "id": "bill-a8b32095-b98a-4fe9-94e8-86a3e8b67966",
+      "student_id": "stu-45bc59a7-33df-46e1-99b4-1ec7ac18a8d1",
+      "student_name": "Ahmed",
+      "student_phone": "78945612",
+      "month": 11,
+      "year": 2026,
+      "breakfast_count": 1,
+      "lunch_count": 0,
+      "snacks_count": 0,
+      "dinner_count": 0,
+      "total_meals": 1,
+      "billing_mode": "PER_MEAL",
+      "base_amount": 45,
+      "late_fee": 0,
+      "total_amount": 45,
+      "paid_amount": 0,
+      "balance_amount": 45,
+      "payment_status": "PENDING",
+      "generated_at": "2026-11-25T19:43:13.876Z",
+      "updated_at": "2026-11-25T19:43:13.876Z"
     }
   ],
   "payments": [],
@@ -559,9 +694,104 @@
       "userId": "stu-db4f43fb-e4c8-48c9-b698-e2ce398da81f",
       "role": "student",
       "expiresAt": "2026-12-25T18:14:06.570Z"
+    },
+    "eyJ1c2VySWQiOiJzdHUtM2IyYTAwOGQtODE0Yy00YjVhLWEyMWQtODQ0YTdhZTc5NDAwIiwicm9sZSI6InN0dWRlbnQiLCJ0cyI6MTc5NTYzNTI0NzU2MiwicGhvbmVfbnVtYmVyIjoiOTEyMzQ1Njc4MCIsImZ1bGxfbmFtZSI6IkthcmFuIFBhdGVsIiwicm9vbV9udW1iZXIiOiJDLTEwMSJ9.Y6ayVHWd5ysci0vM_gmizvBwIITujKi8mKTLRR4t5kM": {
+      "userId": "stu-3b2a008d-814c-4b5a-a21d-844a7ae79400",
+      "role": "student",
+      "expiresAt": "2026-12-25T19:34:07.563Z"
+    },
+    "eyJ1c2VySWQiOiJhZG1pbi0xIiwicm9sZSI6ImFkbWluIiwidHMiOjE3OTU2MzUyNDc2MjV9.1ZDdeYFkaUTMvuZzw35ftOM2V-lI_of0U7VOkC_BN9k": {
+      "userId": "admin-1",
+      "role": "admin",
+      "expiresAt": "2026-12-25T19:34:07.625Z"
+    },
+    "eyJ1c2VySWQiOiJzdHUtM2IyYTAwOGQtODE0Yy00YjVhLWEyMWQtODQ0YTdhZTc5NDAwIiwicm9sZSI6InN0dWRlbnQiLCJ0cyI6MTc5NTYzNTI1NzM3OSwicGhvbmVfbnVtYmVyIjoiOTEyMzQ1Njc4MCIsImZ1bGxfbmFtZSI6IkthcmFuIFBhdGVsIiwicm9vbV9udW1iZXIiOiJDLTEwMSJ9.CeqYtdqoGojArwh4rlwpwJlps5vFih7eNLu595VyJl4": {
+      "userId": "stu-3b2a008d-814c-4b5a-a21d-844a7ae79400",
+      "role": "student",
+      "expiresAt": "2026-12-25T19:34:17.380Z"
+    },
+    "eyJ1c2VySWQiOiJzdHUtNDViYzU5YTctMzNkZi00NmUxLTk5YjQtMWVjN2FjMThhOGQxIiwicm9sZSI6InN0dWRlbnQiLCJ0cyI6MTc5NTYzNTcyNDQyOCwicGhvbmVfbnVtYmVyIjoiNzg5NDU2MTIiLCJmdWxsX25hbWUiOiJBaG1lZCIsInJvb21fbnVtYmVyIjoiUm9vbSAxMDEifQ.qGnTSPQ8U9DZQfouYL4P_cqjnrQ6eRsVJZ-xpGavMDk": {
+      "userId": "stu-45bc59a7-33df-46e1-99b4-1ec7ac18a8d1",
+      "role": "student",
+      "expiresAt": "2026-12-25T19:42:04.428Z"
     }
   },
   "notifications": [
+    {
+      "id": "notif-a8aa18a3-3ff2-439d-8843-bcb46e560afc",
+      "student_id": "stu-45bc59a7-33df-46e1-99b4-1ec7ac18a8d1",
+      "student_name": "Ahmed",
+      "meal_category": "BREAKFAST",
+      "food_name": "Masala Dosa",
+      "collection_id": "col-a8e9e088-ecf4-4a92-a7bd-0debb4667f5e",
+      "date": "2026-11-26",
+      "timestamp": "2026-11-25T19:43:13.874Z",
+      "message": "Ahmed has collected Breakfast.",
+      "is_read": false,
+      "created_at": "2026-11-25T19:43:13.874Z"
+    },
+    {
+      "id": "notif-37a91ab4-a4c1-48fe-bb47-9edb9075a8b9",
+      "student_id": "stu-45bc59a7-33df-46e1-99b4-1ec7ac18a8d1",
+      "student_name": "Ahmed",
+      "meal_category": "REGISTRATION",
+      "food_name": "Room Room 101",
+      "date": "2026-11-26",
+      "timestamp": "2026-11-25T19:42:04.429Z",
+      "message": "Ahmed (Room Room 101) created a new student account (78945612).",
+      "is_read": false,
+      "created_at": "2026-11-25T19:42:04.429Z"
+    },
+    {
+      "id": "notif-4e15fa52-b9c3-4548-aa65-942b988e3043",
+      "student_id": "stu-a7906d92-5246-4291-9a3a-dbcf275b9e1a",
+      "student_name": "Aman",
+      "meal_category": "REGISTRATION",
+      "food_name": "Room Room 101",
+      "date": "2026-11-26",
+      "timestamp": "2026-11-25T19:40:29.733Z",
+      "message": "Aman (Room Room 101) created a new student account (1234567890).",
+      "is_read": false,
+      "created_at": "2026-11-25T19:40:29.733Z"
+    },
+    {
+      "id": "notif-cf17d4db-e121-4e2b-9e16-9f4f1ab6e34f",
+      "student_id": "stu-3b2a008d-814c-4b5a-a21d-844a7ae79400",
+      "student_name": "Karan Patel",
+      "meal_category": "REGISTRATION",
+      "food_name": "Room C-101",
+      "date": "2026-11-26",
+      "timestamp": "2026-11-25T19:34:07.563Z",
+      "message": "Karan Patel (Room C-101) created a new student account (9123456780).",
+      "is_read": true,
+      "created_at": "2026-11-25T19:34:07.564Z"
+    },
+    {
+      "id": "notif-8268969c-33bd-4fd8-ae85-98fd27a871e3",
+      "student_id": "stu-ce6b35ab-1163-42ee-a65f-9a90d9907e27",
+      "student_name": "Ahmed",
+      "meal_category": "LUNCH",
+      "food_name": "Chicken Biriyani",
+      "collection_id": "col-b2537e3c-1e24-46bb-b932-db41b9f488d0",
+      "date": "2026-11-26",
+      "timestamp": "2026-11-25T19:23:02.075Z",
+      "message": "Ahmed has collected Lunch.",
+      "is_read": true,
+      "created_at": "2026-11-25T19:23:02.075Z"
+    },
+    {
+      "id": "notif-6a04e7fc-3a55-48ff-9841-1c2ae54541ca",
+      "student_id": "stu-ce6b35ab-1163-42ee-a65f-9a90d9907e27",
+      "student_name": "Ahmed",
+      "meal_category": "BREAKFAST",
+      "food_name": "Masala Dosa",
+      "collection_id": "col-2926502b-37d5-4c06-aca9-67b8fb679213",
+      "date": "2026-11-26",
+      "timestamp": "2026-11-25T19:22:50.041Z",
+      "message": "Ahmed has collected Breakfast.",
+      "is_read": true,
+      "created_at": "2026-11-25T19:22:50.041Z"
+    },
     {
       "id": "notif-a26e6e1d-a95f-4f19-9df3-67406d48b432",
       "student_id": "stu-db4f43fb-e4c8-48c9-b698-e2ce398da81f",

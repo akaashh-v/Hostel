@@ -39,7 +39,7 @@ export const StudentMenu: React.FC<StudentMenuProps> = ({ onNavigateToTab, onNav
   const [meals, setMeals] = useState<(Meal & { items: FoodItem[] })[]>([]);
   const [collections, setCollections] = useState<FoodCollection[]>([]);
   const [search, setSearch] = useState<string>('');
-  const [selectedMealCategory, setSelectedMealCategory] = useState<string>('ALL');
+  const [selectedMealCategory, setSelectedMealCategory] = useState<string>('BREAKFAST');
   const [selectedDietary, setSelectedDietary] = useState<string>('ALL');
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isMarking, setIsMarking] = useState<boolean>(false);
@@ -119,10 +119,8 @@ export const StudentMenu: React.FC<StudentMenuProps> = ({ onNavigateToTab, onNav
     }
   };
 
-  // Exact categories required by Prompt:
-  // All, Breakfast, Lunch, Snacks, Dinner
+  // Exact categories required: Breakfast, Lunch, Snacks, Dinner
   const categoryFilters = [
-    { id: 'ALL', label: 'All' },
     { id: 'BREAKFAST', label: 'Breakfast', icon: Coffee },
     { id: 'LUNCH', label: 'Lunch', icon: Sun },
     { id: 'SNACKS', label: 'Snacks', icon: Sunset },
@@ -262,9 +260,9 @@ export const StudentMenu: React.FC<StudentMenuProps> = ({ onNavigateToTab, onNav
         <div className="py-20 text-center bg-white rounded-3xl border border-slate-200 p-8 shadow-sm">
           <Utensils className="w-12 h-12 text-slate-300 mx-auto mb-3" />
           <h3 className="text-base font-bold text-slate-800">No dishes found matching your criteria</h3>
-          <p className="text-xs text-slate-400 mt-1">Try adjusting your search query or selecting "All" categories.</p>
+          <p className="text-xs text-slate-400 mt-1">Try adjusting your search query or selecting another meal category.</p>
           <button
-            onClick={() => { setSearch(''); setSelectedMealCategory('ALL'); setSelectedDietary('ALL'); }}
+            onClick={() => { setSearch(''); setSelectedMealCategory('BREAKFAST'); setSelectedDietary('ALL'); }}
             className="mt-4 px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-bold transition-colors"
           >
             Reset Filters
