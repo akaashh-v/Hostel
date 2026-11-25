@@ -879,12 +879,14 @@
   ],
   "hostel_settings": {
     "hostel_name": "Hostel Dining",
-    "mess_name": "TASTEBOX MEALS CO.",
+    "mess_name": "TASTEBOX MEALS CO. Dining Hall",
     "address": "Campus Block-B, University Road, Bangalore - 560012",
     "contact_phone": "+91 98765 00000",
     "contact_email": "mess@tastebox.edu",
-    "qr_code_url": "http://localhost:5173/student",
-    "notice": "Welcome to TASTEBOX MEALS CO. Dining runs according to daily schedule. Please mark your meal collected at the counter."
+    "qr_code_url": "/payment-qr.jpg",
+    "notice": "Welcome to TASTEBOX MEALS CO. Dining runs according to daily schedule. Please mark your meal collected at the counter.",
+    "upi_id": "ismailpk153@okicici",
+    "upi_payee_name": "Sinsiya Nihala"
   },
   "sessions": {
     "f12ef6b393ae55bfeaf28e5b4d474236ff9f3d4ed120c888ff1abe8735c57ea1": {

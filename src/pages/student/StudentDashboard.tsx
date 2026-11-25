@@ -115,6 +115,13 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
 
       setConfirmModal(null);
       await fetchDashboardData();
+
+      // Navigate immediately to Payment option as requested
+      if (onNavigateToPayment && res.collection) {
+        onNavigateToPayment(res.collection);
+      } else if (onNavigateToTab) {
+        onNavigateToTab('bill');
+      }
     } catch (err: any) {
       error(err.message || 'Could not record food collection');
     } finally {
@@ -147,15 +154,14 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
     }
   };
 
-  const today = new Date().toISOString().split('T')[0];
+  const today = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Kolkata' }).format(new Date());
 
   const isDishCollected = (dishId: string, dishName: string) => {
     return collections.some(
       c =>
         c.collection_date === today &&
         ((c.food_item_id && c.food_item_id === dishId) ||
-          (c.food_item_name && c.food_item_name.toLowerCase() === dishName.toLowerCase()) ||
-          (c.food_items_snapshot && c.food_items_snapshot.length === 1 && c.food_items_snapshot[0].toLowerCase() === dishName.toLowerCase()))
+          (c.food_item_name && c.food_item_name.trim().toLowerCase() === dishName.trim().toLowerCase()))
     );
   };
 

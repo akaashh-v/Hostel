@@ -136,6 +136,8 @@ export interface HostelSettings {
   contact_phone: string;
   contact_email: string;
   qr_code_url?: string;
+  upi_id?: string;
+  upi_payee_name?: string;
   notice?: string;
 }
 

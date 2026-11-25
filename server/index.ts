@@ -688,7 +688,9 @@ const DEFAULT_DB: DatabaseSchema = {
     address: 'Campus Block-B, University Road, Bangalore - 560012',
     contact_phone: '+91 98765 00000',
     contact_email: 'mess@hostel.edu',
-    qr_code_url: 'http://localhost:5173/student',
+    qr_code_url: '/payment-qr.jpg',
+    upi_id: 'ismailpk153@okicici',
+    upi_payee_name: 'Sinsiya Nihala',
     notice: 'Mess dining runs according to daily schedule. Please mark your meal collected at the counter.'
   },
   notifications: [],
@@ -1713,9 +1715,11 @@ apiRouter.post('/collections/mark', (req: Request, res: Response) => {
   }
 
   const today = getTodayDateString();
-  const currentItems = db.getFoodItems(today).filter(i => i.meal_id === meal!.id || i.meal_type === meal!.meal_type);
-  const matchedItem = food_item_id ? currentItems.find(i => i.id === food_item_id) : (food_item_name ? currentItems.find(i => i.name.toLowerCase() === food_item_name.toLowerCase()) : undefined);
-  const resolvedFoodName = matchedItem?.name || food_item_name || (currentItems.length > 0 ? currentItems[0].name : meal.name);
+  const allFoodItems = db.getAllFoodItems();
+  const matchedItem = food_item_id
+    ? allFoodItems.find(i => i.id === food_item_id)
+    : (food_item_name ? allFoodItems.find(i => i.name.toLowerCase() === food_item_name.toLowerCase()) : undefined);
+  const resolvedFoodName = matchedItem?.name || food_item_name || 'Meal';
   const resolvedFoodId = matchedItem?.id || food_item_id;
   const itemNames = [resolvedFoodName];
 

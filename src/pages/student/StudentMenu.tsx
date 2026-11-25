@@ -106,11 +106,11 @@ export const StudentMenu: React.FC<StudentMenuProps> = ({ onNavigateToTab, onNav
       setConfirmModal(null);
       await loadMenuAndCollections();
 
-      // Return to Dashboard as requested: "when i click the collected food it comes to dash board"
-      if (onNavigateToTab) {
-        onNavigateToTab('dashboard');
-      } else if (onNavigateToPayment && res.collection) {
+      // Navigate immediately to Payment option as requested
+      if (onNavigateToPayment && res.collection) {
         onNavigateToPayment(res.collection);
+      } else if (onNavigateToTab) {
+        onNavigateToTab('bill');
       }
     } catch (err: any) {
       error(err.message || 'Could not record food collection');
@@ -129,7 +129,7 @@ export const StudentMenu: React.FC<StudentMenuProps> = ({ onNavigateToTab, onNav
     { id: 'DINNER', label: 'Dinner', icon: Moon }
   ];
 
-  const todayStr = new Date().toISOString().split('T')[0];
+  const todayStr = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Kolkata' }).format(new Date());
 
   // Check if a specific food item was collected today by student
   const isDishCollected = (dishId: string, dishName: string) => {
@@ -137,8 +137,7 @@ export const StudentMenu: React.FC<StudentMenuProps> = ({ onNavigateToTab, onNav
       c =>
         c.collection_date === todayStr &&
         ((c.food_item_id && c.food_item_id === dishId) ||
-          (c.food_item_name && c.food_item_name.toLowerCase() === dishName.toLowerCase()) ||
-          (c.food_items_snapshot && c.food_items_snapshot.length === 1 && c.food_items_snapshot[0].toLowerCase() === dishName.toLowerCase()))
+          (c.food_item_name && c.food_item_name.trim().toLowerCase() === dishName.trim().toLowerCase()))
     );
   };
 
