@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import {
   Utensils,
   Coffee,
@@ -15,11 +15,14 @@ import {
   Filter,
   X,
   ArrowRight,
-  ShieldCheck
+  ShieldCheck,
+  ReceiptIndianRupee,
+  Check
 } from 'lucide-react';
 import { Meal, FoodItem, FoodCollection, MealType } from '../../types';
 import { api } from '../../services/api';
 import { useRealtime } from '../../context/RealtimeContext';
+import { useToast } from '../../context/ToastContext';
 import { AdminTab } from '../../components/AdminSidebar';
 
 interface AdminDashboardProps {
@@ -28,6 +31,7 @@ interface AdminDashboardProps {
 
 export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateTab }) => {
   const { subscribe } = useRealtime();
+  const { success, error } = useToast();
 
   const [todayMenu, setTodayMenu] = useState<{ meals: (Meal & { items: FoodItem[] })[] } | null>(null);
   const [collections, setCollections] = useState<FoodCollection[]>([]);
@@ -37,6 +41,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateTab })
   // Filters for collections section
   const [categoryFilter, setCategoryFilter] = useState<string>('ALL');
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [paymentFilter, setPaymentFilter] = useState<'ALL' | 'PAID' | 'PENDING'>('ALL');
+  const [isSettlingId, setIsSettlingId] = useState<string | null>(null);
+
+  const paymentRegistryRef = useRef<HTMLDivElement>(null);
 
   const todayStr = new Date().toISOString().split('T')[0];
 
@@ -56,6 +64,28 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateTab })
       setIsLoading(false);
     }
   }, [todayStr]);
+
+  const handleSettleCollection = async (collectionId: string, studentName: string) => {
+    setIsSettlingId(collectionId);
+    try {
+      await api.payCollection({
+        collection_id: collectionId,
+        payment_method: 'CASH',
+        reference_id: `ADMIN-CASH-${Date.now().toString().slice(-6)}`
+      });
+      success(`Payment confirmed and settled for ${studentName}!`);
+      await loadDashboardData();
+    } catch (err: any) {
+      error(err.message || 'Failed to settle payment');
+    } finally {
+      setIsSettlingId(null);
+    }
+  };
+
+  const scrollToPaymentRegistry = (filter: 'PAID' | 'PENDING') => {
+    setPaymentFilter(filter);
+    paymentRegistryRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
 
   useEffect(() => {
     loadDashboardData();
@@ -268,9 +298,16 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateTab })
       {/* 3. Real Payment Settlement Metrics */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {/* Successful Payments */}
-        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-emerald-200/80 bg-emerald-50/20 shadow-xs">
+        <div
+          onClick={() => scrollToPaymentRegistry('PAID')}
+          className="bg-white rounded-2xl p-4 sm:p-5 border border-emerald-200/80 bg-emerald-50/20 shadow-xs hover:shadow-md hover:border-emerald-400 transition-all cursor-pointer group"
+          title="Click to view paid students below"
+        >
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-emerald-800 uppercase tracking-wider">Successful Payments</span>
+            <span className="text-xs font-bold text-emerald-800 uppercase tracking-wider group-hover:underline flex items-center gap-1">
+              <span>Successful Payments</span>
+              <ArrowRight className="w-3 h-3 text-emerald-600 opacity-0 group-hover:opacity-100 transition-opacity" />
+            </span>
             <div className="w-7 h-7 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center">
               <CheckCircle2 className="w-4 h-4" />
             </div>
@@ -285,9 +322,16 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateTab })
         </div>
 
         {/* Pending Payments */}
-        <div className="bg-white rounded-2xl p-4 sm:p-5 border border-amber-200/80 bg-amber-50/20 shadow-xs">
+        <div
+          onClick={() => scrollToPaymentRegistry('PENDING')}
+          className="bg-white rounded-2xl p-4 sm:p-5 border border-amber-200/80 bg-amber-50/20 shadow-xs hover:shadow-md hover:border-amber-400 transition-all cursor-pointer group"
+          title="Click to view students with pending payments"
+        >
           <div className="flex items-center justify-between">
-            <span className="text-xs font-bold text-amber-800 uppercase tracking-wider">Pending Payments</span>
+            <span className="text-xs font-bold text-amber-800 uppercase tracking-wider group-hover:underline flex items-center gap-1">
+              <span>Pending Payments</span>
+              <ArrowRight className="w-3 h-3 text-amber-600 opacity-0 group-hover:opacity-100 transition-opacity" />
+            </span>
             <div className="w-7 h-7 rounded-lg bg-amber-100 text-amber-700 flex items-center justify-center">
               <Clock className="w-4 h-4" />
             </div>
@@ -315,6 +359,192 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onNavigateTab })
           </div>
           <p className="text-xs text-slate-400 mt-1">Requires student retry</p>
         </div>
+      </div>
+
+      {/* DEDICATED STUDENT PAYMENT REGISTRY: PAID VS PENDING */}
+      <div ref={paymentRegistryRef} className="bg-white rounded-3xl border border-slate-200 p-6 sm:p-7 shadow-sm space-y-5">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-slate-100">
+          <div>
+            <div className="flex items-center gap-2">
+              <h2 className="text-lg font-black text-slate-900 tracking-tight flex items-center gap-2">
+                <ReceiptIndianRupee className="w-5 h-5 text-[#0D9488]" />
+                <span>Student Payment Settlement Status (Today)</span>
+              </h2>
+              <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700">
+                {collections.length} total collections
+              </span>
+            </div>
+            <p className="text-xs text-slate-500 mt-0.5">
+              Live status showing which students have paid and which students have payment pending for today's meals
+            </p>
+          </div>
+
+          {/* Payment Status Filter Tabs */}
+          <div className="flex items-center gap-1.5 p-1 bg-slate-100 rounded-2xl shrink-0">
+            <button
+              type="button"
+              onClick={() => setPaymentFilter('ALL')}
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                paymentFilter === 'ALL'
+                  ? 'bg-white text-slate-900 shadow-sm'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              All ({collections.length})
+            </button>
+            <button
+              type="button"
+              onClick={() => setPaymentFilter('PAID')}
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                paymentFilter === 'PAID'
+                  ? 'bg-emerald-600 text-white shadow-sm'
+                  : 'text-emerald-700 hover:bg-emerald-50'
+              }`}
+            >
+              <CheckCircle2 className="w-3.5 h-3.5" />
+              <span>Paid ({successfulCount})</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setPaymentFilter('PENDING')}
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center gap-1.5 ${
+                paymentFilter === 'PENDING'
+                  ? 'bg-amber-500 text-white shadow-sm'
+                  : 'text-amber-700 hover:bg-amber-50'
+              }`}
+            >
+              <Clock className="w-3.5 h-3.5" />
+              <span>Pending ({pendingCount})</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Collections filtered by payment status */}
+        {(() => {
+          const list = collections.filter(c => {
+            if (paymentFilter === 'PAID') return c.payment_status === 'PAID';
+            if (paymentFilter === 'PENDING') return c.payment_status === 'PENDING' || !c.payment_status;
+            return true;
+          });
+
+          if (collections.length === 0) {
+            return (
+              <div className="py-8 text-center text-slate-400">
+                <Utensils className="w-10 h-10 mx-auto text-slate-300 mb-2" />
+                <p className="text-xs font-semibold text-slate-600">No food collections recorded yet today.</p>
+                <p className="text-[11px] text-slate-400 mt-0.5">When students collect food, their payment status will appear here immediately.</p>
+              </div>
+            );
+          }
+
+          if (list.length === 0) {
+            return (
+              <div className="py-8 text-center text-slate-400">
+                <CheckCircle2 className="w-10 h-10 mx-auto text-emerald-400 mb-2" />
+                <p className="text-xs font-semibold text-slate-700">
+                  {paymentFilter === 'PENDING'
+                    ? 'All collected meals today have been fully paid! 🎉'
+                    : 'No paid collections found for this filter.'}
+                </p>
+              </div>
+            );
+          }
+
+          return (
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead className="bg-slate-50/70 text-slate-400 uppercase font-bold text-[10px] tracking-wider border-b border-slate-200">
+                  <tr>
+                    <th className="py-3 px-4">Student</th>
+                    <th className="py-3 px-4">Phone</th>
+                    <th className="py-3 px-4">Meal Collected</th>
+                    <th className="py-3 px-4">Time</th>
+                    <th className="py-3 px-4">Amount</th>
+                    <th className="py-3 px-4">Payment Status</th>
+                    <th className="py-3 px-4 text-right">Action</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100 text-slate-700">
+                  {list.map(c => {
+                    const isPaid = c.payment_status === 'PAID';
+                    const dateObj = new Date(c.collected_at);
+                    const formattedTime = !isNaN(dateObj.getTime())
+                      ? dateObj.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                      : '';
+                    const dishName =
+                      c.food_item_name ||
+                      (c.food_items_snapshot && c.food_items_snapshot[0]) ||
+                      c.meal_type;
+
+                    return (
+                      <tr key={c.id} className="hover:bg-slate-50/70 transition-colors">
+                        <td className="py-3.5 px-4">
+                          <div className="flex items-center gap-2.5">
+                            <div className={`w-8 h-8 rounded-xl flex items-center justify-center font-bold text-xs ${
+                              isPaid ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'
+                            }`}>
+                              {c.student_name.charAt(0).toUpperCase()}
+                            </div>
+                            <span className="font-bold text-slate-900">{c.student_name}</span>
+                          </div>
+                        </td>
+                        <td className="py-3.5 px-4 font-mono text-slate-500">{c.student_phone}</td>
+                        <td className="py-3.5 px-4">
+                          <div className="flex items-center gap-2">
+                            <span className="font-semibold text-slate-800">{dishName}</span>
+                            <span className="text-[10px] uppercase font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">
+                              {c.meal_type}
+                            </span>
+                          </div>
+                        </td>
+                        <td className="py-3.5 px-4 font-mono text-slate-500">{formattedTime || 'Today'}</td>
+                        <td className="py-3.5 px-4 font-mono font-black text-slate-900">₹{c.amount || 25}</td>
+                        <td className="py-3.5 px-4">
+                          {isPaid ? (
+                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-black bg-emerald-100 text-emerald-800 border border-emerald-300">
+                              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                              PAID (SUCCESSFUL)
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-black bg-amber-100 text-amber-800 border border-amber-300">
+                              <Clock className="w-3.5 h-3.5 text-amber-600" />
+                              PAYMENT PENDING
+                            </span>
+                          )}
+                        </td>
+                        <td className="py-3.5 px-4 text-right">
+                          {isPaid ? (
+                            <span className="text-xs font-semibold text-emerald-600 flex items-center justify-end gap-1">
+                              <Check className="w-3.5 h-3.5" />
+                              Settled
+                            </span>
+                          ) : (
+                            <button
+                              type="button"
+                              onClick={() => handleSettleCollection(c.id, c.student_name)}
+                              disabled={isSettlingId === c.id}
+                              className="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all shadow-xs flex items-center gap-1 ml-auto cursor-pointer disabled:opacity-50"
+                              title="Mark as paid if collected in cash or verified via UPI"
+                            >
+                              {isSettlingId === c.id ? (
+                                <span>Saving...</span>
+                              ) : (
+                                <>
+                                  <Check className="w-3.5 h-3.5" />
+                                  <span>Mark as Paid</span>
+                                </>
+                              )}
+                            </button>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          );
+        })()}
       </div>
 
       {/* 4. TODAY'S MENU SECTION (4 Meal Sessions: Breakfast, Lunch, Evening Snacks, Dinner) */}

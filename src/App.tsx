@@ -213,7 +213,7 @@ export const App: React.FC = () => {
                       { id: 'students', label: 'Students' },
                       { id: 'menu', label: 'Menu' },
                       { id: 'collections', label: 'Collections' },
-                      { id: 'billing', label: 'Billing' },
+                      { id: 'billing', label: 'Monthly Sales' },
                       { id: 'payments', label: 'Payments' },
                       { id: 'reports', label: 'Reports' },
                       { id: 'qr-code', label: 'QR Poster' },

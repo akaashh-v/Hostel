@@ -4,7 +4,7 @@ import {
   ClipboardCheck,
   UtensilsCrossed,
   Users,
-  ReceiptIndianRupee,
+  TrendingUp,
   CreditCard,
   FileBarChart,
   Settings,
@@ -36,7 +36,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({ activeTab, onSelectT
     { id: 'students', label: 'Student Management', icon: Users },
     { id: 'menu', label: 'Menu Management', icon: UtensilsCrossed },
     { id: 'collections', label: 'Food Collections', icon: ClipboardCheck },
-    { id: 'billing', label: 'Monthly Billing', icon: ReceiptIndianRupee },
+    { id: 'billing', label: 'Monthly Sales', icon: TrendingUp },
     { id: 'payments', label: 'Payment Management', icon: CreditCard },
     { id: 'reports', label: 'Reports & Analytics', icon: FileBarChart },
     { id: 'settings', label: 'Settings', icon: Settings }
