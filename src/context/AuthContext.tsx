@@ -85,6 +85,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const studentLogin = async (phone: string, pass: string): Promise<boolean> => {
     try {
       const res = await api.loginStudent(phone, pass);
+      if (res.token) {
+        localStorage.setItem('mess_session_token', res.token);
+      }
       setStudent(res.student);
       setActivePortal('student');
       success(`Welcome back, ${res.student.full_name}!`);
@@ -98,9 +101,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const studentRegister = async (name: string, phone: string, pass: string, room?: string): Promise<boolean> => {
     try {
       const res = await api.registerStudent(name, phone, pass, room);
+      if (res.token) {
+        localStorage.setItem('mess_session_token', res.token);
+      }
       setStudent(res.student);
       setActivePortal('student');
-      success(`Welcome to HOSTEL MESS, ${res.student.full_name}! Account verified.`);
+      success(`Welcome to TASTEBOX MEALS CO., ${res.student.full_name}! Account verified.`);
       return true;
     } catch (err: any) {
       error(err.message || 'Registration failed. Phone number may already be registered.');
@@ -111,6 +117,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const adminLogin = async (user: string, pass: string): Promise<boolean> => {
     try {
       const res = await api.loginAdmin(user, pass);
+      if (res.token) {
+        localStorage.setItem('mess_session_token', res.token);
+      }
       setAdmin(res.admin);
       setActivePortal('admin');
       success(`Logged in as Administrator (${res.admin.full_name})`);
@@ -127,6 +136,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     } catch {
       // ignore
     } finally {
+      localStorage.removeItem('mess_session_token');
       setStudent(null);
       setAdmin(null);
       success('Logged out successfully');

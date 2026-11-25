@@ -49,7 +49,7 @@ export const AdminSidebar: React.FC<AdminSidebarProps> = ({ activeTab, onSelectT
           <img
             src="/tastebox-logo.jpg"
             alt="Tastebox"
-            className="w-5 h-5 rounded-full object-cover border border-amber-400"
+            className="w-6 h-6 rounded-full object-cover border border-amber-400 bg-black shrink-0"
           />
           <span className="font-extrabold tracking-wide">TASTEBOX MEALS CO.</span>
         </div>

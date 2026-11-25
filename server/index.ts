@@ -684,7 +684,7 @@ const DEFAULT_DB: DatabaseSchema = {
   ],
   hostel_settings: {
     hostel_name: 'Grand Royal Heritage Hostel',
-    mess_name: 'HOSTEL MESS Dining Hall',
+    mess_name: 'TASTEBOX MEALS CO. Dining Hall',
     address: 'Campus Block-B, University Road, Bangalore - 560012',
     contact_phone: '+91 98765 00000',
     contact_email: 'mess@hostel.edu',
@@ -701,8 +701,8 @@ class Database {
   constructor() {
     this.ensureDirectory();
     this.data = this.load();
-    if (!this.data.food_items || this.data.food_items.length < 20) {
-      this.data.food_items = DEMO_FOOD_ITEMS;
+    if (!this.data.food_items || !Array.isArray(this.data.food_items)) {
+      this.data.food_items = [...DEMO_FOOD_ITEMS];
     }
     if (!this.data.sessions) {
       this.data.sessions = {};
@@ -728,9 +728,10 @@ class Database {
       if (fs.existsSync(TMP_FILE)) {
         const raw = fs.readFileSync(TMP_FILE, 'utf-8');
         const parsed = JSON.parse(raw);
-        if (parsed && parsed.students && parsed.students.length > 0) {
+        if (parsed && Array.isArray(parsed.students) && parsed.students.length > 0) {
           if (!parsed.sessions) parsed.sessions = {};
           if (!parsed.notifications) parsed.notifications = [];
+          if (!Array.isArray(parsed.food_items)) parsed.food_items = [...DEMO_FOOD_ITEMS];
           return parsed;
         }
       }
@@ -741,9 +742,10 @@ class Database {
       if (fs.existsSync(DB_FILE)) {
         const raw = fs.readFileSync(DB_FILE, 'utf-8');
         const parsed = JSON.parse(raw);
-        if (parsed && parsed.food_items && parsed.food_items.length >= 25) {
+        if (parsed && Array.isArray(parsed.students) && parsed.students.length > 0) {
           if (!parsed.sessions) parsed.sessions = {};
           if (!parsed.notifications) parsed.notifications = [];
+          if (!Array.isArray(parsed.food_items)) parsed.food_items = [...DEMO_FOOD_ITEMS];
           return parsed;
         }
       }

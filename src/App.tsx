@@ -174,7 +174,10 @@ export const App: React.FC = () => {
                 />
               )}
               {studentTab === 'menu' && (
-                <StudentMenu onNavigateToPayment={handleNavigateToPayment} />
+                <StudentMenu
+                  onNavigateToTab={tab => setStudentTab(tab as any)}
+                  onNavigateToPayment={handleNavigateToPayment}
+                />
               )}
               {studentTab === 'history' && <StudentHistory />}
               {studentTab === 'bill' && (

@@ -491,12 +491,14 @@
       "student_phone": "9876543210",
       "meal_id": "meal-breakfast",
       "meal_type": "BREAKFAST",
+      "food_item_id": "food-bf-1",
+      "food_item_name": "Idli",
       "collection_date": "2026-11-20",
       "collected_at": "2026-11-20T11:21:18.084Z",
       "food_items_snapshot": [
-        "Idli",
-        "Tea"
+        "Idli"
       ],
+      "amount": 25,
       "payment_status": "PAID"
     },
     {
@@ -506,18 +508,14 @@
       "student_phone": "9876543210",
       "meal_id": "meal-breakfast",
       "meal_type": "BREAKFAST",
+      "food_item_id": "food-bf-1",
+      "food_item_name": "Idli",
       "collection_date": "2026-11-23",
       "collected_at": "2026-11-23T14:55:20.931Z",
       "food_items_snapshot": [
-        "Idli",
-        "Masala Dosa",
-        "Poori Bhaji",
-        "Appam",
-        "Upma",
-        "Puttu & Kadala Curry",
-        "Tea",
-        "Coffee"
+        "Idli"
       ],
+      "amount": 25,
       "payment_status": "PAID"
     },
     {
@@ -527,18 +525,14 @@
       "student_phone": "9876543210",
       "meal_id": "meal-lunch",
       "meal_type": "LUNCH",
+      "food_item_id": "food-lu-1",
+      "food_item_name": "Kerala Meals",
       "collection_date": "2026-11-23",
       "collected_at": "2026-11-23T15:38:31.486Z",
       "food_items_snapshot": [
-        "Kerala Meals",
-        "Chicken Biriyani",
-        "Veg Biriyani",
-        "Chicken Curry",
-        "Fish Curry",
-        "Rice & Sambar",
-        "Curd",
-        "Payasam"
+        "Kerala Meals"
       ],
+      "amount": 60,
       "payment_status": "PAID"
     },
     {
@@ -548,17 +542,14 @@
       "student_phone": "9876543210",
       "meal_id": "meal-snacks",
       "meal_type": "SNACKS",
+      "food_item_id": "food-sn-1",
+      "food_item_name": "Samosa",
       "collection_date": "2026-11-23",
       "collected_at": "2026-11-23T15:54:46.821Z",
       "food_items_snapshot": [
-        "Samosa",
-        "Parippu Vada",
-        "Banana Fry",
-        "Puffs",
-        "Tea",
-        "Coffee",
-        "Sandwich"
+        "Samosa"
       ],
+      "amount": 15,
       "payment_status": "PAID"
     },
     {
@@ -568,17 +559,14 @@
       "student_phone": "9876543210",
       "meal_id": "meal-dinner",
       "meal_type": "DINNER",
+      "food_item_id": "food-di-1",
+      "food_item_name": "Chapati",
       "collection_date": "2026-11-23",
       "collected_at": "2026-11-23T15:55:23.419Z",
       "food_items_snapshot": [
-        "Chapati",
-        "Porotta",
-        "Chicken Curry",
-        "Egg Curry",
-        "Vegetable Curry",
-        "Fried Rice",
-        "Ghee Rice"
+        "Chapati"
       ],
+      "amount": 12,
       "payment_status": "PAID"
     },
     {

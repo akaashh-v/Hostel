@@ -20,6 +20,7 @@ import { useRealtime } from '../../context/RealtimeContext';
 import { useToast } from '../../context/ToastContext';
 
 interface StudentMenuProps {
+  onNavigateToTab?: (tab: 'dashboard' | 'menu' | 'history' | 'bill' | 'profile') => void;
   onNavigateToPayment?: (collection: FoodCollection) => void;
 }
 
@@ -32,7 +33,7 @@ interface ConfirmModalState {
   price: number;
 }
 
-export const StudentMenu: React.FC<StudentMenuProps> = ({ onNavigateToPayment }) => {
+export const StudentMenu: React.FC<StudentMenuProps> = ({ onNavigateToTab, onNavigateToPayment }) => {
   const { student } = useAuth();
   const { success, error } = useToast();
   const [meals, setMeals] = useState<(Meal & { items: FoodItem[] })[]>([]);
@@ -105,8 +106,10 @@ export const StudentMenu: React.FC<StudentMenuProps> = ({ onNavigateToPayment })
       setConfirmModal(null);
       await loadMenuAndCollections();
 
-      // Navigate immediately to Payment section
-      if (onNavigateToPayment && res.collection) {
+      // Return to Dashboard as requested: "when i click the collected food it comes to dash board"
+      if (onNavigateToTab) {
+        onNavigateToTab('dashboard');
+      } else if (onNavigateToPayment && res.collection) {
         onNavigateToPayment(res.collection);
       }
     } catch (err: any) {

@@ -53,12 +53,18 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
   const fetchDashboardData = useCallback(async () => {
     try {
       const [menuRes, collRes, billRes] = await Promise.all([
-        api.getTodayMenu(),
-        api.getMyCollections(),
+        api.getTodayMenu().catch(err => {
+          console.error('Failed to load today menu', err);
+          return { date: '', meals: [] };
+        }),
+        api.getMyCollections().catch(err => {
+          console.error('Failed to load collections', err);
+          return [];
+        }),
         api.getMyBill().catch(() => null)
       ]);
-      setMeals(menuRes.meals || []);
-      setCollections(collRes || []);
+      setMeals(menuRes?.meals || []);
+      setCollections(Array.isArray(collRes) ? collRes : []);
       setBill(billRes || null);
     } catch (err: any) {
       console.error('Failed to load dashboard data', err);
@@ -109,12 +115,6 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
 
       setConfirmModal(null);
       await fetchDashboardData();
-
-      if (onNavigateToPayment && res.collection) {
-        onNavigateToPayment(res.collection);
-      } else if (onNavigateToTab) {
-        onNavigateToTab('bill');
-      }
     } catch (err: any) {
       error(err.message || 'Could not record food collection');
     } finally {
@@ -254,8 +254,29 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
               </div>
             )}
 
+            {collections.filter(c => c.collection_date === today).length > 0 && (
+              <div className="mt-3 pt-2.5 border-t border-white/10 space-y-1">
+                <span className="text-[10px] uppercase font-bold text-teal-200 tracking-wider block">
+                  Collected Today:
+                </span>
+                <div className="flex flex-wrap gap-1.5">
+                  {collections
+                    .filter(c => c.collection_date === today)
+                    .map((c, i) => (
+                      <span
+                        key={c.id || i}
+                        className="inline-flex items-center gap-1 bg-white/20 text-white text-[10px] font-bold px-2 py-0.5 rounded-lg border border-white/20 shadow-2xs"
+                      >
+                        <CheckCircle2 className="w-3 h-3 text-amber-300" />
+                        {c.food_item_name || (c.food_items_snapshot && c.food_items_snapshot[0]) || c.meal_type}
+                      </span>
+                    ))}
+                </div>
+              </div>
+            )}
+
             <p className="text-[10px] text-teal-200/80 mt-2">
-              HOSTEL MESS Dining Hall • Counter Block-B
+              TASTEBOX MEALS CO. Dining Hall • Counter Block-B
             </p>
           </div>
         </div>
@@ -463,6 +484,14 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
             </div>
           );
         })}
+
+        {filteredMeals.length === 0 && (
+          <div className="bg-white rounded-3xl border border-slate-200/90 p-8 text-center text-slate-500 shadow-xs">
+            <Utensils className="w-10 h-10 text-slate-300 mx-auto mb-2" />
+            <h3 className="text-base font-bold text-slate-700">No dining sessions scheduled</h3>
+            <p className="text-xs text-slate-400 mt-1">Please select "All Sessions" to view the full day schedule.</p>
+          </div>
+        )}
       </div>
 
       {/* Confirmation Modal */}
