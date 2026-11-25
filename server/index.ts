@@ -474,38 +474,7 @@ export const DEMO_FOOD_ITEMS: FoodItem[] = [
 ];
 
 const DEFAULT_DB: DatabaseSchema = {
-  students: [
-    {
-      id: 'student-demo-1',
-      full_name: 'Rahul Sharma',
-      phone_number: '9876543210',
-      password_hash: hashPassword('Student@123'),
-      room_number: 'B-204',
-      status: 'ACTIVE',
-      created_at: new Date(Date.now() - 30 * 86400000).toISOString(),
-      updated_at: new Date(Date.now() - 30 * 86400000).toISOString()
-    },
-    {
-      id: 'student-demo-2',
-      full_name: 'Ananya Verma',
-      phone_number: '9876543211',
-      password_hash: hashPassword('Student@123'),
-      room_number: 'A-108',
-      status: 'ACTIVE',
-      created_at: new Date(Date.now() - 25 * 86400000).toISOString(),
-      updated_at: new Date(Date.now() - 25 * 86400000).toISOString()
-    },
-    {
-      id: 'student-demo-3',
-      full_name: 'Priya Patel',
-      phone_number: '9876543212',
-      password_hash: hashPassword('Student@123'),
-      room_number: 'C-302',
-      status: 'ACTIVE',
-      created_at: new Date(Date.now() - 20 * 86400000).toISOString(),
-      updated_at: new Date(Date.now() - 20 * 86400000).toISOString()
-    }
-  ],
+  students: [],
   admins: [
     {
       id: 'admin-1',
@@ -552,30 +521,7 @@ const DEFAULT_DB: DatabaseSchema = {
     }
   ],
   food_items: DEMO_FOOD_ITEMS,
-  food_collections: [
-    {
-      id: 'coll-seed-1',
-      student_id: 'student-demo-1',
-      student_name: 'Rahul Sharma',
-      student_phone: '9876543210',
-      meal_id: 'meal-breakfast',
-      meal_type: 'BREAKFAST',
-      collection_date: getTodayDateString(),
-      collected_at: new Date(Date.now() - 4 * 3600000).toISOString(),
-      food_items_snapshot: ['Idli', 'Tea']
-    },
-    {
-      id: 'coll-seed-2',
-      student_id: 'student-demo-2',
-      student_name: 'Ananya Verma',
-      student_phone: '9876543211',
-      meal_id: 'meal-breakfast',
-      meal_type: 'BREAKFAST',
-      collection_date: getTodayDateString(),
-      collected_at: new Date(Date.now() - 3.5 * 3600000).toISOString(),
-      food_items_snapshot: ['Masala Dosa', 'Coffee']
-    }
-  ],
+  food_collections: [],
   billing_settings: {
     id: 'billing-setting-1',
     mode: 'PER_MEAL',
@@ -589,100 +535,8 @@ const DEFAULT_DB: DatabaseSchema = {
     currency: '₹',
     updated_at: new Date().toISOString()
   },
-  monthly_bills: [
-    {
-      id: 'bill-demo-1',
-      student_id: 'student-demo-1',
-      student_name: 'Rahul Sharma',
-      student_phone: '9876543210',
-      month: new Date().getMonth() + 1,
-      year: new Date().getFullYear(),
-      breakfast_count: 18,
-      lunch_count: 20,
-      snacks_count: 14,
-      dinner_count: 22,
-      total_meals: 74,
-      billing_mode: 'PER_MEAL',
-      base_amount: 18 * 45 + 20 * 85 + 14 * 35 + 22 * 85,
-      late_fee: 0,
-      total_amount: 4870,
-      paid_amount: 3000,
-      balance_amount: 1870,
-      payment_status: 'PARTIALLY_PAID',
-      generated_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
-    },
-    {
-      id: 'bill-demo-2',
-      student_id: 'student-demo-2',
-      student_name: 'Ananya Verma',
-      student_phone: '9876543211',
-      month: new Date().getMonth() + 1,
-      year: new Date().getFullYear(),
-      breakfast_count: 22,
-      lunch_count: 21,
-      snacks_count: 19,
-      dinner_count: 20,
-      total_meals: 82,
-      billing_mode: 'PER_MEAL',
-      base_amount: 22 * 45 + 21 * 85 + 19 * 35 + 20 * 85,
-      late_fee: 0,
-      total_amount: 5140,
-      paid_amount: 5140,
-      balance_amount: 0,
-      payment_status: 'PAID',
-      generated_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
-    },
-    {
-      id: 'bill-demo-3',
-      student_id: 'student-demo-3',
-      student_name: 'Priya Patel',
-      student_phone: '9876543212',
-      month: new Date().getMonth() + 1,
-      year: new Date().getFullYear(),
-      breakfast_count: 15,
-      lunch_count: 16,
-      snacks_count: 10,
-      dinner_count: 18,
-      total_meals: 59,
-      billing_mode: 'PER_MEAL',
-      base_amount: 15 * 45 + 16 * 85 + 10 * 35 + 18 * 85,
-      late_fee: 0,
-      total_amount: 3915,
-      paid_amount: 0,
-      balance_amount: 3915,
-      payment_status: 'PENDING',
-      generated_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
-    }
-  ],
-  payments: [
-    {
-      id: 'pay-demo-1',
-      bill_id: 'bill-demo-1',
-      student_id: 'student-demo-1',
-      student_name: 'Rahul Sharma',
-      amount: 3000,
-      payment_method: 'UPI',
-      reference_id: 'UPI-9843729101',
-      notes: 'Initial monthly payment',
-      received_by: 'Chief Mess Warden',
-      paid_at: new Date(Date.now() - 5 * 86400000).toISOString()
-    },
-    {
-      id: 'pay-demo-2',
-      bill_id: 'bill-demo-2',
-      student_id: 'student-demo-2',
-      student_name: 'Ananya Verma',
-      amount: 5140,
-      payment_method: 'BANK_TRANSFER',
-      reference_id: 'NEFT-55102948',
-      notes: 'Full payment for current month',
-      received_by: 'Chief Mess Warden',
-      paid_at: new Date(Date.now() - 2 * 86400000).toISOString()
-    }
-  ],
+  monthly_bills: [],
+  payments: [],
   hostel_settings: {
     hostel_name: 'Grand Royal Heritage Hostel',
     mess_name: 'TASTEBOX MEALS CO. Dining Hall',
@@ -731,7 +585,7 @@ class Database {
       if (fs.existsSync(TMP_FILE)) {
         const raw = fs.readFileSync(TMP_FILE, 'utf-8');
         const parsed = JSON.parse(raw);
-        if (parsed && Array.isArray(parsed.students) && parsed.students.length > 0) {
+        if (parsed && Array.isArray(parsed.students)) {
           if (!parsed.sessions) parsed.sessions = {};
           if (!parsed.notifications) parsed.notifications = [];
           if (!Array.isArray(parsed.food_items)) parsed.food_items = [...DEMO_FOOD_ITEMS];
@@ -745,7 +599,7 @@ class Database {
       if (fs.existsSync(DB_FILE)) {
         const raw = fs.readFileSync(DB_FILE, 'utf-8');
         const parsed = JSON.parse(raw);
-        if (parsed && Array.isArray(parsed.students) && parsed.students.length > 0) {
+        if (parsed && Array.isArray(parsed.students)) {
           if (!parsed.sessions) parsed.sessions = {};
           if (!parsed.notifications) parsed.notifications = [];
           if (!Array.isArray(parsed.food_items)) parsed.food_items = [...DEMO_FOOD_ITEMS];
@@ -1283,7 +1137,7 @@ class Database {
 
   // --- Sessions ---
   public createSession(userId: string, role: 'student' | 'admin'): string {
-    const token = generateToken();
+    const token = createSignedSessionToken(userId, role);
     const expiresAt = new Date(Date.now() + 30 * 86400000).toISOString();
     if (!this.data.sessions) this.data.sessions = {};
     this.data.sessions[token] = { userId, role, expiresAt };
@@ -1292,14 +1146,35 @@ class Database {
   }
 
   public validateSession(token?: string): { userId: string; role: 'student' | 'admin' } | null {
-    if (!token || !this.data || !this.data.sessions || !this.data.sessions[token]) return null;
-    const session = this.data.sessions[token];
-    if (new Date(session.expiresAt).getTime() < Date.now()) {
-      delete this.data.sessions[token];
-      this.save();
-      return null;
+    if (!token) return null;
+
+    // Check signed token first (stateless & resilient across serverless instances)
+    const signed = verifySignedSessionToken(token);
+    if (signed) {
+      if (signed.role === 'student') {
+        const student = this.findStudentById(signed.userId);
+        if (student && student.status === 'ACTIVE') {
+          return signed;
+        }
+      } else if (signed.role === 'admin') {
+        const admin = this.findAdminById(signed.userId);
+        if (admin) {
+          return signed;
+        }
+      }
     }
-    return session;
+
+    // Fallback: check in-memory / JSON session store
+    if (this.data && this.data.sessions && this.data.sessions[token]) {
+      const session = this.data.sessions[token];
+      if (new Date(session.expiresAt).getTime() < Date.now()) {
+        delete this.data.sessions[token];
+        this.save();
+        return null;
+      }
+      return session;
+    }
+    return null;
   }
 
   public removeSession(token?: string) {
@@ -1308,6 +1183,30 @@ class Database {
       this.save();
     }
   }
+}
+
+const SESSION_SECRET = process.env.SESSION_SECRET || 'tastebox-hostel-mess-hmac-key-2026';
+
+function createSignedSessionToken(userId: string, role: 'student' | 'admin'): string {
+  const payload = Buffer.from(JSON.stringify({ userId, role, ts: Date.now() })).toString('base64url');
+  const sig = crypto.createHmac('sha256', SESSION_SECRET).update(payload).digest('base64url');
+  return `${payload}.${sig}`;
+}
+
+function verifySignedSessionToken(token: string): { userId: string; role: 'student' | 'admin' } | null {
+  try {
+    const parts = token.split('.');
+    if (parts.length !== 2) return null;
+    const [payload, sig] = parts;
+    const expectedSig = crypto.createHmac('sha256', SESSION_SECRET).update(payload).digest('base64url');
+    if (crypto.timingSafeEqual(Buffer.from(sig), Buffer.from(expectedSig))) {
+      const data = JSON.parse(Buffer.from(payload, 'base64url').toString('utf8'));
+      if (Date.now() - data.ts < 30 * 86400000) {
+        return { userId: data.userId, role: data.role };
+      }
+    }
+  } catch {}
+  return null;
 }
 
 export const db = new Database();
@@ -1426,18 +1325,8 @@ apiRouter.get('/realtime/stream', (req: Request, res: Response) => {
 // AUTHENTICATION: STUDENT
 // -----------------------------------------------------------------------------
 
-// Student Registration: Public self-registration is strictly disallowed
+// Student Registration: Open account creation for students
 apiRouter.post('/auth/student/register', (req: Request, res: Response) => {
-  const token = getSessionToken(req);
-  const session = db.validateSession(token);
-
-  if (!session || session.role !== 'admin') {
-    res.status(403).json({
-      error: 'Student self-registration is disabled. Student accounts can only be created by the hostel administrator.'
-    });
-    return;
-  }
-
   const parseResult = createStudentSchema.safeParse(req.body);
   if (!parseResult.success) {
     res.status(400).json({ error: parseResult.error.issues[0]?.message || 'Invalid input data' });
@@ -1448,14 +1337,21 @@ apiRouter.post('/auth/student/register', (req: Request, res: Response) => {
   const cleanPhone = phone_number.trim().replace(/\s+/g, '');
   const existing = db.findStudentByPhone(cleanPhone);
   if (existing) {
-    res.status(409).json({ error: 'A student with this phone number is already registered.' });
+    res.status(409).json({ error: 'A student with this phone number is already registered. Please log in.' });
     return;
   }
 
   const passwordHash = hashPassword(password || 'Student@123');
   const student = db.createStudent(full_name, cleanPhone, passwordHash, room_number);
+  const token = db.createSession(student.id, 'student');
+  setSessionCookie(res, token);
+
   const { password_hash, ...safeStudent } = student;
-  res.status(201).json({ message: 'Student account created', student: safeStudent });
+  res.status(201).json({
+    message: 'Account created successfully',
+    token,
+    student: safeStudent
+  });
 });
 
 // Student Login: Phone Number & Password
@@ -1514,6 +1410,43 @@ apiRouter.get('/auth/student/me', (req: Request, res: Response) => {
 
   const { password_hash, ...safeStudent } = student;
   res.json({ authenticated: true, student: safeStudent });
+});
+
+// Student Password Update (PUT /api/auth/student/password)
+apiRouter.put('/auth/student/password', (req: Request, res: Response) => {
+  const token = getSessionToken(req);
+  const session = db.validateSession(token);
+
+  if (!session || session.role !== 'student') {
+    res.status(401).json({ error: 'Please log in to update your password' });
+    return;
+  }
+
+  const { new_password, current_password } = req.body;
+  if (!new_password || typeof new_password !== 'string' || new_password.trim().length < 4) {
+    res.status(400).json({ error: 'New password must be at least 4 characters long' });
+    return;
+  }
+
+  const student = db.findStudentById(session.userId);
+  if (!student) {
+    res.status(404).json({ error: 'Student not found' });
+    return;
+  }
+
+  if (current_password && !verifyPassword(current_password, student.password_hash)) {
+    res.status(400).json({ error: 'Current password is incorrect' });
+    return;
+  }
+
+  const newHash = hashPassword(new_password.trim());
+  const updated = db.updateStudent(student.id, { password_hash: newHash });
+  if (!updated) {
+    res.status(500).json({ error: 'Failed to update password in database' });
+    return;
+  }
+
+  res.json({ message: 'Password updated successfully' });
 });
 
 // -----------------------------------------------------------------------------

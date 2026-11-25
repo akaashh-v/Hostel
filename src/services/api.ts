@@ -54,6 +54,12 @@ export const api = {
   getStudentSession: () =>
     fetchJSON<{ authenticated: boolean; student: Student }>('/auth/student/me'),
 
+  updateStudentPassword: (new_password: string, current_password?: string) =>
+    fetchJSON<{ message: string }>('/auth/student/password', {
+      method: 'PUT',
+      body: JSON.stringify({ new_password, current_password })
+    }),
+
   // Auth: Admin
   loginAdmin: (username: string, password: string) =>
     fetchJSON<{ message: string; token: string; admin: Admin }>('/auth/admin/login', {

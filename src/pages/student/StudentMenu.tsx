@@ -428,7 +428,7 @@ export const StudentMenu: React.FC<StudentMenuProps> = ({ onNavigateToTab, onNav
               </div>
 
               <p className="text-xs text-slate-500 leading-relaxed">
-                Are you sure you want to mark <strong>{confirmModal.dishName}</strong> as collected? Your collection will be recorded and you will proceed to the payment settlement screen.
+                Are you sure you want to proceed with payment and collect <strong>{confirmModal.dishName}</strong>? Your collection will be recorded and you will proceed to the payment settlement screen.
               </p>
             </div>
 
@@ -455,7 +455,7 @@ export const StudentMenu: React.FC<StudentMenuProps> = ({ onNavigateToTab, onNav
                 ) : (
                   <>
                     <CheckCircle2 className="w-4 h-4" />
-                    <span>MARK AS COLLECTED</span>
+                    <span>PAY AND COLLECT</span>
                   </>
                 )}
               </button>

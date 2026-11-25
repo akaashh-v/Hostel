@@ -1,26 +1,32 @@
 import React, { useState } from 'react';
-import { User, Phone, Home, Shield, Lock, LogOut, CheckCircle2 } from 'lucide-react';
+import { User, Phone, Shield, Lock, LogOut, CheckCircle2, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useToast } from '../../context/ToastContext';
+import { api } from '../../services/api';
 
 export const StudentProfile: React.FC = () => {
   const { student, logout } = useAuth();
-  const { success, info } = useToast();
+  const { success, error } = useToast();
   const [newPassword, setNewPassword] = useState<string>('');
+  const [showPassword, setShowPassword] = useState<boolean>(false);
   const [isUpdating, setIsUpdating] = useState<boolean>(false);
 
-  const handleUpdatePassword = (e: React.FormEvent) => {
+  const handleUpdatePassword = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newPassword || newPassword.length < 4) {
-      info('Password should be at least 4 characters long');
+    if (!newPassword || newPassword.trim().length < 4) {
+      error('Password should be at least 4 characters long');
       return;
     }
     setIsUpdating(true);
-    setTimeout(() => {
-      setIsUpdating(false);
+    try {
+      const res = await api.updateStudentPassword(newPassword.trim());
       setNewPassword('');
-      success('Password updated successfully');
-    }, 500);
+      success(res.message || 'Password updated successfully');
+    } catch (err: any) {
+      error(err.message || 'Failed to update password');
+    } finally {
+      setIsUpdating(false);
+    }
   };
 
   return (
@@ -54,8 +60,8 @@ export const StudentProfile: React.FC = () => {
         {/* Details List */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 py-6 border-b border-slate-100 text-xs">
           <div>
-            <p className="text-slate-400 uppercase font-semibold text-[10px]">Hostel Room</p>
-            <p className="text-slate-800 font-semibold text-sm mt-0.5">{student?.room_number || 'Room B-204'}</p>
+            <p className="text-slate-400 uppercase font-semibold text-[10px]">Registered Phone</p>
+            <p className="text-slate-800 font-semibold text-sm mt-0.5 font-mono">{student?.phone_number}</p>
           </div>
           <div>
             <p className="text-slate-400 uppercase font-semibold text-[10px]">Registered On</p>
@@ -64,36 +70,48 @@ export const StudentProfile: React.FC = () => {
             </p>
           </div>
           <div>
-            <p className="text-slate-400 uppercase font-semibold text-[10px]">Authentication Type</p>
-            <p className="text-slate-800 font-semibold text-sm mt-0.5">Persistent Device Session (Cookie)</p>
+            <p className="text-slate-400 uppercase font-semibold text-[10px]">Dining Hall</p>
+            <p className="text-slate-800 font-semibold text-sm mt-0.5">TASTEBOX MEALS CO. Dining Hall</p>
           </div>
           <div>
-            <p className="text-slate-400 uppercase font-semibold text-[10px]">Mess Dining Hall</p>
-            <p className="text-slate-800 font-semibold text-sm mt-0.5">HOSTEL MESS Dining Hall</p>
+            <p className="text-slate-400 uppercase font-semibold text-[10px]">Authentication Status</p>
+            <p className="text-slate-800 font-semibold text-sm mt-0.5">Active Student Session</p>
           </div>
         </div>
 
         {/* Change Password */}
         <form onSubmit={handleUpdatePassword} className="pt-6">
-          <h3 className="text-sm font-bold text-slate-900 mb-3 flex items-center gap-2">
-            <Lock className="w-4 h-4 text-teal-600" />
+          <h3 className="text-sm font-bold text-slate-900 mb-1 flex items-center gap-2">
+            <Lock className="w-4 h-4 text-[#0D9488]" />
             <span>Update Password</span>
           </h3>
+          <p className="text-xs text-slate-500 mb-3">
+            Change your account password below. You can toggle the eye icon to view your input.
+          </p>
 
           <div className="flex flex-col sm:flex-row gap-3">
-            <input
-              type="password"
-              placeholder="Enter new password"
-              value={newPassword}
-              onChange={e => setNewPassword(e.target.value)}
-              className="flex-1 px-4 py-2 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-teal-600 bg-slate-50/50"
-            />
+            <div className="relative flex-1">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                placeholder="Enter new password (min. 4 characters)"
+                value={newPassword}
+                onChange={e => setNewPassword(e.target.value)}
+                className="w-full pl-4 pr-10 py-2.5 text-xs rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#0D9488] bg-slate-50/50 text-slate-900"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-slate-600 focus:outline-none cursor-pointer"
+              >
+                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
+            </div>
             <button
               type="submit"
               disabled={isUpdating}
-              className="px-5 py-2 bg-teal-600 text-white rounded-xl text-xs font-semibold hover:bg-teal-700 transition-colors shadow-sm disabled:opacity-50"
+              className="px-5 py-2.5 bg-[#0D9488] hover:bg-[#0F766E] text-white rounded-xl text-xs font-bold transition-all shadow-md shadow-[#0D9488]/20 disabled:opacity-50 cursor-pointer"
             >
-              {isUpdating ? 'Updating...' : 'Save Password'}
+              {isUpdating ? 'Saving...' : 'Save Password'}
             </button>
           </div>
         </form>
@@ -103,7 +121,7 @@ export const StudentProfile: React.FC = () => {
           <p className="text-xs text-slate-500">Sign out of this device?</p>
           <button
             onClick={logout}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold text-red-600 hover:bg-red-50 border border-red-200 transition-colors"
+            className="flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold text-red-600 hover:bg-red-50 border border-red-200 transition-colors cursor-pointer"
           >
             <LogOut className="w-3.5 h-3.5" />
             <span>Sign Out</span>
