@@ -28,11 +28,13 @@ export const StudentAuth: React.FC = () => {
   const { studentLogin, studentRegister, setActivePortal } = useAuth();
   const { error: toastError } = useToast();
 
+  const sanitizeTenDigits = (val: string) => val.replace(/\D/g, '').slice(0, 10);
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage('');
 
-    const cleanPhone = phone.trim().replace(/\s+/g, '');
+    const cleanPhone = sanitizeTenDigits(phone);
     if (!cleanPhone) {
       const msg = 'Please enter your registered phone number.';
       setErrorMessage(msg);
@@ -40,8 +42,8 @@ export const StudentAuth: React.FC = () => {
       return;
     }
 
-    if (cleanPhone.length < 7) {
-      const msg = 'Please enter a valid phone number.';
+    if (!/^\d{10}$/.test(cleanPhone)) {
+      const msg = 'Please enter a valid 10-digit phone number.';
       setErrorMessage(msg);
       toastError(msg);
       return;
@@ -80,8 +82,8 @@ export const StudentAuth: React.FC = () => {
       return;
     }
 
-    const cleanPhone = phone.trim().replace(/\s+/g, '');
-    if (!cleanPhone || cleanPhone.length < 7) {
+    const cleanPhone = sanitizeTenDigits(phone);
+    if (!/^\d{10}$/.test(cleanPhone)) {
       const msg = 'Please enter a valid 10-digit phone number.';
       setErrorMessage(msg);
       toastError(msg);
@@ -199,11 +201,14 @@ export const StudentAuth: React.FC = () => {
                 <input
                   type="tel"
                   required
+                  inputMode="numeric"
+                  maxLength={10}
+                  pattern="[0-9]{10}"
                   autoComplete="tel"
                   placeholder="Enter your registered 10-digit phone number"
                   value={phone}
                   onChange={e => {
-                    setPhone(e.target.value);
+                    setPhone(sanitizeTenDigits(e.target.value));
                     if (errorMessage) setErrorMessage('');
                   }}
                   className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#0D9488] focus:border-transparent text-sm bg-slate-50/60 font-mono text-slate-900"
@@ -316,9 +321,14 @@ export const StudentAuth: React.FC = () => {
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
-                Phone Number
-              </label>
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="block text-xs font-semibold text-slate-700 uppercase tracking-wider">
+                  Phone Number (10 Digits)
+                </label>
+                <span className={`text-[11px] font-mono font-semibold ${phone.length === 10 ? 'text-[#0D9488]' : 'text-slate-400'}`}>
+                  {phone.length}/10
+                </span>
+              </div>
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
                   <Phone className="w-4 h-4" />
@@ -326,11 +336,14 @@ export const StudentAuth: React.FC = () => {
                 <input
                   type="tel"
                   required
+                  inputMode="numeric"
+                  maxLength={10}
+                  pattern="[0-9]{10}"
                   autoComplete="tel"
                   placeholder="Enter your 10-digit phone number"
                   value={phone}
                   onChange={e => {
-                    setPhone(e.target.value);
+                    setPhone(sanitizeTenDigits(e.target.value));
                     if (errorMessage) setErrorMessage('');
                   }}
                   className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-[#0D9488] focus:border-transparent text-sm bg-slate-50/60 font-mono text-slate-900"

@@ -1570,7 +1570,7 @@ export const adminLoginSchema = z.object({
 
 export const createStudentSchema = z.object({
   full_name: z.string().min(2, 'Full name must be at least 2 characters'),
-  phone_number: z.string().min(7, 'Valid phone number is required'),
+  phone_number: z.string().trim().regex(/^\d{10}$/, 'Phone number must be exactly 10 digits'),
   password: z.string().min(4, 'Password must be at least 4 characters').optional(),
   room_number: z.string().optional()
 });
@@ -1664,7 +1664,7 @@ apiRouter.get('/realtime/stream', (req: Request, res: Response) => {
 // AUTHENTICATION: STUDENT
 // -----------------------------------------------------------------------------
 
-// Student Registration: Open account creation for students
+// Student Registration: Open account creation for students (10-digit phone, no duplicates)
 apiRouter.post('/auth/student/register', (req: Request, res: Response) => {
   const parseResult = createStudentSchema.safeParse(req.body);
   if (!parseResult.success) {
@@ -1673,7 +1673,7 @@ apiRouter.post('/auth/student/register', (req: Request, res: Response) => {
   }
 
   const { full_name, phone_number, password, room_number } = parseResult.data;
-  const cleanPhone = phone_number.trim().replace(/\s+/g, '');
+  const cleanPhone = phone_number.trim();
   const existing = db.findStudentByPhone(cleanPhone);
   if (existing) {
     res.status(409).json({ error: 'A student with this phone number is already registered. Please log in.' });
